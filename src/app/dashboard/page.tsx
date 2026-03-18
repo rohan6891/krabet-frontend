@@ -15,7 +15,7 @@ export default function DashboardPage() {
       return null;
     }
 
-    const raw = window.localStorage.getItem("krabets_session");
+    const raw =window.localStorage.getItem("krabets_session");
     if (!raw) {
       return null;
     }
