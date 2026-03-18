@@ -1,0 +1,294 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background: #0d0f12;
+  font-family: var(--font-rajdhani), sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bg-texture {
+  position: fixed;
+  left: -27%;
+  top: 5%;
+  width: 70vw;
+  transform: rotate(90deg);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.ticket-img {
+  position: absolute;
+  width: 50vw;
+  right: -10%;
+  bottom: -50%;
+  opacity: 0.95;
+}
+
+.auth-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  padding: 35px 30px;
+  display: none;
+  background: rgba(255, 255, 255, 0.005);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 0 20px rgba(255, 255, 255, 0.01);
+  animation: softBounce 5s infinite;
+  animation-timing-function: ease;
+}
+
+.auth-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.02) 40%);
+  opacity: 0.08;
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.15)
+  );
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.auth-card.active {
+  display: block;
+}
+
+.single-auth-card {
+  display: block;
+}
+
+.auth-card h2 {
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.auth-card input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.auth-card input:disabled {
+  opacity: 0.7;
+}
+
+.auth-card input:focus {
+  border: 1px solid #0fd1d7;
+}
+
+.forgot {
+  font-size: 12px;
+  opacity: 0.7;
+  float: right;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.main-btn {
+  width: 100%;
+  padding: 13px;
+  background: #12d0d8;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.main-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: grey;
+}
+
+.divider {
+  margin: 20px 0 12px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.socials {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.socials button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #111110;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.telegram-widget-wrap {
+  margin: 8px 0 14px;
+  text-align: center;
+}
+
+.oauth-twofa-wrap {
+  margin-top: 10px;
+}
+
+.hidden-google-host {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch {
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.switch span,
+.switch a {
+  color: #12d0d8;
+  cursor: pointer;
+}
+
+.alerted {
+  font-size: 11px;
+  color: #ff5b5b;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.status-message {
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.error-text {
+  color: #ff5b5b;
+}
+
+.success-text {
+  color: #40ffaa;
+}
+
+.helper-text {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+.timer-text {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+
+@keyframes softBounce {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+
+  4% {
+    transform: translateY(-10px) scale(0.98, 1.03);
+  }
+
+  8% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+
+  12% {
+    transform: translateY(-5px) scale(0.99, 1.02);
+  }
+
+  16% {
+    transform: translateY(0) scale(1, 1);
+  }
+
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@media (max-width: 768px) {
+  .ticket-img {
+    position: absolute;
+    width: 250px;
+    right: -20%;
+    bottom: -25%;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-card {
+    max-width: 380px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .auth-card {
+    max-width: 420px;
+    padding: 40px;
+  }
+}
