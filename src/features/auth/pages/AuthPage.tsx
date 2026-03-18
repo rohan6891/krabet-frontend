@@ -25,6 +25,7 @@ declare global {
         id: {
           initialize: (config: { client_id: string; callback: (response: { credential?: string }) => void }) => void;
           renderButton: (element: HTMLElement, options: Record<string, string>) => void;
+          prompt: (momentListener?: (notification: { isNotDisplayed?: () => boolean; isSkippedMoment?: () => boolean }) => void) => void;
         };
       };
     };
@@ -194,6 +195,17 @@ export function AuthPage() {
     document.body.appendChild(script);
   }, [initGoogle]);
 
+  const waitForGoogleSdk = useCallback(async (timeoutMs = 5000): Promise<boolean> => {
+    const startedAt = Date.now();
+    while (Date.now() - startedAt < timeoutMs) {
+      if (window.google?.accounts?.id) {
+        return true;
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 120));
+    }
+    return false;
+  }, []);
+
   useEffect(() => {
     loadGoogleScript();
   }, [loadGoogleScript]);
@@ -323,14 +335,29 @@ export function AuthPage() {
       return;
     }
 
-    const host = googleHostRef.current;
-    const button = host?.querySelector('[role="button"]') as HTMLElement | null;
-    if (!button) {
-      setOauthServerError("Google SDK is still loading. Please try again.");
+    loadGoogleScript();
+    const ready = await waitForGoogleSdk();
+    if (!ready || !window.google?.accounts?.id) {
+      setOauthServerError("Google SDK did not load. Please try again.");
       return;
     }
 
-    button.click();
+    initGoogle();
+
+    // Prefer clicking the rendered Google button when available, and fall back to prompt.
+    const host = googleHostRef.current;
+    const clickTarget = host?.querySelector("div[role='button'], iframe") as HTMLElement | null;
+    if (clickTarget) {
+      clickTarget.click();
+      return;
+    }
+
+    setOauthMessage("Opening Google sign-in...");
+    window.google.accounts.id.prompt((notification) => {
+      if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+        setOauthServerError("Google sign-in popup was blocked or dismissed. Please allow popups and try again.");
+      }
+    });
   }
 
   async function handleTwitterClick() {
