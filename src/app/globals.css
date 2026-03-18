@@ -187,10 +187,6 @@ a {
   text-align: center;
 }
 
-.oauth-twofa-wrap {
-  margin-top: 10px;
-}
-
 .hidden-google-host {
   position: fixed;
   left: -9999px;

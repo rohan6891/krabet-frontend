@@ -15,9 +15,27 @@ export function OAuthCompleteEmailPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [token, setToken] = useState("");
+  const [canContinue, setCanContinue] = useState(false);
 
   useEffect(() => {
-    const existing = window.localStorage.getItem("accessToken") || "";
+    const existingAccessToken = window.localStorage.getItem("accessToken") || "";
+    let sessionToken = "";
+
+    try {
+      const rawSession = window.localStorage.getItem("krabets_session");
+      if (rawSession) {
+        const parsed = JSON.parse(rawSession) as { token?: string; user?: { email?: string } };
+        sessionToken = parsed.token || "";
+
+        if (parsed.user?.email) {
+          setCanContinue(true);
+        }
+      }
+    } catch {
+      // ignore malformed session
+    }
+
+    const existing = existingAccessToken || sessionToken;
     setToken(existing);
     if (!existing) {
       setError("No OAuth session found. Please sign in again.");
@@ -59,6 +77,10 @@ export function OAuthCompleteEmailPage() {
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : "Failed to save email.";
       setError(message);
+
+      if (message.toLowerCase().includes("already set for this account")) {
+        setCanContinue(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -86,6 +108,10 @@ export function OAuthCompleteEmailPage() {
           <button type="submit" className="main-btn" disabled={loading || !token}>
             {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : "SAVE EMAIL"}
           </button>
+
+          {canContinue ? (
+            <button type="button" className="main-btn" onClick={() => router.push("/dashboard")}>CONTINUE TO DASHBOARD</button>
+          ) : null}
         </form>
 
         <div className="divider">BACK TO AUTH</div>

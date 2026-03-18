@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import {
-  loginWith2FA,
   oauthGoogle,
   oauthTelegram,
   oauthTwitter,
@@ -87,12 +86,8 @@ export function AuthPage() {
   const [showWeak, setShowWeak] = useState(false);
   const [showNotMatch, setShowNotMatch] = useState(false);
 
-  const [oauthLoading, setOauthLoading] = useState(false);
   const [oauthServerError, setOauthServerError] = useState("");
   const [oauthMessage, setOauthMessage] = useState("");
-  const [pending2FAUserId, setPending2FAUserId] = useState("");
-  const [pendingNeedsEmail, setPendingNeedsEmail] = useState(false);
-  const [oauth2FACode, setOauth2FACode] = useState("");
   const [telegramWidgetOpenFor, setTelegramWidgetOpenFor] = useState<"signin" | "signup" | null>(null);
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,9 +112,12 @@ export function AuthPage() {
 
   const completeOAuthAuthFlow = useCallback(async (data: SigninResponse, provider: "google" | "twitter" | "telegram") => {
     if (data.requires2FA) {
-      setPending2FAUserId(data.userId || "");
-      setPendingNeedsEmail(!!data.needsEmail);
-      setOauthMessage("2FA required. Enter your authenticator code.");
+      const params = new URLSearchParams({
+        userId: data.userId || "",
+        needsEmail: data.needsEmail ? "1" : "0",
+        provider,
+      });
+      router.push(`/auth/verify-2fa?${params.toString()}`);
       return;
     }
 
@@ -144,7 +142,6 @@ export function AuthPage() {
       return;
     }
 
-    setOauthLoading(true);
     setOauthServerError("");
     setOauthMessage("Verifying Google sign-in...");
 
@@ -154,8 +151,6 @@ export function AuthPage() {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google sign-in failed.";
       setOauthServerError(message);
-    } finally {
-      setOauthLoading(false);
     }
   }, [completeOAuthAuthFlow]);
 
@@ -227,7 +222,6 @@ export function AuthPage() {
     let isMounted = true;
     (async () => {
       try {
-        setOauthLoading(true);
         setOauthMessage("Completing Twitter login...");
         const data = await oauthTwitter({ code, codeVerifier, redirectUri });
         if (isMounted) {
@@ -241,7 +235,6 @@ export function AuthPage() {
         }
       } finally {
         if (isMounted) {
-          setOauthLoading(false);
           window.localStorage.removeItem(TW_VERIFIER_KEY);
           window.localStorage.removeItem(TW_REDIRECT_KEY);
         }
@@ -273,7 +266,6 @@ export function AuthPage() {
   useEffect(() => {
     window.onTelegramAuth = async (user) => {
       try {
-        setOauthLoading(true);
         setOauthServerError("");
         setOauthMessage("Verifying Telegram sign-in...");
 
@@ -282,8 +274,6 @@ export function AuthPage() {
       } catch (error) {
         const message = error instanceof Error ? error.message : "Telegram sign-in failed.";
         setOauthServerError(message);
-      } finally {
-        setOauthLoading(false);
       }
     };
 
@@ -401,37 +391,6 @@ export function AuthPage() {
     }, 0);
   }
 
-  async function handleOAuth2FAVerify() {
-    if (!pending2FAUserId || oauth2FACode.trim().length !== 6) {
-      setOauthServerError("Enter a valid 6-digit 2FA code.");
-      return;
-    }
-
-    setOauthLoading(true);
-    setOauthServerError("");
-
-    try {
-      const data = await loginWith2FA({ userId: pending2FAUserId, code: oauth2FACode.trim() });
-      if (!data.token) {
-        throw new Error("2FA login failed to return token.");
-      }
-
-      saveAuthSession(data.token, data.user, "email");
-
-      if (pendingNeedsEmail || !data.user?.email) {
-        router.push("/auth/oauth-complete-email");
-        return;
-      }
-
-      router.push("/dashboard");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "2FA verification failed.";
-      setOauthServerError(message);
-    } finally {
-      setOauthLoading(false);
-    }
-  }
-
   async function handleSigninSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSigninLoading(true);
@@ -448,7 +407,12 @@ export function AuthPage() {
       }
 
       if (data.requires2FA) {
-        setSigninServerError("2FA is enabled. Complete your 2FA step from your backend flow.");
+        const params = new URLSearchParams({
+          userId: data.userId || "",
+          needsEmail: "0",
+          provider: "email",
+        });
+        router.push(`/auth/verify-2fa?${params.toString()}`);
         return;
       }
 
@@ -526,21 +490,6 @@ export function AuthPage() {
             {signinLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "SIGN IN"}
           </button>
         </form>
-
-        {pending2FAUserId ? (
-          <div className="oauth-twofa-wrap">
-            <input
-              type="text"
-              maxLength={6}
-              placeholder="Enter 2FA code"
-              value={oauth2FACode}
-              onChange={(e) => setOauth2FACode(e.target.value.replace(/\D/g, ""))}
-            />
-            <button type="button" className="main-btn" onClick={handleOAuth2FAVerify} disabled={oauthLoading}>
-              {oauthLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "VERIFY 2FA"}
-            </button>
-          </div>
-        ) : null}
 
         <div className="divider">OR SIGN IN DIRECTLY WITH</div>
         <AuthSocialButtons
