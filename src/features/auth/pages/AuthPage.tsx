@@ -68,6 +68,7 @@ export function AuthPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const googleHostRef = useRef<HTMLDivElement | null>(null);
+  const twitterCallbackHandledRef = useRef(false);
 
   const [signinIdentity, setSigninIdentity] = useState("");
   const [signinPassword, setSigninPassword] = useState("");
@@ -206,9 +207,15 @@ export function AuthPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-    if (!code) {
+    if (!code || twitterCallbackHandledRef.current) {
       return;
     }
+
+    twitterCallbackHandledRef.current = true;
+    const callbackCode = code;
+
+    // Remove OAuth query params right away to avoid accidental re-processing.
+    window.history.replaceState({}, "", window.location.pathname);
 
     const codeVerifier = window.localStorage.getItem(TW_VERIFIER_KEY);
     const redirectUri = window.localStorage.getItem(TW_REDIRECT_KEY) || env.twitterRedirectUri;
@@ -225,10 +232,9 @@ export function AuthPage() {
     (async () => {
       try {
         showToast({ type: "info", title: "Twitter Login", message: "Completing Twitter login..." });
-        const data = await oauthTwitter({ code, codeVerifier, redirectUri });
+        const data = await oauthTwitter({ code: callbackCode, codeVerifier, redirectUri });
         if (isMounted) {
           await completeOAuthAuthFlow(data, "twitter");
-          window.history.replaceState({}, "", "/auth");
         }
       } catch (error) {
         if (isMounted) {
