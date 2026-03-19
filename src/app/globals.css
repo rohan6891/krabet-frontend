@@ -307,6 +307,43 @@ a {
   margin-bottom: 10px;
 }
 
+.twofa-setup-card {
+  margin-top: 12px;
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.twofa-setup-card h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.twofa-info-text {
+  margin-bottom: 10px;
+}
+
+.twofa-setup-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.twofa-qr-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.twofa-qr-image {
+  width: min(220px, 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #fff;
+  padding: 8px;
+  justify-self: center;
+}
+
 .toast-viewport {
   position: fixed;
   top: 16px;

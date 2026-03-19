@@ -13,6 +13,8 @@ import type {
   SignupPayload,
   TelegramOAuthPayload,
   TwoFactorLoginPayload,
+  TwoFactorSetupResponse,
+  TwoFactorStatusResponse,
   TwitterOAuthPayload,
   VerifyEmailPayload,
   VerifyEmailResponse,
@@ -88,6 +90,34 @@ export function loginWith2FA(payload: TwoFactorLoginPayload): Promise<SigninResp
   return apiRequest<SigninResponse>(env.apiBaseUrl, `${TWO_FA_PREFIX}/login`, {
     method: "POST",
     body: payload,
+  });
+}
+
+export function getTwoFactorStatus(token: string): Promise<TwoFactorStatusResponse> {
+  return apiRequest<TwoFactorStatusResponse>(env.apiBaseUrl, `${TWO_FA_PREFIX}/status`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export function setupTwoFactor(token: string): Promise<TwoFactorSetupResponse> {
+  return apiRequest<TwoFactorSetupResponse>(env.apiBaseUrl, `${TWO_FA_PREFIX}/setup`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export function verifyTwoFactorSetup(token: string, code: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(env.apiBaseUrl, `${TWO_FA_PREFIX}/verify`, {
+    method: "POST",
+    body: { code },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 }
 

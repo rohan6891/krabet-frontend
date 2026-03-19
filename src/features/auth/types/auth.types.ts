@@ -77,6 +77,15 @@ export interface TwoFactorLoginPayload {
   code: string;
 }
 
+export interface TwoFactorStatusResponse {
+  enabled: boolean;
+}
+
+export interface TwoFactorSetupResponse {
+  secret: string;
+  qrCodeUrl: string;
+}
+
 export interface CompleteOAuthEmailPayload {
   email: string;
 }
