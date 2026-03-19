@@ -24,9 +24,11 @@ export function VerifyEmailPage() {
 
   const [otpCountdownSeed, setOtpCountdownSeed] = useState(() => toSecondsLeft(otpExpiresAt, otpExpiresInSeconds));
   const [resendCountdownSeed, setResendCountdownSeed] = useState(30);
+  const [otpResetTick, setOtpResetTick] = useState(0);
+  const [resendResetTick, setResendResetTick] = useState(0);
 
-  const secondsLeft = useCountdown(otpCountdownSeed);
-  const resendSecondsLeft = useCountdown(resendCountdownSeed);
+  const secondsLeft = useCountdown(otpCountdownSeed, otpResetTick);
+  const resendSecondsLeft = useCountdown(resendCountdownSeed, resendResetTick);
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,6 +78,8 @@ export function VerifyEmailPage() {
 
       setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
       setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
+      setResendResetTick((prev) => prev + 1);
+      setOtpResetTick((prev) => prev + 1);
       setCode("");
 
       showToast({
@@ -88,6 +92,7 @@ export function VerifyEmailPage() {
       const cooldownMatch = message.match(/wait\s+(\d+)\s+seconds/i);
       if (cooldownMatch?.[1]) {
         setResendCountdownSeed(Math.max(1, Number(cooldownMatch[1])));
+        setResendResetTick((prev) => prev + 1);
       }
       showToast({ type: "error", title: "Verify Email", message });
     } finally {

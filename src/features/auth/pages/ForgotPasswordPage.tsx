@@ -27,10 +27,12 @@ export function ForgotPasswordPage() {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [otpCountdownSeed, setOtpCountdownSeed] = useState(0);
   const [resendCountdownSeed, setResendCountdownSeed] = useState(0);
+  const [otpResetTick, setOtpResetTick] = useState(0);
+  const [resendResetTick, setResendResetTick] = useState(0);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
-  const secondsLeft = useCountdown(otpCountdownSeed);
-  const resendSecondsLeft = useCountdown(resendCountdownSeed);
+  const secondsLeft = useCountdown(otpCountdownSeed, otpResetTick);
+  const resendSecondsLeft = useCountdown(resendCountdownSeed, resendResetTick);
 
   const passwordChecks = {
     minLength: newPassword.length >= 8,
@@ -54,6 +56,8 @@ export function ForgotPasswordPage() {
       setIsCodeSent(true);
       setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
       setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
+      setOtpResetTick((prev) => prev + 1);
+      setResendResetTick((prev) => prev + 1);
       showToast({ type: "success", title: "Forgot Password", message: data.message });
     } catch (error) {
       const message = getUserFriendlyError(error, "Unable to send reset code. Please try again.");
@@ -73,6 +77,8 @@ export function ForgotPasswordPage() {
       const data = await forgotPassword({ email: email.trim() });
       setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
       setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
+      setOtpResetTick((prev) => prev + 1);
+      setResendResetTick((prev) => prev + 1);
       setCode("");
 
       showToast({

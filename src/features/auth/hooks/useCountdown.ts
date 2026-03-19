@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-export function useCountdown(initialSeconds: number): number {
-  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+export function useCountdown(initialSeconds: number, resetSignal = 0): number {
+  const [secondsLeft, setSecondsLeft] = useState(Math.max(0, Math.floor(initialSeconds)));
 
   useEffect(() => {
-    setSecondsLeft(initialSeconds);
-  }, [initialSeconds]);
+    setSecondsLeft(Math.max(0, Math.floor(initialSeconds)));
+  }, [initialSeconds, resetSignal]);
 
   useEffect(() => {
     if (secondsLeft <= 0) {
