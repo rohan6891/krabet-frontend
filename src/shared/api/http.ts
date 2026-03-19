@@ -17,14 +17,17 @@ export class HttpError extends Error {
 
 export async function apiRequest<T>(baseUrl: string, path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, headers } = options;
+  const requestHeaders = new Headers(headers || {});
+  const hasBody = body !== undefined && body !== null;
+
+  if (hasBody && !requestHeaders.has("Content-Type")) {
+    requestHeaders.set("Content-Type", "application/json");
+  }
 
   const response = await fetch(`${baseUrl}${path}`, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(headers || {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
+    headers: requestHeaders,
+    body: hasBody ? JSON.stringify(body) : undefined,
   });
 
   let payload: Record<string, unknown> = {};
