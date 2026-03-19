@@ -158,6 +158,23 @@ a {
   background: grey;
 }
 
+.secondary-btn {
+  width: 100%;
+  padding: 11px;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eafcff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .divider {
   margin: 20px 0 12px;
   text-align: center;

@@ -35,6 +35,13 @@ export function verifyEmail(payload: VerifyEmailPayload): Promise<VerifyEmailRes
   });
 }
 
+export function resendVerifyEmail(email: string): Promise<AuthTimerResponse> {
+  return apiRequest<AuthTimerResponse>(env.apiBaseUrl, `${AUTH_PREFIX}/resend-verify-email`, {
+    method: "POST",
+    body: { email },
+  });
+}
+
 export function signin(payload: SigninPayload): Promise<SigninResponse> {
   return apiRequest<SigninResponse>(env.apiBaseUrl, `${AUTH_PREFIX}/login`, {
     method: "POST",

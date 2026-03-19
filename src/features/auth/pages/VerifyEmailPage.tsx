@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { verifyEmail } from "@/features/auth/api/auth.api";
+import { resendVerifyEmail, verifyEmail } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatSeconds, toSecondsLeft } from "@/shared/utils/time";
@@ -22,15 +22,15 @@ export function VerifyEmailPage() {
   const otpExpiresInSecondsRaw = searchParams.get("otpExpiresInSeconds");
   const otpExpiresInSeconds = otpExpiresInSecondsRaw ? Number(otpExpiresInSecondsRaw) : undefined;
 
-  const initialSeconds = useMemo(
-    () => toSecondsLeft(otpExpiresAt, otpExpiresInSeconds),
-    [otpExpiresAt, otpExpiresInSeconds]
-  );
+  const [otpCountdownSeed, setOtpCountdownSeed] = useState(() => toSecondsLeft(otpExpiresAt, otpExpiresInSeconds));
+  const [resendCountdownSeed, setResendCountdownSeed] = useState(30);
 
-  const secondsLeft = useCountdown(initialSeconds);
+  const secondsLeft = useCountdown(otpCountdownSeed);
+  const resendSecondsLeft = useCountdown(resendCountdownSeed);
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   async function handleVerifySubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,6 +60,41 @@ export function VerifyEmailPage() {
     }
   }
 
+  async function handleResendOTP() {
+    if (resendSecondsLeft > 0 || resendLoading) {
+      return;
+    }
+
+    if (!email) {
+      showToast({ type: "error", title: "Verify Email", message: "Missing email context. Please sign up again." });
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      const data = await resendVerifyEmail(email);
+
+      setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
+      setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
+      setCode("");
+
+      showToast({
+        type: "success",
+        title: "Verify Email",
+        message: data.message || "A new verification code has been sent.",
+      });
+    } catch (error) {
+      const message = getUserFriendlyError(error, "Unable to resend verification code. Please try again.");
+      const cooldownMatch = message.match(/wait\s+(\d+)\s+seconds/i);
+      if (cooldownMatch?.[1]) {
+        setResendCountdownSeed(Math.max(1, Number(cooldownMatch[1])));
+      }
+      showToast({ type: "error", title: "Verify Email", message });
+    } finally {
+      setResendLoading(false);
+    }
+  }
+
   return (
     <AuthShell>
       <div className="auth-card active single-auth-card">
@@ -81,6 +116,19 @@ export function VerifyEmailPage() {
           <p className={`timer-text ${secondsLeft === 0 ? "error-text" : ""}`}>
             Token expires in: {formatSeconds(secondsLeft)}
           </p>
+
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={handleResendOTP}
+            disabled={resendLoading || resendSecondsLeft > 0}
+          >
+            {resendLoading
+              ? "SENDING..."
+              : resendSecondsLeft > 0
+                ? `RESEND OTP IN ${formatSeconds(resendSecondsLeft)}`
+                : "RESEND OTP"}
+          </button>
 
           <button type="submit" className="main-btn" disabled={loading || code.trim().length !== 6}>
             {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : "VERIFY EMAIL"}

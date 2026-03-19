@@ -28,6 +28,7 @@ export interface AuthTimerResponse {
   message: string;
   otpExpiresAt?: string;
   otpExpiresInSeconds?: number;
+  resendAvailableInSeconds?: number;
 }
 
 export interface VerifyEmailResponse {
