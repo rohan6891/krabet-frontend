@@ -88,6 +88,11 @@ export function ForgotPasswordPage() {
       });
     } catch (error) {
       const message = getUserFriendlyError(error, "Unable to resend reset code. Please try again.");
+      const cooldownMatch = message.match(/wait\s+(\d+)\s+seconds/i);
+      if (cooldownMatch?.[1]) {
+        setResendCountdownSeed(Math.max(1, Number(cooldownMatch[1])));
+        setResendResetTick((prev) => prev + 1);
+      }
       showToast({ type: "error", title: "Forgot Password", message });
     } finally {
       setResendLoading(false);
