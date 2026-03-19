@@ -16,6 +16,7 @@ import { AuthShell } from "@/features/auth/components/AuthShell";
 import { AuthSocialButtons } from "@/features/auth/components/AuthSocialButtons";
 import { env } from "@/shared/config/env";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
+import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 import type { SigninResponse } from "@/features/auth/types/auth.types";
 
 declare global {
@@ -82,8 +83,8 @@ export function AuthPage() {
 
   const [showBadEmail, setShowBadEmail] = useState(false);
   const [showBadUsername, setShowBadUsername] = useState(false);
-  const [showWeak, setShowWeak] = useState(false);
   const [showNotMatch, setShowNotMatch] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
   const [telegramWidgetOpenFor, setTelegramWidgetOpenFor] = useState<"signin" | "signup" | null>(null);
 
@@ -145,7 +146,7 @@ export function AuthPage() {
       const data = await oauthGoogle({ idToken });
       await completeOAuthAuthFlow(data, "google");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Google sign-in failed.";
+      const message = getUserFriendlyError(error, "Google sign-in failed.");
       showToast({ type: "error", title: "Google Login", message });
     }
   }, [completeOAuthAuthFlow, showToast]);
@@ -230,7 +231,7 @@ export function AuthPage() {
         }
       } catch (error) {
         if (isMounted) {
-          const message = error instanceof Error ? error.message : "Twitter login failed.";
+          const message = getUserFriendlyError(error, "Twitter login failed.");
           showToast({ type: "error", title: "Twitter Login", message });
         }
       } finally {
@@ -271,7 +272,7 @@ export function AuthPage() {
         const data = await oauthTelegram(user);
         await completeOAuthAuthFlow(data, "telegram");
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Telegram sign-in failed.";
+        const message = getUserFriendlyError(error, "Telegram sign-in failed.");
         showToast({ type: "error", title: "Telegram Login", message });
       }
     };
@@ -294,9 +295,7 @@ export function AuthPage() {
 
   function handlePasswordChange(value: string) {
     setPassword(value);
-
-    const passwordValid = value.length >= 8;
-    setShowWeak(value.length > 0 && !passwordValid);
+    setPasswordTouched(true);
 
     const passwordsMatch = confirmPassword === value;
     setShowNotMatch(confirmPassword.length > 0 && !passwordsMatch);
@@ -310,7 +309,16 @@ export function AuthPage() {
 
   const isEmailValid = emailPattern.test(email.trim());
   const isUsernameValid = usernamePattern.test(username.trim());
-  const isPasswordValid = password.length >= 8;
+  const passwordChecks = {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+    hasNoSpace: !/\s/.test(password),
+  };
+
+  const isPasswordValid = Object.values(passwordChecks).every(Boolean);
   const isConfirmPasswordValid = confirmPassword === password && confirmPassword.length > 0;
 
   const isSignupValid = isEmailValid && isUsernameValid && isPasswordValid && isConfirmPasswordValid;
@@ -423,7 +431,7 @@ export function AuthPage() {
 
       router.push("/dashboard");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "A server error occurred.";
+      const message = getUserFriendlyError(error, "Sign in failed. Please try again.");
       showToast({ type: "error", title: "Sign In", message });
     } finally {
       setSigninLoading(false);
@@ -453,7 +461,7 @@ export function AuthPage() {
 
       router.push(`/auth/verify-email?${params.toString()}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "A server error occurred.";
+      const message = getUserFriendlyError(error, "Sign up failed. Please try again.");
       showToast({ type: "error", title: "Sign Up", message });
     } finally {
       setSignupLoading(false);
@@ -536,9 +544,6 @@ export function AuthPage() {
             onChange={(e) => handleUsernameChange(e.target.value)}
           />
 
-          <p className="alerted" id="weak" style={{ display: showWeak ? "block" : "none" }}>
-            ● not strong enough
-          </p>
           <input
             id="signupPassword"
             type="password"
@@ -547,6 +552,18 @@ export function AuthPage() {
             value={password}
             onChange={(e) => handlePasswordChange(e.target.value)}
           />
+
+          <div className={`password-rules-box ${passwordTouched ? "active" : ""}`}>
+            <p className="password-rules-title">Password must include:</p>
+            <ul className="password-rules-list">
+              <li className={passwordChecks.minLength ? "rule-ok" : "rule-bad"}>At least 8 characters</li>
+              <li className={passwordChecks.hasUppercase ? "rule-ok" : "rule-bad"}>One uppercase letter (A-Z)</li>
+              <li className={passwordChecks.hasLowercase ? "rule-ok" : "rule-bad"}>One lowercase letter (a-z)</li>
+              <li className={passwordChecks.hasNumber ? "rule-ok" : "rule-bad"}>One number (0-9)</li>
+              <li className={passwordChecks.hasSpecial ? "rule-ok" : "rule-bad"}>One special character (e.g. !@#$)</li>
+              <li className={passwordChecks.hasNoSpace ? "rule-ok" : "rule-bad"}>No spaces</li>
+            </ul>
+          </div>
 
           <p className="alerted" id="notmatch" style={{ display: showNotMatch ? "block" : "none" }}>
             ● Passwords don&apos;t match

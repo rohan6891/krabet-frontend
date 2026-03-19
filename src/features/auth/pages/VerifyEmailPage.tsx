@@ -10,6 +10,7 @@ import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatSeconds, toSecondsLeft } from "@/shared/utils/time";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
+import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function VerifyEmailPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export function VerifyEmailPage() {
         router.push("/auth");
       }, 1000);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "A server error occurred.";
+      const message = getUserFriendlyError(error, "Email verification failed. Please try again.");
       showToast({ type: "error", title: "Verify Email", message });
     } finally {
       setLoading(false);

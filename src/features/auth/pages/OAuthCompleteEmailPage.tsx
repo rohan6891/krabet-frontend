@@ -8,6 +8,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { completeOAuthEmail } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
+import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function OAuthCompleteEmailPage() {
   const router = useRouter();
@@ -73,7 +74,7 @@ export function OAuthCompleteEmailPage() {
         router.push("/dashboard");
       }, 700);
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : "Failed to save email.";
+      const message = getUserFriendlyError(submitError, "Failed to save email.");
       showToast({ type: "error", title: "Complete Account", message });
 
       if (message.toLowerCase().includes("already set for this account")) {

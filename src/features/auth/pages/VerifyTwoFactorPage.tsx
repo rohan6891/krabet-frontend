@@ -8,6 +8,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { loginWith2FA } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
+import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function VerifyTwoFactorPage() {
   const router = useRouter();
@@ -60,7 +61,7 @@ export function VerifyTwoFactorPage() {
 
       router.push("/dashboard");
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : "2FA verification failed.";
+      const message = getUserFriendlyError(submitError, "2FA verification failed.");
       showToast({ type: "error", title: "Verify 2FA", message });
     } finally {
       setLoading(false);

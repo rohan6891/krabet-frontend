@@ -234,6 +234,55 @@ a {
   margin-bottom: 12px;
 }
 
+.password-rules-box {
+  margin-top: -6px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0.9;
+}
+
+.password-rules-box.active {
+  border-color: rgba(18, 208, 216, 0.45);
+}
+
+.password-rules-title {
+  font-size: 11px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.password-rules-list {
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.password-rules-list li {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.rule-ok {
+  color: #40ffaa;
+}
+
+.rule-ok::before {
+  content: "✓ ";
+  color: #40ffaa;
+}
+
+.rule-bad {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.rule-bad::before {
+  content: "• ";
+  color: #ffb86a;
+}
+
 .timer-text {
   font-size: 12px;
   opacity: 0.8;
@@ -263,6 +312,36 @@ a {
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
   padding: 12px 14px 10px;
   overflow: hidden;
+}
+
+.toast-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.toast-icon-wrap {
+  margin-top: 2px;
+}
+
+.toast-icon {
+  font-size: 14px;
+}
+
+.toast-success .toast-icon {
+  color: #13bfa5;
+}
+
+.toast-error .toast-icon {
+  color: #df5151;
+}
+
+.toast-info .toast-icon {
+  color: #2894d7;
+}
+
+.toast-content {
+  min-width: 0;
 }
 
 .toast-title {

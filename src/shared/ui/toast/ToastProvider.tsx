@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faCircleInfo, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 type ToastType = "success" | "error" | "info";
 
@@ -90,11 +92,31 @@ function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: () => void }
       <button type="button" className="toast-close" aria-label="Close notification" onClick={onClose}>
         x
       </button>
-      {toast.title ? <p className="toast-title">{toast.title}</p> : null}
-      <p className="toast-message">{toast.message}</p>
+
+      <div className="toast-body">
+        <div className="toast-icon-wrap" aria-hidden="true">
+          <FontAwesomeIcon icon={getToastIcon(toast.type)} className="toast-icon" />
+        </div>
+
+        <div className="toast-content">
+          {toast.title ? <p className="toast-title">{toast.title}</p> : null}
+          <p className="toast-message">{toast.message}</p>
+        </div>
+      </div>
+
       <div className="toast-progress-track">
         <div className="toast-progress-fill" style={{ animationDuration: `${toast.durationMs}ms` }} />
       </div>
     </article>
   );
+}
+
+function getToastIcon(type: ToastType) {
+  if (type === "success") {
+    return faCircleCheck;
+  }
+  if (type === "error") {
+    return faCircleXmark;
+  }
+  return faCircleInfo;
 }

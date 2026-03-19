@@ -9,6 +9,7 @@ import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatSeconds, toSecondsLeft } from "@/shared/utils/time";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
+import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function ForgotPasswordPage() {
   const { showToast } = useToast();
@@ -39,7 +40,7 @@ export function ForgotPasswordPage() {
       setInitialTimerSeconds(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
       showToast({ type: "success", title: "Forgot Password", message: data.message });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "A server error occurred.";
+      const message = getUserFriendlyError(error, "Unable to send reset code. Please try again.");
       showToast({ type: "error", title: "Forgot Password", message });
     } finally {
       setSendLoading(false);
@@ -61,7 +62,7 @@ export function ForgotPasswordPage() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "A server error occurred.";
+      const message = getUserFriendlyError(error, "Password reset failed. Please try again.");
       showToast({ type: "error", title: "Password Reset", message });
     } finally {
       setResetLoading(false);
