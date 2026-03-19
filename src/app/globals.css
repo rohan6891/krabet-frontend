@@ -241,6 +241,96 @@ a {
   margin-bottom: 10px;
 }
 
+.toast-viewport {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 24px));
+  pointer-events: none;
+}
+
+.toast-card {
+  position: relative;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0d0f12;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
+  padding: 12px 14px 10px;
+  overflow: hidden;
+}
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding-right: 20px;
+}
+
+.toast-message {
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.35;
+  padding-right: 20px;
+}
+
+.toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+.toast-progress-track {
+  margin-top: 10px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.toast-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation-name: toastShrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.toast-success .toast-progress-fill {
+  background: #13bfa5;
+}
+
+.toast-error .toast-progress-fill {
+  background: #df5151;
+}
+
+.toast-info .toast-progress-fill {
+  background: #2894d7;
+}
+
+@keyframes toastShrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @keyframes softBounce {
   0% {
     transform: translateY(0) scale(1, 1);

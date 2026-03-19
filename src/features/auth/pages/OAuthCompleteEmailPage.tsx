@@ -7,13 +7,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { completeOAuthEmail } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 
 export function OAuthCompleteEmailPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [token, setToken] = useState("");
   const [canContinue, setCanContinue] = useState(false);
 
@@ -38,24 +38,22 @@ export function OAuthCompleteEmailPage() {
     const existing = existingAccessToken || sessionToken;
     setToken(existing);
     if (!existing) {
-      setError("No OAuth session found. Please sign in again.");
+      showToast({ type: "error", title: "Complete Account", message: "No OAuth session found. Please sign in again." });
     }
-  }, []);
+  }, [showToast]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!token) {
-      setError("No OAuth session found. Please sign in again.");
+      showToast({ type: "error", title: "Complete Account", message: "No OAuth session found. Please sign in again." });
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const data = await completeOAuthEmail({ email: email.trim() }, token);
-      setSuccess(data.message || "Email saved successfully.");
+      showToast({ type: "success", title: "Complete Account", message: data.message || "Email saved successfully." });
 
       const rawSession = window.localStorage.getItem("krabets_session");
       if (rawSession) {
@@ -76,7 +74,7 @@ export function OAuthCompleteEmailPage() {
       }, 700);
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : "Failed to save email.";
-      setError(message);
+      showToast({ type: "error", title: "Complete Account", message });
 
       if (message.toLowerCase().includes("already set for this account")) {
         setCanContinue(true);
@@ -92,9 +90,6 @@ export function OAuthCompleteEmailPage() {
         <h2>COMPLETE ACCOUNT</h2>
 
         <form onSubmit={handleSubmit}>
-          {error ? <p className="status-message error-text">{error}</p> : null}
-          {success ? <p className="status-message success-text">{success}</p> : null}
-
           <p className="helper-text">Add your email to finish OAuth account setup.</p>
 
           <input

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Rajdhani } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/shared/ui/toast/ToastProvider";
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
@@ -20,7 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={rajdhani.variable}>{children}</body>
+      <body className={rajdhani.variable}>
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }

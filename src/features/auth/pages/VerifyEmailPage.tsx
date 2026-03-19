@@ -9,9 +9,11 @@ import { verifyEmail } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatSeconds, toSecondsLeft } from "@/shared/utils/time";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 
 export function VerifyEmailPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
 
   const email = searchParams.get("email") || "";
@@ -28,20 +30,16 @@ export function VerifyEmailPage() {
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   async function handleVerifySubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!email) {
-      setServerError("Missing email context. Please sign up again.");
+      showToast({ type: "error", title: "Verify Email", message: "Missing email context. Please sign up again." });
       return;
     }
 
     setLoading(true);
-    setServerError("");
-    setSuccessMessage("");
 
     try {
       const data = await verifyEmail({
@@ -49,13 +47,13 @@ export function VerifyEmailPage() {
         code: code.trim(),
       });
 
-      setSuccessMessage(data.message || "Email verified successfully");
+      showToast({ type: "success", title: "Verify Email", message: data.message || "Email verified successfully" });
       window.setTimeout(() => {
         router.push("/auth");
       }, 1000);
     } catch (error) {
       const message = error instanceof Error ? error.message : "A server error occurred.";
-      setServerError(message);
+      showToast({ type: "error", title: "Verify Email", message });
     } finally {
       setLoading(false);
     }
@@ -67,9 +65,6 @@ export function VerifyEmailPage() {
         <h2>EMAIL VERIFICATION</h2>
 
         <form onSubmit={handleVerifySubmit}>
-          {serverError ? <p className="status-message error-text">{serverError}</p> : null}
-          {successMessage ? <p className="status-message success-text">{successMessage}</p> : null}
-
           <p className="helper-text">Enter the 6-digit verification code sent to your email.</p>
           <input type="email" value={email} disabled placeholder="Email" />
 

@@ -15,6 +15,7 @@ import {
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { AuthSocialButtons } from "@/features/auth/components/AuthSocialButtons";
 import { env } from "@/shared/config/env";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 import type { SigninResponse } from "@/features/auth/types/auth.types";
 
 declare global {
@@ -63,16 +64,14 @@ async function sha256Base64Url(input: string): Promise<string> {
 
 export function AuthPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const googleHostRef = useRef<HTMLDivElement | null>(null);
 
   const [signinIdentity, setSigninIdentity] = useState("");
   const [signinPassword, setSigninPassword] = useState("");
   const [signinLoading, setSigninLoading] = useState(false);
-  const [signinServerError, setSigninServerError] = useState("");
 
   const [signupLoading, setSignupLoading] = useState(false);
-  const [signupServerError, setSignupServerError] = useState("");
-  const [signupSuccessMessage, setSignupSuccessMessage] = useState("");
 
   const [showSignup, setShowSignup] = useState(false);
 
@@ -86,8 +85,6 @@ export function AuthPage() {
   const [showWeak, setShowWeak] = useState(false);
   const [showNotMatch, setShowNotMatch] = useState(false);
 
-  const [oauthServerError, setOauthServerError] = useState("");
-  const [oauthMessage, setOauthMessage] = useState("");
   const [telegramWidgetOpenFor, setTelegramWidgetOpenFor] = useState<"signin" | "signup" | null>(null);
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -138,21 +135,20 @@ export function AuthPage() {
   const handleGoogleCredentialResponse = useCallback(async (response: { credential?: string }) => {
     const idToken = response.credential;
     if (!idToken) {
-      setOauthServerError("Google did not return id token.");
+      showToast({ type: "error", title: "Google Login", message: "Google did not return id token." });
       return;
     }
 
-    setOauthServerError("");
-    setOauthMessage("Verifying Google sign-in...");
+    showToast({ type: "info", title: "Google Login", message: "Verifying Google sign-in..." });
 
     try {
       const data = await oauthGoogle({ idToken });
       await completeOAuthAuthFlow(data, "google");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google sign-in failed.";
-      setOauthServerError(message);
+      showToast({ type: "error", title: "Google Login", message });
     }
-  }, [completeOAuthAuthFlow]);
+  }, [completeOAuthAuthFlow, showToast]);
 
   const initGoogle = useCallback(() => {
     if (!env.googleClientId || !window.google || !googleHostRef.current) {
@@ -215,14 +211,18 @@ export function AuthPage() {
     const codeVerifier = window.localStorage.getItem(TW_VERIFIER_KEY);
     const redirectUri = window.localStorage.getItem(TW_REDIRECT_KEY) || env.twitterRedirectUri;
     if (!codeVerifier || !redirectUri) {
-      setOauthServerError("Twitter callback detected but verifier or redirect URI is missing.");
+      showToast({
+        type: "error",
+        title: "Twitter Login",
+        message: "Twitter callback detected but verifier or redirect URI is missing.",
+      });
       return;
     }
 
     let isMounted = true;
     (async () => {
       try {
-        setOauthMessage("Completing Twitter login...");
+        showToast({ type: "info", title: "Twitter Login", message: "Completing Twitter login..." });
         const data = await oauthTwitter({ code, codeVerifier, redirectUri });
         if (isMounted) {
           await completeOAuthAuthFlow(data, "twitter");
@@ -231,7 +231,7 @@ export function AuthPage() {
       } catch (error) {
         if (isMounted) {
           const message = error instanceof Error ? error.message : "Twitter login failed.";
-          setOauthServerError(message);
+          showToast({ type: "error", title: "Twitter Login", message });
         }
       } finally {
         if (isMounted) {
@@ -244,7 +244,7 @@ export function AuthPage() {
     return () => {
       isMounted = false;
     };
-  }, [completeOAuthAuthFlow]);
+  }, [completeOAuthAuthFlow, showToast]);
 
   const renderTelegramWidget = useCallback((containerId: string) => {
     const container = document.getElementById(containerId);
@@ -266,21 +266,20 @@ export function AuthPage() {
   useEffect(() => {
     window.onTelegramAuth = async (user) => {
       try {
-        setOauthServerError("");
-        setOauthMessage("Verifying Telegram sign-in...");
+        showToast({ type: "info", title: "Telegram Login", message: "Verifying Telegram sign-in..." });
 
         const data = await oauthTelegram(user);
         await completeOAuthAuthFlow(data, "telegram");
       } catch (error) {
         const message = error instanceof Error ? error.message : "Telegram sign-in failed.";
-        setOauthServerError(message);
+        showToast({ type: "error", title: "Telegram Login", message });
       }
     };
 
     return () => {
       window.onTelegramAuth = undefined;
     };
-  }, [completeOAuthAuthFlow]);
+  }, [completeOAuthAuthFlow, showToast]);
 
   function handleEmailBlur() {
     const valid = emailPattern.test(email.trim());
@@ -317,18 +316,19 @@ export function AuthPage() {
   const isSignupValid = isEmailValid && isUsernameValid && isPasswordValid && isConfirmPasswordValid;
 
   async function handleGoogleClick() {
-    setOauthServerError("");
-    setOauthMessage("");
-
     if (!env.googleClientId) {
-      setOauthServerError("Google client id is missing. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID in .env");
+      showToast({
+        type: "error",
+        title: "Google Login",
+        message: "Google client id is missing. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID in .env",
+      });
       return;
     }
 
     loadGoogleScript();
     const ready = await waitForGoogleSdk();
     if (!ready || !window.google?.accounts?.id) {
-      setOauthServerError("Google SDK did not load. Please try again.");
+      showToast({ type: "error", title: "Google Login", message: "Google SDK did not load. Please try again." });
       return;
     }
 
@@ -342,20 +342,25 @@ export function AuthPage() {
       return;
     }
 
-    setOauthMessage("Opening Google sign-in...");
+    showToast({ type: "info", title: "Google Login", message: "Opening Google sign-in..." });
     window.google.accounts.id.prompt((notification) => {
       if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
-        setOauthServerError("Google sign-in popup was blocked or dismissed. Please allow popups and try again.");
+        showToast({
+          type: "error",
+          title: "Google Login",
+          message: "Google sign-in popup was blocked or dismissed. Please allow popups and try again.",
+        });
       }
     });
   }
 
   async function handleTwitterClick() {
-    setOauthServerError("");
-    setOauthMessage("");
-
     if (!env.twitterClientId || !env.twitterRedirectUri) {
-      setOauthServerError("Twitter client id or redirect URI missing. Set NEXT_PUBLIC_TWITTER_* in .env");
+      showToast({
+        type: "error",
+        title: "Twitter Login",
+        message: "Twitter client id or redirect URI missing. Set NEXT_PUBLIC_TWITTER_* in .env",
+      });
       return;
     }
 
@@ -377,11 +382,12 @@ export function AuthPage() {
   }
 
   async function handleTelegramClick(source: "signin" | "signup") {
-    setOauthServerError("");
-    setOauthMessage("");
-
     if (!env.telegramBotUsername) {
-      setOauthServerError("Telegram bot username missing. Set NEXT_PUBLIC_TELEGRAM_BOT_USERNAME in .env");
+      showToast({
+        type: "error",
+        title: "Telegram Login",
+        message: "Telegram bot username missing. Set NEXT_PUBLIC_TELEGRAM_BOT_USERNAME in .env",
+      });
       return;
     }
 
@@ -394,7 +400,6 @@ export function AuthPage() {
   async function handleSigninSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSigninLoading(true);
-    setSigninServerError("");
 
     try {
       const data = await signin({
@@ -419,7 +424,7 @@ export function AuthPage() {
       router.push("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "A server error occurred.";
-      setSigninServerError(message);
+      showToast({ type: "error", title: "Sign In", message });
     } finally {
       setSigninLoading(false);
     }
@@ -428,8 +433,6 @@ export function AuthPage() {
   async function handleSignupSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSignupLoading(true);
-    setSignupServerError("");
-    setSignupSuccessMessage("");
 
     try {
       const data = await signup({
@@ -438,7 +441,7 @@ export function AuthPage() {
         password,
       });
 
-      setSignupSuccessMessage(data.message || "Signup successful.");
+      showToast({ type: "success", title: "Sign Up", message: data.message || "Signup successful." });
 
       const params = new URLSearchParams({ email: email.trim() });
       if (data.otpExpiresAt) {
@@ -451,7 +454,7 @@ export function AuthPage() {
       router.push(`/auth/verify-email?${params.toString()}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "A server error occurred.";
-      setSignupServerError(message);
+      showToast({ type: "error", title: "Sign Up", message });
     } finally {
       setSignupLoading(false);
     }
@@ -462,10 +465,6 @@ export function AuthPage() {
       <div id="signin" className={`auth-card ${!showSignup ? "active" : ""}`}>
         <h2>SIGN IN</h2>
         <form onSubmit={handleSigninSubmit}>
-          {signinServerError ? <p className="status-message error-text">{signinServerError}</p> : null}
-          {oauthServerError ? <p className="status-message error-text">{oauthServerError}</p> : null}
-          {oauthMessage ? <p className="status-message success-text">{oauthMessage}</p> : null}
-
           <input
             type="text"
             placeholder="Email / Phone / Username"
@@ -512,9 +511,6 @@ export function AuthPage() {
         <h2>SIGN UP</h2>
 
         <form onSubmit={handleSignupSubmit}>
-          {signupServerError ? <p className="status-message error-text">{signupServerError}</p> : null}
-          {signupSuccessMessage ? <p className="status-message success-text">{signupSuccessMessage}</p> : null}
-
           <p className="alerted" id="bademail" style={{ display: showBadEmail ? "block" : "none" }}>
             ● This email is incorrect
           </p>

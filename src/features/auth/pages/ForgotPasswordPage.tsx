@@ -8,8 +8,10 @@ import { forgotPassword, resetPassword } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatSeconds, toSecondsLeft } from "@/shared/utils/time";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 
 export function ForgotPasswordPage() {
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -17,8 +19,6 @@ export function ForgotPasswordPage() {
 
   const [sendLoading, setSendLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [initialTimerSeconds, setInitialTimerSeconds] = useState(0);
@@ -32,17 +32,15 @@ export function ForgotPasswordPage() {
   async function handleSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSendLoading(true);
-    setServerError("");
-    setSuccessMessage("");
 
     try {
       const data = await forgotPassword({ email: email.trim() });
       setIsCodeSent(true);
       setInitialTimerSeconds(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
-      setSuccessMessage(data.message);
+      showToast({ type: "success", title: "Forgot Password", message: data.message });
     } catch (error) {
       const message = error instanceof Error ? error.message : "A server error occurred.";
-      setServerError(message);
+      showToast({ type: "error", title: "Forgot Password", message });
     } finally {
       setSendLoading(false);
     }
@@ -51,8 +49,6 @@ export function ForgotPasswordPage() {
   async function handleResetPassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setResetLoading(true);
-    setServerError("");
-    setSuccessMessage("");
 
     try {
       const data = await resetPassword({
@@ -60,13 +56,13 @@ export function ForgotPasswordPage() {
         code: code.trim(),
         newPassword,
       });
-      setSuccessMessage(data.message);
+      showToast({ type: "success", title: "Password Reset", message: data.message });
       setCode("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error) {
       const message = error instanceof Error ? error.message : "A server error occurred.";
-      setServerError(message);
+      showToast({ type: "error", title: "Password Reset", message });
     } finally {
       setResetLoading(false);
     }
@@ -79,9 +75,6 @@ export function ForgotPasswordPage() {
 
         {!isCodeSent ? (
           <form onSubmit={handleSendCode}>
-            {serverError ? <p className="status-message error-text">{serverError}</p> : null}
-            {successMessage ? <p className="status-message success-text">{successMessage}</p> : null}
-
             <p className="helper-text">We will send a reset code to your email.</p>
             <input
               type="email"
@@ -97,9 +90,6 @@ export function ForgotPasswordPage() {
           </form>
         ) : (
           <form onSubmit={handleResetPassword}>
-            {serverError ? <p className="status-message error-text">{serverError}</p> : null}
-            {successMessage ? <p className="status-message success-text">{successMessage}</p> : null}
-
             <input type="email" value={email} disabled placeholder="Email" />
 
             <input

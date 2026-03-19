@@ -7,9 +7,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { loginWith2FA } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 
 export function VerifyTwoFactorPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
 
   const userId = searchParams.get("userId") || "";
@@ -18,8 +20,6 @@ export function VerifyTwoFactorPage() {
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const canSubmit = useMemo(() => code.trim().length === 6 && !!userId, [code, userId]);
 
@@ -27,13 +27,11 @@ export function VerifyTwoFactorPage() {
     e.preventDefault();
 
     if (!userId) {
-      setError("Missing 2FA context. Please sign in again.");
+      showToast({ type: "error", title: "Verify 2FA", message: "Missing 2FA context. Please sign in again." });
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const data = await loginWith2FA({ userId, code: code.trim() });
@@ -53,7 +51,7 @@ export function VerifyTwoFactorPage() {
         })
       );
 
-      setSuccess("2FA verified successfully.");
+      showToast({ type: "success", title: "Verify 2FA", message: "2FA verified successfully." });
 
       if (needsEmail || !data.user?.email) {
         router.push("/auth/oauth-complete-email");
@@ -63,7 +61,7 @@ export function VerifyTwoFactorPage() {
       router.push("/dashboard");
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : "2FA verification failed.";
-      setError(message);
+      showToast({ type: "error", title: "Verify 2FA", message });
     } finally {
       setLoading(false);
     }
@@ -75,9 +73,6 @@ export function VerifyTwoFactorPage() {
         <h2>VERIFY 2FA</h2>
 
         <form onSubmit={handleSubmit}>
-          {error ? <p className="status-message error-text">{error}</p> : null}
-          {success ? <p className="status-message success-text">{success}</p> : null}
-
           <p className="helper-text">Enter the 6-digit authenticator code to complete sign in.</p>
 
           <input
