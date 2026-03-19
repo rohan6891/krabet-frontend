@@ -71,7 +71,7 @@ export function OAuthCompleteEmailPage() {
       }
 
       window.setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/auth/setup-2fa?next=/dashboard");
       }, 700);
     } catch (submitError) {
       const message = getUserFriendlyError(submitError, "Failed to save email.");
@@ -106,7 +106,7 @@ export function OAuthCompleteEmailPage() {
           </button>
 
           {canContinue ? (
-            <button type="button" className="main-btn" onClick={() => router.push("/dashboard")}>CONTINUE TO DASHBOARD</button>
+            <button type="button" className="main-btn" onClick={() => router.push("/auth/setup-2fa?next=/dashboard")}>CONTINUE</button>
           ) : null}
         </form>
 
