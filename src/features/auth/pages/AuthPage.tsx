@@ -415,10 +415,6 @@ export function AuthPage() {
         password: signinPassword,
       });
 
-      if (data.token) {
-        window.localStorage.setItem("accessToken", data.token);
-      }
-
       if (data.requires2FA) {
         const params = new URLSearchParams({
           userId: data.userId || "",
@@ -428,6 +424,12 @@ export function AuthPage() {
         router.push(`/auth/verify-2fa?${params.toString()}`);
         return;
       }
+
+      if (!data.token) {
+        throw new Error("Sign in did not return a token.");
+      }
+
+      saveAuthSession(data.token, data.user, "email");
 
       router.push("/dashboard");
     } catch (error) {
