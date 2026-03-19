@@ -55,11 +55,11 @@ export function VerifyTwoFactorPage() {
       showToast({ type: "success", title: "Verify 2FA", message: "2FA verified successfully." });
 
       if (needsEmail || !data.user?.email) {
-        router.push("/auth/oauth-complete-email");
+        router.push("/auth/oauth-complete-email?from2fa=1");
         return;
       }
 
-      router.push("/auth/setup-2fa?next=/dashboard");
+      router.push("/dashboard");
     } catch (submitError) {
       const message = getUserFriendlyError(submitError, "2FA verification failed.");
       showToast({ type: "error", title: "Verify 2FA", message });

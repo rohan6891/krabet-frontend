@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { completeOAuthEmail } from "@/features/auth/api/auth.api";
@@ -12,11 +12,14 @@ import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function OAuthCompleteEmailPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
   const [canContinue, setCanContinue] = useState(false);
+
+  const from2fa = searchParams.get("from2fa") === "1";
 
   useEffect(() => {
     const existingAccessToken = window.localStorage.getItem("accessToken") || "";
@@ -71,7 +74,7 @@ export function OAuthCompleteEmailPage() {
       }
 
       window.setTimeout(() => {
-        router.push("/auth/setup-2fa?next=/dashboard");
+        router.push(from2fa ? "/dashboard" : "/auth/setup-2fa?next=/dashboard");
       }, 700);
     } catch (submitError) {
       const message = getUserFriendlyError(submitError, "Failed to save email.");
@@ -106,7 +109,7 @@ export function OAuthCompleteEmailPage() {
           </button>
 
           {canContinue ? (
-            <button type="button" className="main-btn" onClick={() => router.push("/auth/setup-2fa?next=/dashboard")}>CONTINUE</button>
+            <button type="button" className="main-btn" onClick={() => router.push(from2fa ? "/dashboard" : "/auth/setup-2fa?next=/dashboard")}>CONTINUE</button>
           ) : null}
         </form>
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { getTwoFactorStatus, setupTwoFactor, verifyTwoFactorSetup } from "@/features/auth/api/auth.api";
+import { setupTwoFactor, verifyTwoFactorSetup } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
 import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
@@ -18,8 +18,6 @@ export function SetupTwoFactorPage() {
   const nextPath = searchParams.get("next") || "/dashboard";
 
   const [token, setToken] = useState("");
-  const [checkingStatus, setCheckingStatus] = useState(true);
-  const [enabled, setEnabled] = useState<boolean | null>(null);
   const [setupLoading, setSetupLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -29,44 +27,33 @@ export function SetupTwoFactorPage() {
 
   useEffect(() => {
     const accessToken = window.localStorage.getItem("accessToken") || "";
+    if (accessToken) {
+      setToken(accessToken);
+      return;
+    }
 
-    if (!accessToken) {
+    try {
+      const rawSession = window.localStorage.getItem("krabets_session");
+      if (!rawSession) {
+        showToast({ type: "error", title: "2FA Setup", message: "Session missing. Please sign in again." });
+        router.replace("/auth");
+        return;
+      }
+
+      const parsed = JSON.parse(rawSession) as { token?: string };
+      if (!parsed.token) {
+        showToast({ type: "error", title: "2FA Setup", message: "Session missing. Please sign in again." });
+        router.replace("/auth");
+        return;
+      }
+
+      setToken(parsed.token);
+    } catch {
       showToast({ type: "error", title: "2FA Setup", message: "Session missing. Please sign in again." });
       router.replace("/auth");
       return;
     }
-
-    setToken(accessToken);
-
-    let mounted = true;
-    (async () => {
-      try {
-        const status = await getTwoFactorStatus(accessToken);
-        if (!mounted) {
-          return;
-        }
-
-        setEnabled(!!status.enabled);
-
-        if (status.enabled) {
-          router.replace(nextPath);
-          return;
-        }
-      } catch {
-        if (mounted) {
-          showToast({ type: "error", title: "2FA Setup", message: "Unable to check 2FA status." });
-        }
-      } finally {
-        if (mounted) {
-          setCheckingStatus(false);
-        }
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [nextPath, router, showToast]);
+  }, [router, showToast]);
 
   async function handleStartSetup() {
     if (!token) {
@@ -94,7 +81,6 @@ export function SetupTwoFactorPage() {
     setVerifyLoading(true);
     try {
       const data = await verifyTwoFactorSetup(token, code.trim());
-      setEnabled(true);
       showToast({ type: "success", title: "2FA Setup", message: data.message || "2FA enabled successfully." });
       window.setTimeout(() => {
         router.replace(nextPath);
@@ -116,46 +102,38 @@ export function SetupTwoFactorPage() {
       <div className="auth-card active single-auth-card">
         <h2>SET UP 2FA</h2>
 
-        {checkingStatus ? (
-          <p className="helper-text">Checking your 2FA status...</p>
-        ) : null}
+        <p className="helper-text twofa-info-text">
+          This is optional. Please open the Google Authenticator app and scan the QR code.
+        </p>
 
-        {!checkingStatus && enabled === false ? (
-          <>
-            <p className="helper-text twofa-info-text">
-              This is optional. Please open the Google Authenticator app and scan the QR code.
-            </p>
-
-            {!qrCodeUrl ? (
-              <div className="twofa-setup-actions">
-                <button type="button" className="main-btn" onClick={handleStartSetup} disabled={setupLoading}>
-                  {setupLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "SETUP 2FA"}
-                </button>
-                <button type="button" className="secondary-btn" onClick={handleSkip}>
-                  SKIP FOR NOW
-                </button>
-              </div>
-            ) : (
-              <div className="twofa-qr-wrap">
-                <img src={qrCodeUrl} alt="2FA QR code" className="twofa-qr-image" />
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="Enter 6-digit code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                  required
-                />
-                <button type="button" className="main-btn" onClick={handleEnableTwoFactor} disabled={!canVerify || verifyLoading}>
-                  {verifyLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "ENABLE 2FA"}
-                </button>
-                <button type="button" className="secondary-btn" onClick={handleSkip}>
-                  SKIP FOR NOW
-                </button>
-              </div>
-            )}
-          </>
-        ) : null}
+        {!qrCodeUrl ? (
+          <div className="twofa-setup-actions">
+            <button type="button" className="main-btn" onClick={handleStartSetup} disabled={setupLoading || !token}>
+              {setupLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "SETUP 2FA"}
+            </button>
+            <button type="button" className="secondary-btn" onClick={handleSkip}>
+              SKIP FOR NOW
+            </button>
+          </div>
+        ) : (
+          <div className="twofa-qr-wrap">
+            <img src={qrCodeUrl} alt="2FA QR code" className="twofa-qr-image" />
+            <input
+              type="text"
+              maxLength={6}
+              placeholder="Enter 6-digit code"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              required
+            />
+            <button type="button" className="main-btn" onClick={handleEnableTwoFactor} disabled={!canVerify || verifyLoading}>
+              {verifyLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "ENABLE 2FA"}
+            </button>
+            <button type="button" className="secondary-btn" onClick={handleSkip}>
+              SKIP FOR NOW
+            </button>
+          </div>
+        )}
 
         <div className="divider">BACK TO AUTH</div>
         <p className="switch">
