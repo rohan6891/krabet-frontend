@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { forgotPassword, resetPassword } from "@/features/auth/api/auth.api";
@@ -12,6 +13,7 @@ import { useToast } from "@/shared/ui/toast/ToastProvider";
 import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
 
 export function ForgotPasswordPage() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -19,14 +21,27 @@ export function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [sendLoading, setSendLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
   const [isCodeSent, setIsCodeSent] = useState(false);
-  const [initialTimerSeconds, setInitialTimerSeconds] = useState(0);
+  const [otpCountdownSeed, setOtpCountdownSeed] = useState(0);
+  const [resendCountdownSeed, setResendCountdownSeed] = useState(0);
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
-  const secondsLeft = useCountdown(initialTimerSeconds);
+  const secondsLeft = useCountdown(otpCountdownSeed);
+  const resendSecondsLeft = useCountdown(resendCountdownSeed);
 
-  const isPasswordStrong = newPassword.length >= 8;
+  const passwordChecks = {
+    minLength: newPassword.length >= 8,
+    hasUppercase: /[A-Z]/.test(newPassword),
+    hasLowercase: /[a-z]/.test(newPassword),
+    hasNumber: /\d/.test(newPassword),
+    hasSpecial: /[^A-Za-z0-9]/.test(newPassword),
+    hasNoSpace: !/\s/.test(newPassword),
+  };
+
+  const isPasswordStrong = Object.values(passwordChecks).every(Boolean);
   const doesPasswordMatch = confirmPassword.length > 0 && confirmPassword === newPassword;
   const canReset = code.trim().length === 6 && isPasswordStrong && doesPasswordMatch;
 
@@ -37,13 +52,39 @@ export function ForgotPasswordPage() {
     try {
       const data = await forgotPassword({ email: email.trim() });
       setIsCodeSent(true);
-      setInitialTimerSeconds(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
+      setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
+      setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
       showToast({ type: "success", title: "Forgot Password", message: data.message });
     } catch (error) {
       const message = getUserFriendlyError(error, "Unable to send reset code. Please try again.");
       showToast({ type: "error", title: "Forgot Password", message });
     } finally {
       setSendLoading(false);
+    }
+  }
+
+  async function handleResendCode() {
+    if (!isCodeSent || resendSecondsLeft > 0 || resendLoading) {
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      const data = await forgotPassword({ email: email.trim() });
+      setOtpCountdownSeed(toSecondsLeft(data.otpExpiresAt, data.otpExpiresInSeconds));
+      setResendCountdownSeed(Math.max(1, data.resendAvailableInSeconds ?? 30));
+      setCode("");
+
+      showToast({
+        type: "success",
+        title: "Forgot Password",
+        message: data.message || "A new reset code has been sent to your email.",
+      });
+    } catch (error) {
+      const message = getUserFriendlyError(error, "Unable to resend reset code. Please try again.");
+      showToast({ type: "error", title: "Forgot Password", message });
+    } finally {
+      setResendLoading(false);
     }
   }
 
@@ -61,6 +102,9 @@ export function ForgotPasswordPage() {
       setCode("");
       setNewPassword("");
       setConfirmPassword("");
+      window.setTimeout(() => {
+        router.push("/auth");
+      }, 900);
     } catch (error) {
       const message = getUserFriendlyError(error, "Password reset failed. Please try again.");
       showToast({ type: "error", title: "Password Reset", message });
@@ -106,17 +150,41 @@ export function ForgotPasswordPage() {
               Token expires in: {formatSeconds(secondsLeft)}
             </p>
 
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={handleResendCode}
+              disabled={resendLoading || resendSecondsLeft > 0}
+            >
+              {resendLoading
+                ? "SENDING..."
+                : resendSecondsLeft > 0
+                  ? `RESEND CODE IN ${formatSeconds(resendSecondsLeft)}`
+                  : "RESEND CODE"}
+            </button>
+
             <input
               type="password"
               placeholder="New Password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPasswordTouched(true);
+              }}
               required
             />
 
-            <p className="alerted" style={{ display: newPassword.length > 0 && !isPasswordStrong ? "block" : "none" }}>
-              ● not strong enough
-            </p>
+            <div className={`password-rules-box ${passwordTouched || newPassword.length > 0 ? "active" : ""}`}>
+              <p className="password-rules-title">Password must contain:</p>
+              <ul className="password-rules-list">
+                <li className={passwordChecks.minLength ? "rule-ok" : "rule-bad"}>At least 8 characters</li>
+                <li className={passwordChecks.hasUppercase ? "rule-ok" : "rule-bad"}>One uppercase letter</li>
+                <li className={passwordChecks.hasLowercase ? "rule-ok" : "rule-bad"}>One lowercase letter</li>
+                <li className={passwordChecks.hasNumber ? "rule-ok" : "rule-bad"}>One number</li>
+                <li className={passwordChecks.hasSpecial ? "rule-ok" : "rule-bad"}>One special character</li>
+                <li className={passwordChecks.hasNoSpace ? "rule-ok" : "rule-bad"}>No spaces</li>
+              </ul>
+            </div>
 
             <input
               type="password"
