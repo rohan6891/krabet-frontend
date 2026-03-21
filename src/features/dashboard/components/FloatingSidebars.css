@@ -9,10 +9,10 @@
   max-height: 85vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: hidden; /* Restore hidden */
+  overflow-x: visible; /* Must be visible so the trigger tab shows! */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 86px; /* Slightly reduced width */
+  width: 90px;
   padding: 14px;
   box-sizing: border-box;
 
@@ -26,13 +26,56 @@
 
   border-top-right-radius: 21px;
   border-bottom-right-radius: 21px;
+  
+  /* Slide out mechanism */
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .floating-sidebar::-webkit-scrollbar {
   display: none;
 }
 
-/* Arrow trigger removed from CSS as it was too confusing/invisible */
+.floating-sidebar:hover {
+  transform: translateX(0);
+}
+
+/* Highly visible trigger tab glued to the edge */
+.desktop-hover-trigger {
+  position: absolute;
+  right: -36px; /* Stick perfectly out */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 80px;
+  background: rgba(0, 230, 230, 0.2);
+  border: 1px solid rgba(0, 230, 230, 0.4);
+  border-left: none; /* Merge with sidebar */
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #12d0d8;
+  cursor: pointer;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.3s ease;
+}
+
+.desktop-hover-trigger:hover {
+  background: rgba(0, 230, 230, 0.4);
+}
+
+.floating-sidebar:hover .desktop-hover-trigger i {
+  /* Turn arrow to point left when open */
+  transform: rotate(180deg);
+}
+
+.desktop-hover-trigger i {
+  transition: transform 0.3s ease;
+  font-size: 16px;
+}
 
 /* =========================
    MOBILE COMPONENTS

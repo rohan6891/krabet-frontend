@@ -6,9 +6,9 @@
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  max-width: 1200px; /* Constrain width to prevent grotesque stretching */
-  padding-left: 14px;
-  padding-right: 14px;
+  max-width: 1600px; /* Widened to extend elegantly towards the right side */
+  padding-left: 90px; /* Offsets the layout by exactly the width of the left sidebar so it balances */
+  padding-right: 20px;
   box-sizing: border-box;
   margin: 0 auto;
   padding-top: 30px;
