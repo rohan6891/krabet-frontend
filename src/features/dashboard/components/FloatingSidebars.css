@@ -13,14 +13,14 @@
   overflow-x: visible; /* Vital for toggle tab sticking out */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 220px;
-  padding: 14px;
+  width: 100px;
+  padding: 14px 10px;
   box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   
   background: rgba(10, 77, 68, 0.95);
   backdrop-filter: blur(14px);
@@ -134,9 +134,9 @@
   text-decoration: none;
   color: #f4d7db;
   display: flex;
-  flex-direction: row; /* Place text and icons next to each other */
+  flex-direction: column; /* Place text below icon */
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   transition: transform 0.2s ease;
 }
 
@@ -174,11 +174,11 @@
 
 .sidebar-label {
   margin-top: 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.15;
   color: #f3d4d8;
-  white-space: nowrap;
+  text-align: center;
   pointer-events: none;
   opacity: 1; 
 }
