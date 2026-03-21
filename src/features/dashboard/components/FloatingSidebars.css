@@ -3,33 +3,34 @@
    ========================= */
 .floating-sidebar {
   position: fixed;
-  top: 130px; 
+  top: 130px;
   left: 0;
   height: auto;
   min-height: 480px;
   max-height: 85vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: visible; /* Vital for toggle tab sticking out */
+  overflow-x: visible;
+  /* Vital for toggle tab sticking out */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 100px;
-  padding: 14px 10px;
+  width: 220px;
+  padding: 14px;
   box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  
+  align-items: flex-start;
+
   background: rgba(10, 77, 68, 0.95);
   backdrop-filter: blur(14px);
   box-shadow: 0 16px 40px rgb(0, 0, 0);
 
   border-top-right-radius: 21px;
   border-bottom-right-radius: 21px;
-  
-  /* Hidden default state using translation */
+
+  /* Hidden by default while still keeping an external trigger visible. */
   transform: translateX(-100%);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -43,16 +44,21 @@
   transform: translateX(0);
 }
 
-/* Interactive Slider Tab */
-.desktop-toggle-tab {
-  position: absolute;
-  right: -36px;
-  top: 40px;
+.floating-sidebar:not(.desktop-open):not(.mobile-open) .sidebar-top-group {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Desktop edge trigger that stays visible while sidebar is hidden. */
+.desktop-edge-trigger {
+  position: fixed;
+  left: 0;
+  top: 170px;
   width: 36px;
   height: 70px;
   background: rgba(0, 230, 230, 0.2);
   border: 1px solid rgba(0, 230, 230, 0.4);
-  border-left: none;
+  border-left: 0;
   border-top-right-radius: 12px;
   border-bottom-right-radius: 12px;
   display: flex;
@@ -60,18 +66,23 @@
   justify-content: center;
   color: #12d0d8;
   cursor: pointer;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  transition: background 0.2s ease, transform 0.3s ease;
+  transition: background 0.2s ease, transform 0.3s ease, left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1010;
 }
 
-.desktop-toggle-tab:hover {
+.desktop-edge-trigger:hover {
   background: rgba(0, 230, 230, 0.5);
 }
 
-.desktop-toggle-tab i {
+.desktop-edge-trigger i {
   transition: transform 0.3s ease;
   font-size: 16px;
+}
+
+.desktop-edge-trigger.open {
+  left: 220px;
 }
 
 /* =========================
@@ -94,16 +105,16 @@
 }
 
 .mobile-sidebar-overlay {
-  display: none; 
+  display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 1050;
   backdrop-filter: blur(3px);
 }
 
 .mobile-close-btn {
-  display: none; 
+  display: none;
   position: absolute;
   top: -8px;
   right: -8px;
@@ -115,7 +126,7 @@
   border-radius: 50%;
   cursor: pointer;
   z-index: 10000;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* =========================
@@ -134,9 +145,10 @@
   text-decoration: none;
   color: #f4d7db;
   display: flex;
-  flex-direction: column; /* Place text below icon */
+  flex-direction: row;
+  /* Place text and icons next to each other */
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   transition: transform 0.2s ease;
 }
 
@@ -174,13 +186,13 @@
 
 .sidebar-label {
   margin-top: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.15;
   color: #f3d4d8;
-  text-align: center;
+  white-space: nowrap;
   pointer-events: none;
-  opacity: 1; 
+  opacity: 1;
 }
 
 /* =========================
@@ -194,6 +206,10 @@
 }
 
 @media (max-width: 900px) {
+  .desktop-edge-trigger {
+    display: none;
+  }
+
   .mobile-hamburger-btn {
     display: flex;
     align-items: center;
@@ -221,12 +237,14 @@
     height: auto;
     max-height: 80vh;
     padding: 30px 20px;
-    border-radius: 21px; 
-    background: rgba(12, 57, 51, 0.98); /* Solid visible background */
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    border-radius: 21px;
+    background: rgba(12, 57, 51, 0.98);
+    /* Solid visible background */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     opacity: 1;
     pointer-events: auto;
-    overflow-y: visible; /* Fix Close button clipping */
+    overflow-y: visible;
+    /* Fix Close button clipping */
   }
 
   .floating-sidebar.mobile-open .mobile-close-btn {
@@ -236,7 +254,7 @@
   }
 
   .mobile-sidebar-overlay {
-    display: block; 
+    display: block;
   }
 
   /* Force Grid Layout For Options When Open */
@@ -251,14 +269,16 @@
   }
 
   .floating-sidebar.mobile-open .sidebar-nav-item {
-    flex-direction: column; /* Stack Icon and Text naturally */
+    flex-direction: column;
+    /* Stack Icon and Text naturally */
     align-items: center;
     gap: 8px;
     padding: 0;
   }
 
   .floating-sidebar.mobile-open .sidebar-label {
-    opacity: 1; /* Always show text on mobile */
+    opacity: 1;
+    /* Always show text on mobile */
     font-size: 11px;
     white-space: normal;
     text-align: center;

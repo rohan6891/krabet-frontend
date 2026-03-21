@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./FloatingSidebars.css";
 
 interface Game {
@@ -17,10 +17,35 @@ interface FloatingSidebarsProps {
 export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHoverPreview, setIsHoverPreview] = useState(false);
 
-  // Deriving the desktop open state from either interaction
-  const isDesktopOpen = isPinned || isHovered;
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
+  // Opens while hovering the handle and stays open when pinned by click.
+  const isDesktopOpen = isPinned || isHoverPreview;
+
+  useEffect(() => {
+    if (!isPinned || isMobileOpen) {
+      return;
+    }
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const clickedInsideSidebar = sidebarRef.current?.contains(target);
+      const clickedTrigger = triggerRef.current?.contains(target);
+
+      if (!clickedInsideSidebar && !clickedTrigger) {
+        setIsPinned(false);
+        setIsHoverPreview(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isPinned, isMobileOpen]);
 
   const leftNavItems = [
     { id: "home", label: "Home", iconClass: "fa-solid fa-house", href: "/" },
@@ -42,20 +67,46 @@ export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
         <div className="mobile-sidebar-overlay" onClick={() => setIsMobileOpen(false)}></div>
       )}
 
-      {/* Sidebar Wrapper with Mouse Listeners */}
-      <aside 
+      <button
+        ref={triggerRef}
+        type="button"
+        className={`desktop-edge-trigger ${isDesktopOpen ? "open" : ""}`}
+        onMouseEnter={() => setIsHoverPreview(true)}
+        onMouseLeave={() => {
+          if (!isPinned) {
+            setIsHoverPreview(false);
+          }
+        }}
+        onClick={() => {
+          if (isDesktopOpen) {
+            setIsPinned(false);
+            setIsHoverPreview(false);
+            return;
+          }
+
+          setIsPinned(true);
+          setIsHoverPreview(true);
+        }}
+        aria-label={isDesktopOpen ? "Hide sidebar" : "Show sidebar"}
+        aria-expanded={isDesktopOpen}
+      >
+        <i className={`fa-solid ${isDesktopOpen ? "fa-chevron-left" : "fa-chevron-right"}`}></i>
+      </button>
+
+      {/* Sidebar wrapper with hover support for peek-open behavior */}
+      <aside
+        ref={sidebarRef}
         className={`floating-sidebar left-sidebar ${isMobileOpen ? "mobile-open" : ""} ${isDesktopOpen ? "desktop-open" : ""}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => setIsHoverPreview(true)}
+        onMouseLeave={() => {
+          if (!isPinned) {
+            setIsHoverPreview(false);
+          }
+        }}
       >
         <button className="mobile-close-btn" onClick={() => setIsMobileOpen(false)} aria-label="Close menu">
           <i className="fa-solid fa-xmark"></i>
         </button>
-
-        {/* Hover / Click Toggle Tab */}
-        <div className="desktop-toggle-tab" onClick={() => setIsPinned(!isPinned)}>
-          <i className={`fa-solid ${isPinned ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
-        </div>
 
         <div className="sidebar-top-group">
           {leftNavItems.map((item) => (
