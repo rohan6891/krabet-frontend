@@ -2,12 +2,11 @@
    SIDEBAR SHELL
    ========================= */
    .floating-sidebar {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 85vh;
+    position: sticky;
+    top: 110px;
+    height: calc(100vh - 140px);
     max-height: 850px;
-    z-index: 1200;
+    z-index: 12;
     overflow-y: auto;     /* enables scrolling */
     overflow-x: hidden;   /* prevents sideways overflow */
   
@@ -29,15 +28,13 @@
   }
   
   .left-sidebar {
-    left: 0px;
-    border-top-right-radius: 21px;
-    border-bottom-right-radius: 21px;
+    order: 1;
+    border-radius: 21px;
   }
   
   .right-sidebar {
-    right: 0px;
-    border-bottom-left-radius: 21px;
-    border-top-left-radius: 21px;
+    order: 3;
+    border-radius: 21px;
   }
   
   /* =========================
@@ -227,14 +224,6 @@
     .floating-sidebar {
       width: 88px;
       padding: 12px 8px;
-    }
-  
-    .left-sidebar {
-      left: 14px;
-    }
-  
-    .right-sidebar {
-      right: 14px;
     }
   
     .sidebar-icon-box,

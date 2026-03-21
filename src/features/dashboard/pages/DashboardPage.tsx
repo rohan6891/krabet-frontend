@@ -9,8 +9,10 @@ export function DashboardPage() {
   return (
     <div style={{ fontFamily: "var(--font-poppins)" }}>
       <Header />
-      <FloatingSidebars />
-      <DashUI />
+      <div className="dashboard-main-layout">
+        <FloatingSidebars />
+        <DashUI />
+      </div>
     </div>
   );
 }
