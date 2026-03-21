@@ -32,7 +32,6 @@
         /* flexible placement relative to sidebars */
         order: 2;
         flex: 1 1 auto;
-        max-width: 1040px;
       
         padding-bottom: 34px;
         padding-top: 10px;

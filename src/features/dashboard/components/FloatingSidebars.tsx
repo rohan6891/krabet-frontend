@@ -1,4 +1,3 @@
-import { useSession } from "@/shared/hooks/useSession";
 import "./FloatingSidebars.css";
 
 interface Game {
@@ -13,7 +12,6 @@ interface FloatingSidebarsProps {
 }
 
 export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
-  const { logout } = useSession();
 
   const leftNavItems = [
     { id: "home", label: "Home", iconClass: "fa-solid fa-house", href: "/" },
@@ -22,13 +20,7 @@ export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
     { id: "notifications", label: "Alerts", iconClass: "fa-solid fa-bell", href: "/notifications" },
     { id: "wallet", label: "Wallet", iconClass: "fa-solid fa-wallet", href: "/wallet" },
     { id: "bonuses", label: "Bonuses", iconClass: "fa-solid fa-gift", href: "/bonuses" },
-    { id: "support", label: "Support", iconClass: "fa-solid fa-headset", href: "/support" },
   ];
-
-  function handleLogout(e: React.MouseEvent) {
-    e.preventDefault();
-    logout();
-  }
 
   return (
     <>
@@ -51,20 +43,6 @@ export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
           ))}
         </div>
 
-        <div className="sidebar-bottom-group">
-          <a
-            href="#"
-            onClick={handleLogout}
-            className="sidebar-nav-item logout-item"
-            aria-label="Logout"
-            title="Logout"
-          >
-            <span className="sidebar-icon-box">
-              <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-            </span>
-            <span className="sidebar-label">Logout</span>
-          </a>
-        </div>
       </aside>
 
       {/* RIGHT SIDEBAR */}
