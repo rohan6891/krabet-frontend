@@ -14,7 +14,7 @@
   /* Vital for toggle tab sticking out */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 142px;
+  width: 100px;
   padding: 12px 4px 12px 8px;
   box-sizing: border-box;
 
@@ -82,7 +82,7 @@
 }
 
 .desktop-edge-trigger.open {
-  left: 142px;
+  left: 100px;
 }
 
 /* =========================
@@ -149,7 +149,7 @@
   align-items: flex-start;
   justify-content: center;
   gap: 6px;
-  padding-left: 2px;
+  padding-left: 8px;
   transition: transform 0.2s ease;
 }
 
@@ -204,6 +204,10 @@
   .floating-sidebar {
     width: 74px;
     padding: 10px 5px;
+  }
+
+  .desktop-edge-trigger.open {
+    left: 74px;
   }
 }
 
