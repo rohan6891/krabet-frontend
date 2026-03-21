@@ -3,8 +3,10 @@
    ========================= */
    .floating-sidebar {
     position: fixed;
-    top: 100px;
-    min-height: 75vh;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 85vh;
+    max-height: 850px;
     z-index: 1200;
     overflow-y: auto;     /* enables scrolling */
     overflow-x: hidden;   /* prevents sideways overflow */
