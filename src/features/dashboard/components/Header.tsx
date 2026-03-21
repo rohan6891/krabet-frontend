@@ -27,18 +27,9 @@ export function Header() {
             </div>
           </>
         ) : (
-          <>
-            <Link href="/auth">
-              <button className="signup-btn">
-                SIGN IN
-              </button>
-            </Link>
-            <Link href="/auth">
-              <button className="signup-btn" style={{ marginLeft: "10px", background: "transparent", color: "#12d0d8", border: "1px solid #12d0d8" }}>
-                SIGN UP
-              </button>
-            </Link>
-          </>
+          <Link href="/auth" className="signup-btn" style={{ textDecoration: 'none' }}>
+            SIGN IN
+          </Link>
         )}
       </div>
     </header>

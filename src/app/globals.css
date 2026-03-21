@@ -14,11 +14,7 @@ body {
   background: #0d0f12;
   font-family: var(--font-rajdhani), sans-serif;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: white;
-  overflow: hidden;
 }
 
 a {
@@ -46,6 +42,7 @@ a {
 
 .auth-container {
   width: 100%;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
