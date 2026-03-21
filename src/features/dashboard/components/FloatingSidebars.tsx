@@ -46,11 +46,6 @@ export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
           <i className="fa-solid fa-xmark"></i>
         </button>
 
-        {/* HOVER TRIGGER ARROW (Desktop Only) */}
-        <div className="desktop-hover-trigger">
-          <i className="fa-solid fa-chevron-right"></i>
-        </div>
-
         <div className="sidebar-top-group">
           {leftNavItems.map((item) => (
             <a

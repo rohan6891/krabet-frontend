@@ -6,10 +6,11 @@
   top: 130px; 
   left: 0;
   height: auto;
+  min-height: 480px;
   max-height: 85vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: visible; /* Must be visible so the trigger tab shows! */
+  overflow-x: hidden; 
   scrollbar-width: none;
   -ms-overflow-style: none;
   width: 90px;
@@ -19,17 +20,16 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
   
-  background: rgba(10, 77, 68, 0.88);
+  background: rgba(10, 77, 68, 0.95);
   backdrop-filter: blur(14px);
   box-shadow: 0 16px 40px rgb(0, 0, 0);
 
   border-top-right-radius: 21px;
   border-bottom-right-radius: 21px;
   
-  /* Slide out mechanism */
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .floating-sidebar::-webkit-scrollbar {
@@ -37,44 +37,7 @@
 }
 
 .floating-sidebar:hover {
-  transform: translateX(0);
-}
-
-/* Highly visible trigger tab glued to the edge */
-.desktop-hover-trigger {
-  position: absolute;
-  right: -36px; /* Stick perfectly out */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 80px;
-  background: rgba(0, 230, 230, 0.2);
-  border: 1px solid rgba(0, 230, 230, 0.4);
-  border-left: none; /* Merge with sidebar */
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #12d0d8;
-  cursor: pointer;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  transition: background 0.2s ease, transform 0.3s ease;
-}
-
-.desktop-hover-trigger:hover {
-  background: rgba(0, 230, 230, 0.4);
-}
-
-.floating-sidebar:hover .desktop-hover-trigger i {
-  /* Turn arrow to point left when open */
-  transform: rotate(180deg);
-}
-
-.desktop-hover-trigger i {
-  transition: transform 0.3s ease;
-  font-size: 16px;
+  width: 220px;
 }
 
 /* =========================
@@ -97,7 +60,7 @@
 }
 
 .mobile-sidebar-overlay {
-  display: none; /* overrides in media query when active */
+  display: none; 
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
@@ -106,7 +69,7 @@
 }
 
 .mobile-close-btn {
-  display: none; /* overrides in media query when active */
+  display: none; 
   position: absolute;
   top: -8px;
   right: -8px;
@@ -117,7 +80,7 @@
   height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 10;
+  z-index: 10000;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
@@ -127,7 +90,8 @@
 .sidebar-top-group {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  width: 100%;
   gap: 16px;
 }
 
@@ -136,8 +100,9 @@
   text-decoration: none;
   color: #f4d7db;
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Place text and icons next to each other */
   align-items: center;
+  gap: 16px;
   transition: transform 0.2s ease;
 }
 
@@ -146,8 +111,9 @@
 }
 
 .sidebar-icon-box {
-  width: 46px;
-  height: 46px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -173,12 +139,19 @@
 }
 
 .sidebar-label {
-  margin-top: 6px;
-  font-size: 10px;
+  margin-top: 0;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1.15;
-  text-align: center;
   color: #f3d4d8;
-  max-width: 72px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.floating-sidebar:hover .sidebar-label {
+  opacity: 1;
 }
 
 /* =========================
@@ -186,46 +159,79 @@
    ========================= */
 @media (max-width: 1100px) {
   .floating-sidebar {
-    width: 88px;
-    padding: 12px 8px;
+    width: 86px;
+    padding: 12px 10px;
   }
 }
 
 @media (max-width: 900px) {
-  /* Show hamburger */
   .mobile-hamburger-btn {
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  
-  /* Desktop hover triggers safely disabled */
-  .desktop-hover-trigger {
-    display: none;
-  }
 
+  /* Default Hidden State For Mobile */
   .floating-sidebar {
-    /* Initially hide aggressively on mobile to rely on popup rendering */
-    transform: translateX(-150%);
-    top: 50%; /* Ready for centering */
+    width: 0;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
   }
 
-  /* When activated in React */
+  /* When Menu Is Clicked */
   .floating-sidebar.mobile-open {
     display: flex;
+    position: fixed;
     transform: translate(-50%, -50%);
     left: 50%;
     top: 50%;
-    border-radius: 21px; /* Round all sides for centered popup */
-  }
-
-  .mobile-sidebar-overlay {
-    display: block; /* activated intrinsically by React rendering */
+    width: 90vw;
+    max-width: 400px;
+    height: auto;
+    max-height: 80vh;
+    padding: 30px 20px;
+    border-radius: 21px; 
+    background: rgba(12, 57, 51, 0.98); /* Solid visible background */
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    opacity: 1;
+    pointer-events: auto;
+    overflow-y: visible; /* Fix Close button clipping */
   }
 
   .floating-sidebar.mobile-open .mobile-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .mobile-sidebar-overlay {
+    display: block; 
+  }
+
+  /* Force Grid Layout For Options When Open */
+  .floating-sidebar.mobile-open .sidebar-top-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: auto;
+    gap: 24px 10px;
+    width: 100%;
+    align-items: start;
+    justify-content: center;
+  }
+
+  .floating-sidebar.mobile-open .sidebar-nav-item {
+    flex-direction: column; /* Stack Icon and Text naturally */
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .floating-sidebar.mobile-open .sidebar-label {
+    opacity: 1; /* Always show text on mobile */
+    font-size: 11px;
+    white-space: normal;
+    text-align: center;
   }
 }
