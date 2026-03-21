@@ -1,5 +1,5 @@
 /* =========================
-   SIDEBAR SHELL (Desktop Hover)
+   SIDEBAR SHELL (Slide-Out Drawer)
    ========================= */
 .floating-sidebar {
   position: fixed;
@@ -10,10 +10,10 @@
   max-height: 85vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: hidden; 
+  overflow-x: visible; /* Vital for toggle tab sticking out */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 90px;
+  width: 220px;
   padding: 14px;
   box-sizing: border-box;
 
@@ -29,15 +29,49 @@
   border-top-right-radius: 21px;
   border-bottom-right-radius: 21px;
   
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Hidden default state using translation */
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .floating-sidebar::-webkit-scrollbar {
   display: none;
 }
 
-.floating-sidebar:hover {
-  width: 220px;
+/* Desktop Open state bound to React classes */
+.floating-sidebar.desktop-open {
+  transform: translateX(0);
+}
+
+/* Interactive Slider Tab */
+.desktop-toggle-tab {
+  position: absolute;
+  right: -36px;
+  top: 40px;
+  width: 36px;
+  height: 70px;
+  background: rgba(0, 230, 230, 0.2);
+  border: 1px solid rgba(0, 230, 230, 0.4);
+  border-left: none;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #12d0d8;
+  cursor: pointer;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.3s ease;
+}
+
+.desktop-toggle-tab:hover {
+  background: rgba(0, 230, 230, 0.5);
+}
+
+.desktop-toggle-tab i {
+  transition: transform 0.3s ease;
+  font-size: 16px;
 }
 
 /* =========================
@@ -140,18 +174,13 @@
 
 .sidebar-label {
   margin-top: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.15;
   color: #f3d4d8;
   white-space: nowrap;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.floating-sidebar:hover .sidebar-label {
-  opacity: 1;
+  opacity: 1; 
 }
 
 /* =========================

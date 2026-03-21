@@ -16,6 +16,11 @@ interface FloatingSidebarsProps {
 
 export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Deriving the desktop open state from either interaction
+  const isDesktopOpen = isPinned || isHovered;
 
   const leftNavItems = [
     { id: "home", label: "Home", iconClass: "fa-solid fa-house", href: "/" },
@@ -29,22 +34,28 @@ export function FloatingSidebars({ games = [] }: FloatingSidebarsProps) {
 
   return (
     <>
-      {/* MOBILE HAMBURGER TOGGLE */}
       <button className="mobile-hamburger-btn" onClick={() => setIsMobileOpen(true)} aria-label="Open menu">
         <i className="fa-solid fa-bars"></i>
       </button>
 
-      {/* MOBILE OVERLAY / BACKDROP */}
       {isMobileOpen && (
         <div className="mobile-sidebar-overlay" onClick={() => setIsMobileOpen(false)}></div>
       )}
 
-      {/* MAIN SIDEBAR (Desktop Hover & Mobile Drawer) */}
-      <aside className={`floating-sidebar left-sidebar ${isMobileOpen ? "mobile-open" : ""}`}>
-        {/* MOBILE CLOSE BTN */}
+      {/* Sidebar Wrapper with Mouse Listeners */}
+      <aside 
+        className={`floating-sidebar left-sidebar ${isMobileOpen ? "mobile-open" : ""} ${isDesktopOpen ? "desktop-open" : ""}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <button className="mobile-close-btn" onClick={() => setIsMobileOpen(false)} aria-label="Close menu">
           <i className="fa-solid fa-xmark"></i>
         </button>
+
+        {/* Hover / Click Toggle Tab */}
+        <div className="desktop-toggle-tab" onClick={() => setIsPinned(!isPinned)}>
+          <i className={`fa-solid ${isPinned ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
+        </div>
 
         <div className="sidebar-top-group">
           {leftNavItems.map((item) => (
