@@ -81,7 +81,7 @@ export function DashUI() {
 
   return (
     <section className="dash-ui-shell">
-      <div className="dash-ui-grid">
+      <div className={`dash-ui-grid ${!user ? "no-user" : ""}`}>
         {/* =========================
             MODULE 1 : TOP LEFT HERO
            ========================= */}

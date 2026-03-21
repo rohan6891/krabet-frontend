@@ -2,7 +2,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  justify-content: flex-end; /* changed from center to flex-end to push right */
+  justify-content: center;
   display: flex;
   align-items: center;
   padding: 18px;

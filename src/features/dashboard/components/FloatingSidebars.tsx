@@ -1,4 +1,5 @@
 import { useSession } from "@/shared/hooks/useSession";
+import "./FloatingSidebars.css";
 
 interface Game {
   id: number | string;

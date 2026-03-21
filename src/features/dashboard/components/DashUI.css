@@ -38,6 +38,13 @@
         "userinfo quick";
       gap: 30px;
     }
+
+    .dash-ui-grid.no-user {
+      grid-template-areas:
+        "hero hero"
+        "carousel quick"
+        "carousel quick";
+    }
   .dash-ui-grid > * {
     min-width: 0;
     max-width: 100%;
