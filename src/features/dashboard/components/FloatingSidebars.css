@@ -9,16 +9,16 @@
   max-height: 85vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden; /* Restore hidden */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  width: 96px;
+  width: 86px; /* Slightly reduced width */
   padding: 14px;
   box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
-  justify-content: center; /* keep content vertically centered */
+  justify-content: center;
   
   background: rgba(10, 77, 68, 0.88);
   backdrop-filter: blur(14px);
@@ -26,48 +26,13 @@
 
   border-top-right-radius: 21px;
   border-bottom-right-radius: 21px;
-
-  /* Desktop Hover Implementation */
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .floating-sidebar::-webkit-scrollbar {
   display: none;
 }
 
-.floating-sidebar:hover {
-  transform: translateX(0);
-}
-
-/* Hover Trigger Arrow */
-.desktop-hover-trigger {
-  position: absolute;
-  right: -26px; /* Stick out partially to grab mouse events elegantly */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 26px;
-  height: 60px;
-  background: rgba(10, 77, 68, 0.95);
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #12d0d8;
-  cursor: pointer;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-}
-
-.floating-sidebar:hover .desktop-hover-trigger i {
-  /* Turn arrow to point left when sidebar is fully open open */
-  transform: rotate(180deg);
-}
-
-.desktop-hover-trigger i {
-  transition: transform 0.3s ease;
-  font-size: 14px;
-}
+/* Arrow trigger removed from CSS as it was too confusing/invisible */
 
 /* =========================
    MOBILE COMPONENTS

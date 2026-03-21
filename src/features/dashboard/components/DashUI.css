@@ -3,10 +3,10 @@
    ===================================== */
 .dashboard-main-layout {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
   width: 100%;
-  max-width: 100%;
+  max-width: 1200px; /* Constrain width to prevent grotesque stretching */
   padding-left: 14px;
   padding-right: 14px;
   box-sizing: border-box;
