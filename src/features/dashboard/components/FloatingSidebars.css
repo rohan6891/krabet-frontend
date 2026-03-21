@@ -230,7 +230,7 @@
   .floating-sidebar.mobile-open {
     display: flex;
     position: fixed;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) !important;
     left: 50%;
     top: 50%;
     width: 90vw;
@@ -245,6 +245,7 @@
     opacity: 1;
     pointer-events: auto;
     overflow-y: visible;
+    z-index: 1100;
     /* Fix Close button clipping */
   }
 
