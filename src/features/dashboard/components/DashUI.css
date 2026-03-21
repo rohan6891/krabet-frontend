@@ -3,9 +3,13 @@
    ===================================== */
 .dashboard-main-layout {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
-  max-width: 1440px;
+  width: 100%;
+  max-width: 100%;
+  padding-left: 14px;
+  padding-right: 14px;
+  box-sizing: border-box;
   margin: 0 auto;
   padding-top: 30px;
   gap: 20px;
