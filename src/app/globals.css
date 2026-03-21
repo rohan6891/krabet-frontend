@@ -24,9 +24,9 @@ a {
 
 .bg-texture {
   position: fixed;
-  left: -27%;
-  top: 5%;
-  width: 70vw;
+  left: -250px;
+  top: 50px;
+  width: clamp(600px, 70vw, 1400px);
   transform: rotate(90deg);
   opacity: 0.95;
   pointer-events: none;
@@ -34,10 +34,11 @@ a {
 
 .ticket-img {
   position: fixed;
-  width: 50vw;
-  right: -10%;
-  bottom: -50%;
+  width: clamp(400px, 50vw, 900px);
+  right: -100px;
+  bottom: -200px;
   opacity: 0.95;
+  pointer-events: none;
 }
 
 .auth-container {
@@ -491,8 +492,8 @@ a {
   .ticket-img {
     position: fixed;
     width: 250px;
-    right: -20%;
-    bottom: -25%;
+    right: -50px;
+    bottom: -80px;
   }
 }
 
