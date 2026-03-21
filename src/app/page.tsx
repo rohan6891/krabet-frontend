@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 
 export default function Home() {
-  redirect("/auth");
+  return <DashboardPage />;
 }

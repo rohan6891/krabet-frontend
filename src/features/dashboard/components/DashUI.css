@@ -1,0 +1,743 @@
+/* =====================================
+   OVERALL OUTER CONTAINER
+   ===================================== */
+   html, body {
+    height: 100%;
+    margin: 0;  /* Resets margin */
+    padding: 0;  /* Resets padding */
+    overflow: scroll;
+   }
+   body::-webkit-scrollbar {
+    display: none;}
+  
+    .dash-ui-shell {
+        width: 100%;
+        box-sizing: border-box;
+      
+        /* top stays free for future content */
+        margin-top: 110px;
+      
+        /* smaller and more realistic sidebar offsets */
+        padding-left: 46px;
+        padding-right: 46px;
+        padding-bottom: 34px;
+        padding-top: 10px;
+      }
+
+  
+    .dash-ui-grid {
+      width: 90%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1.05fr);
+      grid-template-rows: 270px 300px 195px;
+      grid-template-areas:
+        "hero hero"
+        "carousel quick"
+        "userinfo quick";
+      gap: 30px;
+    }
+  .dash-ui-grid > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  
+  /* =====================================
+     BASE MODULE RESET
+     ===================================== */
+  .dash-card {
+    position: relative;
+    box-sizing: border-box;
+    overflow: visible;      /* important: allows hero image to stick out */
+    background: transparent;
+    border: none;
+    padding: 10px;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  /* shared section heading */
+  .dash-section-head,
+  .dash-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  
+  .dash-section-head h3,
+  .dash-chat-header h3 {
+    margin: 0;
+    color: #fff4f5;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 800;
+  }
+  
+  /* =====================================
+     MODULE 1 : HERO
+     ONLY THIS ONE IS BOXED
+     ===================================== */
+  .dash-hero-card {
+    grid-area: hero;
+    min-height: 270px;
+    padding: 26px 28px;
+    display: flex;
+    align-items: stretch;
+  
+    overflow: visible; /* lets image rise above the top edge */
+  
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at top left, rgba(100, 248, 223, 0.61), transparent 36%),
+      linear-gradient(135deg, rgba(16, 71, 62, 0.95), rgba(9, 38, 32, 0.95));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 16px 40px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(14px);
+  }
+  
+  .dash-hero-content {
+    position: relative;
+    z-index: 2;
+    width: 54%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .dash-pill-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    border-radius: 14px;
+    background: rgba(255, 232, 170, 0.16);
+    color: #ffe9b3;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  
+  .dash-hero-title {
+    margin: 0 0 16px;
+    max-width: 70%;
+    color: #ffffff;
+    font-size: 33px;
+    line-height: 1.05;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+  
+  .dash-hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .hero-feature {
+    color: #c9d6db;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .hero-feature i {
+    color: #30d6ea;
+  }
+  
+  .dash-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 178px;
+    height: 52px;
+    padding: 8px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #30d6ea, #15abc3);
+    color: #041114;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    box-shadow: 0 12px 28px rgba(11, 190, 213, 0.24);
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  
+  .dash-primary-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  
+  /*
+    This is the actual stick-out behavior:
+    - bottom stays at the bottom of the hero card
+    - top rises above the card by ~30%
+  */
+  .dash-hero-character {
+    position: absolute;
+    right: 28px;
+    bottom: 0;
+    z-index: 1;
+  
+    height: 135%;
+    width: auto;
+    object-fit: contain;
+    object-position: bottom right;
+  
+    pointer-events: none;
+  }
+  
+  /* =====================================
+     MODULE 2 : LIVE CHAT
+     ONLY THIS ONE IS BOXED
+     ===================================== */
+  .dash-chat-card {
+    grid-area: chat;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 270px;
+  
+    overflow: hidden;
+    border-radius: 30px;
+    
+    box-shadow:
+      inset -1px 1px 0 rgba(0, 194, 168, 0.37),
+      0 16px 40px rgb(0, 0, 0);
+    backdrop-filter: blur(14px);
+  }
+  
+  .dash-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffdfe3;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  
+  .dash-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #2df09e;
+    box-shadow: 0 0 10px rgba(45, 240, 158, 0.9);
+  }
+  
+  .dash-chat-list {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .dash-chat-list::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .dash-chat-item {
+    padding: 7px;
+    border-radius: 22px;
+    background: rgba(2, 54, 50, 0.966);
+    border: 1px solid rgb(1, 31, 21);
+  }
+  
+  .dash-chat-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .dash-chat-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  
+  .dash-chat-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .dash-chat-topline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  
+  .dash-chat-user {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  
+  .dash-chat-time {
+    color: rgba(255, 220, 226, 0.6);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  
+  .dash-chat-message {
+    margin: 0;
+    color: #f3d7db;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  
+  .dash-chat-button {
+    margin-top: 14px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 18px;
+    text-decoration: none;
+    color: #070203;
+    background: rgb(0, 255, 242);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  
+  .dash-chat-button:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  }
+  
+  .dash-chat-button i {
+    font-size: 15px;
+  }
+  
+  /* =====================================
+     MODULE 3 : CAROUSEL
+     NO OUTER BOX / NO EXTRA RADIUS SHELL
+     ===================================== */
+  .dash-carousel-card {
+    grid-area: carousel;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  
+  .dash-carousel-dots {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .dash-dot {
+    width: 10px;
+    height: 10px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+  }
+  
+  .dash-dot.is-active {
+    background: #ffffff;
+  }
+  
+  .dash-carousel-viewport {
+    position: relative;
+    flex: 1;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  
+  .dash-carousel-track {
+    height: 100%;
+    display: flex;
+    transition: transform 0.7s ease;
+  }
+  
+  .dash-carousel-slide {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    display: block;
+    text-decoration: none;
+  }
+  
+  .dash-carousel-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  
+  .dash-carousel-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.44) 25%,
+        rgba(0, 0, 0, 0.12) 48%,
+        rgba(0, 0, 0, 0.02) 70%
+      );
+    pointer-events: none;
+  }
+  
+  .dash-carousel-text {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 16px;
+    z-index: 2;
+  }
+  
+  .dash-carousel-text h4 {
+    margin: 0 0 6px;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+  }
+  
+  .dash-carousel-text p {
+    margin: 0;
+    color: rgba(255, 242, 244, 0.9);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  
+  /* =====================================
+     MODULE 4 : QUICK BOX CLUSTER
+     NO OUTER BOX / ONLY THE 4 INNER BOXES
+     ===================================== */
+     .dash-quick-card {
+      grid-area: quick;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      display: block;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    
+    .dash-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      width: 100%;
+    }
+    
+    .dash-quick-box {
+      width: 100%;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(49, 62, 72, 0.98), rgba(34, 38, 44, 0.98));
+      transition: transform 0.2s ease, filter 0.2s ease;
+      box-sizing: border-box;
+    }
+    
+    .dash-quick-box:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+    }
+    
+    .dash-quick-img {
+      width: 72%;
+      height: 72%;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+      display: block;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 0;
+    }
+    
+    .dash-quick-label {
+      width: 100%;
+      margin: 0;
+      padding: 0 4px 2px;
+      color: #ffffff;
+      font-size: clamp(15px, 1.2vw, 22px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+  /* =====================================
+     MODULE 5 : USER INFO
+     NO OUTER BOX / NO INNER BOXES
+     ===================================== */
+  .dash-user-card {
+    grid-area: userinfo;
+    padding: 8px 4px 0 4px;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  .dash-user-balance {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 0;
+    margin-bottom: 14px;
+  }
+  
+  .dash-user-balance-label,
+  .dash-user-stat-label {
+    color: rgba(255, 230, 234, 0.76);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .dash-user-balance strong {
+    color: #ffffff;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 800;
+  }
+  
+  .dash-user-stats {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    overflow: visible;
+  }
+  
+  .dash-user-stat {
+    min-width: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  
+  .dash-user-stat strong {
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 800;
+    word-break: break-word;
+  }
+  
+  /* =====================================
+     RESPONSIVE
+     ===================================== */
+  @media (max-width: 1400px) {
+    .dash-ui-shell {
+      padding-left: 118px;
+      padding-right: 118px;
+    }
+  
+    .dash-ui-grid {
+      max-width: 1040px;
+    }
+  }
+  
+  @media (max-width: 1280px) {
+    .dash-ui-grid {
+      grid-template-columns: 1.45fr 1fr;
+      grid-template-rows: 250px 280px 185px;
+      gap: 16px;
+    }
+  
+    .dash-hero-title {
+      font-size: 28px;
+      max-width: 360px;
+    }
+  
+    .dash-section-head h3,
+    .dash-chat-header h3 {
+      font-size: 24px;
+    }
+  
+    .dash-carousel-text h4 {
+      font-size: 24px;
+    }
+  
+    .dash-quick-label {
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 1100px) {
+    .dash-ui-shell {
+      padding-top: 110px;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .dash-ui-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "hero"
+        "carousel"
+        "userinfo"
+        "quick";
+    }
+  
+    .dash-hero-card,
+    .dash-chat-card,
+    .dash-carousel-card,
+    .dash-user-card,
+    .dash-quick-card {
+      min-height: 260px;
+    }
+  
+    .dash-user-card {
+      min-height: auto;
+    }
+  
+    .dash-quick-card {
+      min-height: 340px;
+    }
+  
+    .dash-hero-content {
+      width: 58%;
+    }
+  
+    .dash-hero-character {
+      right: 8px;
+      height: 128%;
+    }
+  
+    .dash-user-stats {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 720px) {
+    .dash-ui-shell {
+      padding-top: 96px;
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 18px;
+    }
+  
+    .dash-ui-grid {
+      gap: 14px;
+    }
+  
+    .dash-hero-card,
+    .dash-chat-card {
+      border-radius: 24px;
+    }
+  
+    .dash-hero-card {
+      padding: 18px;
+      min-height: 320px;
+    }
+  
+    .dash-hero-content {
+      width: 68%;
+    }
+  
+    .dash-hero-title {
+      max-width: 260px;
+      font-size: 22px;
+    }
+  
+    .dash-primary-btn {
+      min-width: 150px;
+      height: 46px;
+      font-size: 13px;
+    }
+  
+    .dash-hero-character {
+      right: -12px;
+      height: 116%;
+    }
+  
+    .dash-section-head h3,
+    .dash-chat-header h3 {
+      font-size: 20px;
+    }
+  
+    .dash-carousel-text h4 {
+      font-size: 22px;
+    }
+  
+    .dash-carousel-text p {
+      font-size: 13px;
+    }
+  
+    .dash-user-balance {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+  
+    .dash-user-balance strong {
+      font-size: 24px;
+    }
+  
+    .dash-user-stats {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  
+    .dash-quick-grid {
+      gap: 10px;
+    }
+  
+    .dash-quick-box {
+      border-radius: 18px;
+    }
+  
+    .dash-quick-img {
+      width: 48px;
+      height: 48px;
+    }
+  
+    .dash-quick-label {
+      font-size: 15px;
+    }
+  }

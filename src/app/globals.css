@@ -511,3 +511,39 @@ a {
     padding: 40px;
   }
 }
+.liquidglass {
+   /* Glass effect */
+   background:rgba(33, 36, 37, 0.747);
+   backdrop-filter: blur(5px);
+   -webkit-backdrop-filter: blur(5px);
+   border:0.1px solid rgba(255, 255, 255, 0.164);
+}
+
+.liquidglass:hover {
+   border:1px solid #0fd1d7;
+}
+
+.icons {
+   color: #12d0d8;
+}
+
+button:active {
+   transform:scale(0.99);
+ }
+ img:hover {
+   transform:translateY(-2px);
+   border-color:rgba(255,255,255,0.16);
+   box-shadow:0 6px 20px rgba(0,0,0,0.18);
+   }
+body{
+   background: rgb(11, 24, 22);
+   letter-spacing: 2;
+   font-family: var(--font-poppins), sans-serif;
+   font-weight: 600;
+   height: 100%;
+   width: 100%;
+   align-items:center;
+   justify-content:center;
+   color:rgb(252, 252, 252);
+   }
+   

@@ -6,6 +6,7 @@ export function useCountdown(initialSeconds: number, resetSignal = 0): number {
   const [secondsLeft, setSecondsLeft] = useState(Math.max(0, Math.floor(initialSeconds)));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSecondsLeft(Math.max(0, Math.floor(initialSeconds)));
   }, [initialSeconds, resetSignal]);
 
