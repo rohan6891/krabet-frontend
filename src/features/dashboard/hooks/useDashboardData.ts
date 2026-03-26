@@ -1,0 +1,111 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { env } from "@/shared/config/env";
+import { getAccessTokenFromStorage, getStoredSession } from "@/shared/utils/session";
+import {
+  fetchDashboardGames,
+  fetchMe,
+  fetchRecentWins,
+  fetchWalletBalance,
+} from "@/features/dashboard/api/dashboard.api";
+import type { DashboardGame, DashboardWin } from "@/features/dashboard/types/dashboard.types";
+
+type DashboardProfile = {
+  username: string;
+  avatarUrl: string | null;
+};
+
+function withApiBase(path?: string): string {
+  if (!path) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+  return `${env.apiBaseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function useDashboardData() {
+  const [loading, setLoading] = useState(true);
+  const [games, setGames] = useState<DashboardGame[]>([]);
+  const [recentWins, setRecentWins] = useState<DashboardWin[]>([]);
+  const [walletBalance, setWalletBalance] = useState("0.00");
+  const [profile, setProfile] = useState<DashboardProfile>({
+    username: "User",
+    avatarUrl: null,
+  });
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadDashboard() {
+      const token = getAccessTokenFromStorage();
+      if (!token) {
+        if (mounted) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const [gamesRes, winsRes, walletRes, meRes] = await Promise.all([
+          fetchDashboardGames(),
+          fetchRecentWins(),
+          fetchWalletBalance(token),
+          fetchMe(token),
+        ]);
+
+        if (!mounted) {
+          return;
+        }
+
+        const normalizedGames = (gamesRes.data.games || []).map((game) => ({
+          ...game,
+          image_path: withApiBase(game.image_path),
+        }));
+
+        setGames(normalizedGames);
+        setRecentWins(winsRes.data.wins || []);
+
+        const wallets = walletRes.data.wallets || [];
+        const preferredWallet = wallets.find((wallet) => wallet.currency === "USDT") || wallets[0];
+        setWalletBalance(preferredWallet?.availableBalance || "0.00");
+
+        const sessionUser = getStoredSession()?.user;
+        setProfile({
+          username: meRes.data.user.username || sessionUser?.username || "User",
+          avatarUrl: meRes.data.user.avatarUrl || sessionUser?.avatarUrl || null,
+        });
+      } catch {
+        if (!mounted) {
+          return;
+        }
+        setGames([]);
+        setRecentWins([]);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadDashboard();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const categories = useMemo(() => games.slice(0, 6), [games]);
+  const originals = useMemo(() => games.slice(0, 7), [games]);
+
+  return {
+    loading,
+    categories,
+    originals,
+    recentWins,
+    walletBalance,
+    profile,
+  };
+}

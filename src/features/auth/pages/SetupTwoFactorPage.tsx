@@ -15,7 +15,7 @@ export function SetupTwoFactorPage() {
   const searchParams = useSearchParams();
   const { showToast } = useToast();
 
-  const nextPath = searchParams.get("next") || "/";
+  const nextPath = searchParams.get("next") || "/dashboard";
 
   const [token, setToken] = useState("");
   const [setupLoading, setSetupLoading] = useState(false);

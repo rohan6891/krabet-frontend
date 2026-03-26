@@ -59,7 +59,7 @@ export function VerifyTwoFactorPage() {
         return;
       }
 
-      router.push("/");
+      router.push("/dashboard");
     } catch (submitError) {
       const message = getUserFriendlyError(submitError, "2FA verification failed.");
       showToast({ type: "error", title: "Verify 2FA", message });
