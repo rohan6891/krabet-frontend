@@ -6,6 +6,8 @@ type GameCategoriesSectionProps = {
   loading: boolean;
 };
 
+const categoryLabels = ["Casino", "Racing", "Poker", "Lottery", "Sports", "Bingo"];
+
 function CategorySkeletonRow() {
   return (
     <div className="categories-row">
@@ -35,20 +37,20 @@ export function GameCategoriesSection({ games, loading }: GameCategoriesSectionP
         <CategorySkeletonRow />
       ) : (
         <div className="categories-row">
-          {games.map((card) => (
-            <a href="#" className="category-box" key={card.id}>
+          {categoryLabels.map((label) => (
+            <a href="#" className="category-box" key={label}>
               <div className="category-box-inner">
                 <div className="category-visual">
                   <GameImageWithSkeleton
                     src="/game_category.png"
-                    alt={card.name}
+                    alt={label}
                     className="category-card-image"
                   />
                 </div>
 
                 <div className="category-text">
-                  <span className="category-name">{card.name}</span>
-                  <span className="category-games">{card.subtitle || "Trending game"}</span>
+                  <span className="category-name">{label}</span>
+                  <span className="category-games">Trending game</span>
                 </div>
               </div>
             </a>
