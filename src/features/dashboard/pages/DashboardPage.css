@@ -1,0 +1,564 @@
+/* =============================================================================
+   GLOBAL RESET / PAGE ROOT
+   Main page background, universal element defaults
+============================================================================= */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #090010;
+  color: #ffffff;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* =============================================================================
+   OUTER PAGE WRAPPER
+   Main dashboard background and shell
+============================================================================= */
+.krabet-page {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #14001e 0%, #090010 100%);
+  overflow-x: hidden;
+}
+
+.krabet-shell {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* =============================================================================
+   LEFT SIDEBAR
+   Fixed-width left panel with logo and nav groups
+============================================================================= */
+.krabet-sidebar {
+  width: 170px;
+  min-width: 170px;
+  padding: 10px 10px 14px;
+  background: linear-gradient(180deg, #13001c 0%, #0a0011 100%);
+  border-right: 1px solid rgba(187, 95, 255, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-logo-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px 2px 8px;
+}
+
+.sidebar-logo-image {
+  width: 94px;
+  height: auto;
+  object-fit: contain;
+}
+
+.sidebar-panel {
+  background: linear-gradient(180deg, rgba(35, 5, 54, 0.92) 0%, rgba(15, 2, 24, 0.95) 100%);
+  border: 1px solid rgba(187, 95, 255, 0.16);
+  border-radius: 16px;
+  padding: 8px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-panel-bottom {
+  margin-top: 2px;
+}
+
+.sidebar-link {
+  min-height: 34px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: #eadbff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: rgba(176, 79, 255, 0.12);
+}
+
+.sidebar-link-icon {
+  width: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bf85ff;
+  font-size: 14px;
+}
+
+.sidebar-link-text {
+  font-size: 12px;
+  line-height: 1.2;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* =============================================================================
+   MAIN CONTENT AREA
+   Right side content wrapper
+============================================================================= */
+.krabet-main {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/* =============================================================================
+   HEADER
+   Top nav on left, compact control group on right
+============================================================================= */
+.krabet-header {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(22, 0, 33, 0.96) 0%, rgba(8, 0, 16, 0.98) 100%);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.header-nav-link {
+  font-size: 11px;
+  color: #f4eaff;
+  padding: 8px 16px;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.header-nav-link:hover,
+.header-nav-link.active {
+  background: rgba(170, 79, 255, 0.15);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-pill {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 0 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.wallet-pill:hover {
+  background: rgba(184, 93, 255, 0.08);
+}
+
+.wallet-pill-icon,
+.header-icon-btn,
+.profile-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(67, 34, 88, 0.95) 0%, rgba(28, 12, 42, 0.95) 100%);
+  border: 1px solid rgba(196, 120, 255, 0.18);
+  box-shadow: 0 0 10px rgba(125, 52, 189, 0.16);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.header-icon-btn:hover,
+.profile-link:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, rgba(81, 40, 108, 0.95) 0%, rgba(35, 14, 52, 0.95) 100%);
+}
+
+.wallet-pill-icon i,
+.header-icon-btn i {
+  font-size: 13px;
+  color: #efe6ff;
+}
+
+.wallet-pill-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.wallet-amount {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wallet-crypto {
+  font-size: 9px;
+  color: #a898c8;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.krabet-content {
+  flex: 1;
+  padding: 8px 12px 14px;
+  background: url("/background.png") center / cover no-repeat;
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================================================
+   HERO SECTION
+   Left woman, banner, right woman
+   Kept compact so lower sections do not eat the page
+============================================================================= */
+.hero-section {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.hero-banner {
+  width: min(100%, 510px);
+  aspect-ratio: 2.97 / 1;
+  height: auto;
+  border-radius: 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-cta {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  min-width: 78px;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #6d31ff 0%, #41168a 100%);
+  border: 1px solid rgba(229, 196, 255, 0.22);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.hero-banner-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+/* =============================================================================
+   RECENT BIG WINS STRIP
+============================================================================= */
+.wins-strip {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(45, 20, 64, 0.96) 0%, rgba(16, 6, 24, 0.96) 100%);
+  border: 1px solid rgba(196, 112, 255, 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.wins-strip-label {
+  min-width: 150px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #f7f1ff;
+  border-right: 1px solid rgba(196, 112, 255, 0.1);
+}
+
+.wins-strip-track {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 0 18px;
+  overflow: hidden;
+}
+
+.wins-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+}
+
+.wins-inline-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+
+.wins-amount,
+.wins-prize {
+  color: #1df36a;
+  font-weight: 800;
+}
+
+.wins-inline-icon {
+  color: #ffb748;
+}
+
+.wins-user-icon {
+  color: #b4ff6b;
+}
+
+.wins-user {
+  color: #ece2ff;
+}
+
+/* =============================================================================
+   GENERIC CONTENT SECTION STYLES
+============================================================================= */
+.content-section {
+  width: 100%;
+}
+
+.section-title-wrap {
+  margin-bottom: 8px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #f7efff;
+  text-transform: uppercase;
+}
+
+/* =============================================================================
+   GAME CATEGORIES
+============================================================================= */
+.categories-section {
+  margin-bottom: 12px;
+}
+
+.categories-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.category-box {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 46px;
+  padding: 2px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #b14cff 0%, #6d1ed4 100%);
+  box-shadow:
+    0 0 10px rgba(177, 71, 255, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.category-box:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.category-box-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #2a063f 0%, #14001f 100%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 6px;
+  overflow: hidden;
+}
+
+.category-visual {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.category-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1;
+}
+
+.category-name {
+  font-size: 10px;
+  font-weight: 800;
+  color: #f6eeff;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.category-games {
+  margin-top: 3px;
+  font-size: 7px;
+  color: #c8b5df;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   KB ORIGINALS
+============================================================================= */
+.originals-section {
+  margin-bottom: 6px;
+}
+
+.originals-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.original-box {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 90px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #9a3cff;
+  box-shadow: 0 0 10px rgba(177, 71, 255, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.original-box:hover {
+  transform: translateY(-2px);
+}
+
+.original-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.original-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* =============================================================================
+   RESPONSIVE
+============================================================================= */
+@media (max-width: 900px) {
+  .krabet-shell {
+    flex-direction: column;
+  }
+
+  .krabet-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(187, 95, 255, 0.16);
+  }
+
+  .krabet-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .wins-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wins-strip-label {
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(196, 112, 255, 0.1);
+  }
+
+  .wins-strip-track {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 14px;
+  }
+}
