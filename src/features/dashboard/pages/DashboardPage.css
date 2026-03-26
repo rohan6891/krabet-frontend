@@ -527,7 +527,7 @@ img {
 .original-box {
   flex: 1 1 0;
   min-width: 0;
-  height: 90px;
+  height: 106px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;

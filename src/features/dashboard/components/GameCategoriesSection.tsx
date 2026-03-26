@@ -40,7 +40,7 @@ export function GameCategoriesSection({ games, loading }: GameCategoriesSectionP
               <div className="category-box-inner">
                 <div className="category-visual">
                   <GameImageWithSkeleton
-                    src={card.image_path || ""}
+                    src="/game_category.png"
                     alt={card.name}
                     className="category-card-image"
                   />
