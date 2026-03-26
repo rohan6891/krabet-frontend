@@ -148,6 +148,7 @@ img {
   flex: 1;
   min-width: 0;
   position: relative;
+  background: url("/background.jpg") center top / cover no-repeat;
 }
 
 /* =============================================================================
@@ -274,8 +275,9 @@ img {
 
 .krabet-content {
   flex: 1;
+  min-height: calc(100vh - 62px);
   padding: 8px 12px 14px;
-  background: url("/background.jpg") center / cover no-repeat;
+  background: transparent;
   position: relative;
   z-index: 1;
 }

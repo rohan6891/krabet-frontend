@@ -26,6 +26,19 @@ function withApiBase(path?: string): string {
   return `${env.apiBaseUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+function withImageProxy(path?: string): string {
+  const resolvedUrl = withApiBase(path);
+  if (!resolvedUrl) {
+    return "";
+  }
+
+  if (/https?:\/\/[^/]*\.ngrok(?:-free)?\.(?:app|dev|io)/i.test(resolvedUrl)) {
+    return `/api/media?url=${encodeURIComponent(resolvedUrl)}`;
+  }
+
+  return resolvedUrl;
+}
+
 export function useDashboardData() {
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState<DashboardGame[]>([]);
@@ -62,7 +75,7 @@ export function useDashboardData() {
 
         const normalizedGames = (gamesRes.data.games || []).map((game) => ({
           ...game,
-          image_path: withApiBase(game.image_path),
+          image_path: withImageProxy(game.image_path),
         }));
 
         setGames(normalizedGames);
