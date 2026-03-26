@@ -70,11 +70,11 @@ img {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 2px 2px 8px;
+  padding: 2px 2px 6px;
 }
 
 .sidebar-logo-image {
-  width: 94px;
+  width: 132px;
   height: auto;
   object-fit: contain;
 }
@@ -120,6 +120,7 @@ img {
 
 .sidebar-link-text {
   font-size: 12px;
+  letter-spacing: 0.15px;
   line-height: 1.2;
   flex: 1;
   min-width: 0;
@@ -160,6 +161,7 @@ img {
 
 .header-nav-link {
   font-size: 11px;
+  letter-spacing: 0.12px;
   color: #f4eaff;
   padding: 8px 16px;
   border-radius: 999px;
@@ -272,16 +274,16 @@ img {
 ============================================================================= */
 .hero-section {
   width: 100%;
-  height: 52vh;
+  height: clamp(360px, 62vh, 560px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .hero-side-image {
-  width: min(24vw, 270px);
+  width: min(28vw, 340px);
   height: 100%;
   display: flex;
   align-items: flex-end;
@@ -304,24 +306,26 @@ img {
 }
 
 .hero-banner {
-  width: min(52vw, 510px);
+  width: min(60vw, 760px);
+  min-width: 480px;
   aspect-ratio: 2.97 / 1;
   height: auto;
-  border-radius: 20px;
+  border-radius: 24px;
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 24px 48px rgba(33, 9, 53, 0.45);
 }
 
 .hero-banner-cta {
   position: absolute;
-  left: 18px;
-  bottom: 16px;
-  min-width: 78px;
-  height: 28px;
-  padding: 0 14px;
+  left: 24px;
+  bottom: 22px;
+  min-width: 94px;
+  height: 34px;
+  padding: 0 16px;
   border-radius: 9px;
   display: inline-flex;
   align-items: center;
@@ -329,8 +333,9 @@ img {
   background: linear-gradient(180deg, #6d31ff 0%, #41168a 100%);
   border: 1px solid rgba(229, 196, 255, 0.22);
   color: #ffffff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.12px;
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -672,8 +677,15 @@ img {
     display: none;
   }
 
+  .hero-section {
+    height: auto;
+    margin-bottom: 12px;
+    justify-content: center;
+  }
+
   .hero-banner {
-    width: min(100%, 510px);
+    width: min(100%, 640px);
+    min-width: 0;
   }
 
   .wins-strip {
