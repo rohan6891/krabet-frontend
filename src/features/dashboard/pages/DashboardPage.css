@@ -272,16 +272,39 @@ img {
 ============================================================================= */
 .hero-section {
   width: 100%;
-  height: 50vh;
+  height: 52vh;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
   margin-bottom: 6px;
 }
 
+.hero-side-image {
+  width: min(24vw, 270px);
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-side-image img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.hero-side-image-left {
+  justify-content: flex-start;
+}
+
+.hero-side-image-right {
+  justify-content: flex-end;
+}
+
 .hero-banner {
-  width: min(100%, 510px);
+  width: min(52vw, 510px);
   aspect-ratio: 2.97 / 1;
   height: auto;
   border-radius: 20px;
@@ -487,10 +510,7 @@ img {
 }
 
 .category-games {
-  margin-top: 3px;
-  font-size: 7px;
-  color: #c8b5df;
-  white-space: nowrap;
+  display: none;
 }
 
 /* =============================================================================
@@ -646,6 +666,14 @@ img {
     width: 100%;
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+
+  .hero-side-image {
+    display: none;
+  }
+
+  .hero-banner {
+    width: min(100%, 510px);
   }
 
   .wins-strip {

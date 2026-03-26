@@ -32,7 +32,7 @@ export function DashboardHeader({ walletBalance, username, avatarUrl }: Dashboar
 
           <span className="wallet-pill-text">
             <span className="wallet-amount">${walletBalance}</span>
-            <span className="wallet-crypto">Wallet</span>
+            <span className="wallet-crypto">1.25BTC</span>
           </span>
         </a>
 
