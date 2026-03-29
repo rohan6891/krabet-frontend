@@ -1,7 +1,7 @@
 import { ProfileAvatar } from "@/features/dashboard/components/ProfileAvatar";
 
 const topNavLinks = [
-  { label: "Casino", href: "#", active: true },
+  { label: "Casino", href: "/dashboard", active: true },
   { label: "Sports", href: "#" },
   { label: "Live", href: "#" },
   { label: "Promotions", href: "#" },
@@ -11,9 +11,10 @@ type DashboardHeaderProps = {
   walletBalance: string;
   username: string;
   avatarUrl: string | null;
+  walletHref?: string;
 };
 
-export function DashboardHeader({ walletBalance, username, avatarUrl }: DashboardHeaderProps) {
+export function DashboardHeader({ walletBalance, username, avatarUrl, walletHref = "/dashboard/wallet" }: DashboardHeaderProps) {
   return (
     <header className="krabet-header">
       <nav className="header-nav">
@@ -25,7 +26,7 @@ export function DashboardHeader({ walletBalance, username, avatarUrl }: Dashboar
       </nav>
 
       <div className="header-actions">
-        <a href="#" className="wallet-pill">
+        <a href={walletHref} className="wallet-pill">
           <span className="wallet-pill-icon">
             <i className="fa-solid fa-wallet" aria-hidden="true"></i>
           </span>

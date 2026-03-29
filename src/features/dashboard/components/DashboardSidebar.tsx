@@ -1,5 +1,5 @@
 const sidebarTopLinks = [
-  { label: "Casino", href: "#", icon: "fa-solid fa-dice-d6" },
+  { label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
   { label: "Sports", href: "#", icon: "fa-solid fa-futbol" },
   { label: "Lottery", href: "#", icon: "fa-solid fa-ticket" },
   { label: "Crypto Futures", href: "#", icon: "fa-solid fa-bitcoin-sign" },
@@ -21,7 +21,7 @@ type DashboardSidebarProps = {
 export function DashboardSidebar({ logoSrc }: DashboardSidebarProps) {
   return (
     <aside className="krabet-sidebar">
-      <a href="#" className="sidebar-logo-link">
+      <a href="/dashboard" className="sidebar-logo-link">
         <img src={logoSrc} alt="KraBet logo" className="sidebar-logo-image" />
       </a>
 
