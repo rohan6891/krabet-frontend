@@ -292,7 +292,7 @@ export function DepositModal({
               {/* Generate New */}
               <button
                 type="button"
-                className="deposit-generate-btn deposit-generate-secondary modal-cancel-btn"
+                className="deposit-generate-btn deposit-generate-secondary"
                 onClick={handleDepositSubmit}
                 disabled={submittingDeposit}
               >
