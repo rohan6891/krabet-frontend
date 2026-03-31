@@ -32,8 +32,9 @@ export function WithdrawModal({
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawDestination, setWithdrawDestination] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [show2FAPopup, setShow2FAPopup] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+
   // Filter options to only those that have withdraw enabled
   const withdrawableOptions = useMemo(
     () => currencyDropdownOptions, // Ideally we would filter by opt.withdrawEnabled if it existed!
@@ -70,7 +71,26 @@ export function WithdrawModal({
     }
   };
 
-  const handleWithdrawSubmit = async () => {
+  const executeWithdrawal = async () => {
+    try {
+      await submitWithdraw({
+        amount: withdrawAmount,
+        currency: selectedOption!.code,
+        withdrawalAddress: withdrawDestination.trim(),
+        network: selectedOption!.network !== selectedOption!.code ? selectedOption!.network : undefined,
+        twoFactorCode: twoFactorEnabled ? twoFactorCode.trim() : undefined,
+      });
+
+      showToast({ type: "success", title: "Withdraw", message: "Withdrawal request submitted." });
+      setShow2FAPopup(false);
+      onClose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to submit withdrawal request.";
+      showToast({ type: "error", title: "Withdraw", message });
+    }
+  };
+
+  const handleWithdrawSubmit = () => {
     if (!selectedOption) {
       showToast({ type: "error", title: "Withdraw", message: "Select a currency first." });
       return;
@@ -81,10 +101,6 @@ export function WithdrawModal({
     }
     if (!withdrawDestination.trim()) {
       showToast({ type: "error", title: "Withdraw", message: "Address is required." });
-      return;
-    }
-    if (twoFactorEnabled && !twoFactorCode.trim()) {
-      showToast({ type: "error", title: "Withdraw", message: "2FA code is required." });
       return;
     }
 
@@ -98,20 +114,10 @@ export function WithdrawModal({
       return;
     }
 
-    try {
-      await submitWithdraw({
-        amount: withdrawAmount,
-        currency: selectedOption.code,
-        withdrawalAddress: withdrawDestination.trim(),
-        network: selectedOption.network !== selectedOption.code ? selectedOption.network : undefined,
-        twoFactorCode: twoFactorEnabled ? twoFactorCode.trim() : undefined,
-      });
-
-      showToast({ type: "success", title: "Withdraw", message: "Withdrawal request submitted." });
-      onClose();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to submit withdrawal request.";
-      showToast({ type: "error", title: "Withdraw", message });
+    if (twoFactorEnabled) {
+      setShow2FAPopup(true);
+    } else {
+      executeWithdrawal();
     }
   };
 
@@ -221,7 +227,7 @@ export function WithdrawModal({
           {/* Amount Input with Max Button */}
           <div className="wallet-field font-inter">
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label className="deposit-field-label">Amount <span style={{color: '#ef4444'}}>*</span></label>
+              <label className="deposit-field-label">Amount <span style={{ color: '#ef4444' }}>*</span></label>
               {selectedOption && selectedWallet && (
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {Number(selectedWallet.availableBalance).toFixed(8)} {selectedOption.code}
@@ -248,11 +254,12 @@ export function WithdrawModal({
                   </span>
                 )}
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleMaxClick}
                 style={{
                   width: '60px',
+                  height: '44px',
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(188, 129, 255, 0.18)',
                   borderRadius: '12px',
@@ -272,7 +279,7 @@ export function WithdrawModal({
 
           {/* Address Input */}
           <div className="wallet-field font-inter">
-            <label className="deposit-field-label">Address <span style={{color: '#ef4444'}}>*</span></label>
+            <label className="deposit-field-label">Address <span style={{ color: '#ef4444' }}>*</span></label>
             <div className="deposit-address-row">
               <input
                 type="text"
@@ -300,7 +307,7 @@ export function WithdrawModal({
                 <strong style={{ fontSize: '14px', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {selectedOption.minWithdrawal} {selectedOption.code}
                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'linear-gradient(135deg, #8654ff, #5b2db4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px' }}>
-                      <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#fff' }}>{selectedOption.code.charAt(0)}</span>
+                    <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#fff' }}>{selectedOption.code.charAt(0)}</span>
                   </div>
                 </strong>
               </div>
@@ -309,7 +316,7 @@ export function WithdrawModal({
                 <strong style={{ fontSize: '14px', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {selectedOption.withdrawalFee || "0.00"} {selectedOption.code}
                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'linear-gradient(135deg, #8654ff, #5b2db4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px' }}>
-                      <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#fff' }}>{selectedOption.code.charAt(0)}</span>
+                    <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#fff' }}>{selectedOption.code.charAt(0)}</span>
                   </div>
                 </strong>
               </div>
@@ -319,49 +326,36 @@ export function WithdrawModal({
           {/* Confirm Button */}
           <button
             type="button"
-            className="deposit-generate-btn modal-confirm-btn"
+            className="deposit-generate-btn"
             onClick={handleWithdrawSubmit}
             disabled={submittingWithdraw || !selectedOption}
-            style={{ marginTop: '10px' }}
+            style={{ marginTop: '10px', height: '48px', fontSize: '15px' }}
           >
             {submittingWithdraw ? (
               <>
-                 <span className="deposit-spinner"></span>
-                 Processing...
+                <span className="deposit-spinner"></span>
+                Processing...
               </>
             ) : "Withdraw"}
           </button>
 
-          {/* 2FA Section */}
-          <div style={{ marginTop: '4px', borderTop: '1px solid rgba(188, 129, 255, 0.18)', paddingTop: '20px' }}>
-            {twoFactorEnabled ? (
-              <div className="wallet-field font-inter">
-                <label className="deposit-field-label">2FA Code</label>
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit 2FA code"
-                  value={twoFactorCode}
-                  onChange={(e) => setTwoFactorCode(e.target.value)}
-                  maxLength={6}
-                  className="deposit-amount-input wallet-field-input"
-                  style={{ height: '44px', padding: '0 14px' }}
-                />
-              </div>
-            ) : (
+          {/* 2FA Enable Section Only if Not Enabled */}
+          {!twoFactorEnabled && (
+            <div style={{ marginTop: '4px', borderTop: '1px solid rgba(188, 129, 255, 0.18)', paddingTop: '20px' }}>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(188, 129, 255, 0.1)' }}>
                 <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '14px', lineHeight: '1.4' }}>
                   Improve your account security with Two-Factor Authentication
                 </p>
-                <button 
-                  type="button" 
-                  onClick={() => router.push('/settings')} 
-                  style={{ 
-                    background: 'rgba(255,255,255,0.08)', 
+                <button
+                  type="button"
+                  onClick={() => router.push('/settings')}
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.12)',
-                    padding: '10px 0', 
-                    borderRadius: '8px', 
-                    color: '#e2e8f0', 
-                    fontSize: '14px', 
+                    padding: '10px 0',
+                    borderRadius: '8px',
+                    color: '#e2e8f0',
+                    fontSize: '14px',
                     fontWeight: '600',
                     width: '100%',
                     cursor: 'pointer',
@@ -373,11 +367,70 @@ export function WithdrawModal({
                   Enable 2FA
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       </div>
+
+      {/* 2FA Popup Overlay */}
+      {show2FAPopup && (
+        <div className="wallet-modal-overlay popup-overlay" style={{ zIndex: 1000, background: 'rgba(0,0,0,0.85)' }} onClick={() => setShow2FAPopup(false)}>
+          <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '380px', padding: '28px', background: '#1e293b' }}>
+            <div className="wallet-modal-title" style={{ marginBottom: '16px', justifyContent: 'center' }}>
+              <i className="fa-solid fa-shield-halved" style={{ fontSize: '24px', color: '#a855f7' }}></i>
+            </div>
+            <h3 style={{ textAlign: 'center', color: '#fff', fontSize: '18px', marginBottom: '8px', fontWeight: '600' }}>2-Step Verification</h3>
+            <p style={{ textAlign: 'center', fontSize: '14px', color: '#94a3b8', marginBottom: '24px', lineHeight: '1.5' }}>
+              Enter the 6-digit code from your authenticator app to confirm the withdrawal.
+            </p>
+            <input
+              type="text"
+              placeholder="000 000"
+              value={twoFactorCode}
+              onChange={(e) => setTwoFactorCode(e.target.value)}
+              maxLength={6}
+              className="wallet-field-input"
+              style={{
+                height: '52px',
+                fontSize: '24px',
+                textAlign: 'center',
+                letterSpacing: '8px',
+                marginBottom: '24px',
+                fontWeight: '600'
+              }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                className="modal-cancel-btn"
+                onClick={() => setShow2FAPopup(false)}
+                disabled={submittingWithdraw}
+                style={{ flex: 1, height: '52px', fontSize: '15px' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="modal-confirm-btn"
+                onClick={() => {
+                  if (!twoFactorCode || twoFactorCode.length < 6) {
+                    showToast({ type: "error", title: "2FA", message: "Enter a valid 6-digit code." });
+                    return;
+                  }
+                  executeWithdrawal();
+                }}
+                disabled={submittingWithdraw}
+                style={{ flex: 1, height: '52px', fontSize: '15px' }}
+              >
+                {submittingWithdraw ? "Verifying..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -205,10 +205,10 @@ export function DepositModal({
           {!depositCheckout && (
             <button
               type="button"
-              className="deposit-generate-btn modal-confirm-btn"
+              className="deposit-generate-btn"
               onClick={handleDepositSubmit}
               disabled={submittingDeposit || !selectedOption}
-              style={{ marginTop: '10px' }}
+              style={{ marginTop: '10px', fontSize: '15px' }}
             >
               {submittingDeposit ? (
                 <>

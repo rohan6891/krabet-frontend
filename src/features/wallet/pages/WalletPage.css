@@ -333,6 +333,7 @@
 .deposit-card::-webkit-scrollbar {
   width: 4px;
 }
+
 .deposit-card::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
@@ -533,6 +534,7 @@
 .deposit-dropdown-menu::-webkit-scrollbar {
   width: 4px;
 }
+
 .deposit-dropdown-menu::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -597,7 +599,7 @@
 .deposit-amount-input {
   width: 100%;
   height: 52px;
-  padding: 0 60px 0 16px;
+  padding: 0 70px 0 16px;
   border: 1px solid rgba(188, 129, 255, 0.18);
   border-radius: 12px;
   background: rgba(27, 9, 42, 0.94);
@@ -643,11 +645,11 @@
 
 /* ─── Generate Button ─── */
 .deposit-generate-btn {
+  background: linear-gradient(180deg, rgba(134, 84, 255, 0.56), rgba(91, 45, 180, 0.7));
   width: 100%;
-  height: 48px;
+  height: 52px;
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 12px;
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
@@ -675,10 +677,11 @@
 
 .deposit-generate-secondary {
   background: transparent;
-  border: 1px solid rgba(55, 65, 81, 0.7);
-  color: #94a3b8;
-  font-size: 13px;
-  height: 42px;
+  border: 1px solid rgba(188, 129, 255, 0.4);
+  color: #d8b2ff;
+  font-size: 15px;
+  font-weight: 700;
+  height: 52px;
 }
 
 .deposit-generate-secondary:hover:not(:disabled) {
@@ -696,7 +699,9 @@
 }
 
 @keyframes spinDeposit {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Deposit Result ─── */
@@ -708,8 +713,15 @@
 }
 
 @keyframes fadeInResult {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Address Row ─── */
@@ -720,8 +732,8 @@
 
 .deposit-address-input {
   flex: 1;
-  height: 46px;
-  padding: 0 14px;
+  height: 52px;
+  padding: 0 16px;
   border: 1px solid rgba(188, 129, 255, 0.18);
   border-radius: 10px;
   background: rgba(27, 9, 42, 0.94);
@@ -736,8 +748,8 @@
 }
 
 .deposit-copy-btn {
-  width: 46px;
-  height: 46px;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
   border: 1px solid rgba(188, 129, 255, 0.18);
   border-radius: 10px;
@@ -796,7 +808,7 @@
   background: rgba(27, 9, 42, 0.6);
 }
 
-.deposit-info-row + .deposit-info-row {
+.deposit-info-row+.deposit-info-row {
   border-top: 1px solid rgba(188, 129, 255, 0.18);
 }
 
@@ -914,10 +926,10 @@
 .modal-confirm-btn,
 .modal-cancel-btn {
   flex: 1;
-  height: 46px;
+  height: 52px;
   border-radius: 12px;
   border: 1px solid rgba(188, 129, 255, 0.18);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   cursor: pointer;
 }
