@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAccessTokenFromStorage } from "@/shared/utils/session";
+import { fetchMe } from "@/features/dashboard/api/dashboard.api";
+import { clearAuthSession, getAccessTokenFromStorage } from "@/shared/utils/session";
 
 export function useDashboardAuthGuard() {
   const router = useRouter();
@@ -10,17 +11,44 @@ export function useDashboardAuthGuard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = getAccessTokenFromStorage();
+    let cancelled = false;
 
-    if (!token) {
-      setIsAuthenticated(false);
-      setIsChecking(false);
-      router.replace("/auth");
-      return;
+    async function runAuthCheck() {
+      const token = getAccessTokenFromStorage();
+
+      if (!token) {
+        if (!cancelled) {
+          setIsAuthenticated(false);
+          setIsChecking(false);
+          router.replace("/auth");
+        }
+        return;
+      }
+
+      try {
+        await fetchMe(token);
+        if (cancelled) {
+          return;
+        }
+        setIsAuthenticated(true);
+      } catch {
+        clearAuthSession();
+        if (!cancelled) {
+          setIsAuthenticated(false);
+          router.replace("/auth");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsChecking(false);
+        }
+      }
     }
 
-    setIsAuthenticated(true);
-    setIsChecking(false);
+    runAuthCheck();
+
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   return { isChecking, isAuthenticated };

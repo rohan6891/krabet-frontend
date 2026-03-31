@@ -8,6 +8,8 @@ import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader
 import { useWalletPageData } from "@/features/wallet/hooks/useWalletPageData";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
 import type { WalletTransaction } from "@/features/wallet/types/wallet.types";
+import { DepositModal } from "@/features/wallet/components/DepositModal";
+import { WithdrawModal } from "@/features/wallet/components/WithdrawModal";
 
 function formatCurrency(value: string | number): string {
   const numeric = Number(value);
@@ -46,18 +48,25 @@ function buildTxView(tx: WalletTransaction): { icon: string; className: string; 
   };
 }
 
+function buildQrUrl(value: string): string {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(value)}`;
+}
+
 export function WalletPage() {
   const { showToast } = useToast();
   const {
     isChecking,
+    isAuthenticated,
     loading,
     submittingDeposit,
     submittingWithdraw,
     transactions,
+    wallets,
     profile,
     totalBalance,
     stats,
     availableCurrencies,
+    currencyDropdownOptions,
     submitDeposit,
     submitWithdraw,
   } = useWalletPageData();
@@ -65,80 +74,22 @@ export function WalletPage() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
-  const [depositAmount, setDepositAmount] = useState("");
-  const [depositMethod, setDepositMethod] = useState("Crypto");
-  const [depositDetails, setDepositDetails] = useState("");
-
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawMethod, setWithdrawMethod] = useState("Bank");
-  const [withdrawDestination, setWithdrawDestination] = useState("");
-
   const transactionsList = useMemo(() => transactions.slice(0, 8), [transactions]);
-  const currencyOptions = availableCurrencies.length ? availableCurrencies : ["USDT"];
 
   const openDeposit = () => {
-    setDepositMethod("Crypto");
-    setDepositAmount("");
-    setDepositDetails("");
     setShowDeposit(true);
   };
 
   const openWithdraw = () => {
-    setWithdrawMethod("Bank");
-    setWithdrawAmount("");
-    setWithdrawDestination("");
     setShowWithdraw(true);
-  };
-
-  const handleDepositSubmit = async () => {
-    if (!depositAmount || Number(depositAmount) <= 0) {
-      showToast({ type: "error", title: "Deposit", message: "Enter a valid amount." });
-      return;
-    }
-
-    try {
-      await submitDeposit({
-        amount: depositAmount,
-        currency: currencyOptions[0],
-        network: depositDetails.trim() || undefined,
-      });
-
-      showToast({ type: "success", title: "Deposit", message: "Deposit request created successfully." });
-      setShowDeposit(false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create deposit request.";
-      showToast({ type: "error", title: "Deposit", message });
-    }
-  };
-
-  const handleWithdrawSubmit = async () => {
-    if (!withdrawAmount || Number(withdrawAmount) <= 0) {
-      showToast({ type: "error", title: "Withdraw", message: "Enter a valid amount." });
-      return;
-    }
-
-    if (!withdrawDestination.trim()) {
-      showToast({ type: "error", title: "Withdraw", message: "Destination details are required." });
-      return;
-    }
-
-    try {
-      await submitWithdraw({
-        amount: withdrawAmount,
-        currency: currencyOptions[0],
-        withdrawalAddress: withdrawDestination.trim(),
-      });
-
-      showToast({ type: "success", title: "Withdraw", message: "Withdrawal request submitted." });
-      setShowWithdraw(false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to submit withdrawal request.";
-      showToast({ type: "error", title: "Withdraw", message });
-    }
   };
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (
@@ -287,95 +238,32 @@ export function WalletPage() {
               </div>
             </div>
 
+            {/* ═══════════════════════════════════════════════════════════ */}
+            {/*  DEPOSIT MODAL COMPONENT                                  */}
+            {/* ═══════════════════════════════════════════════════════════ */}
             {showDeposit && (
-              <div className="wallet-modal-overlay" onClick={() => setShowDeposit(false)}>
-                <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
-                  <div className="wallet-modal-title">
-                    <i className="fa-solid fa-circle-down"></i>
-                    <span>Deposit Funds</span>
-                  </div>
-
-                  <div className="wallet-form-grid">
-                    <div className="wallet-field">
-                      <label>Amount</label>
-                      <input type="text" placeholder="Enter amount" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
-                    </div>
-
-                    <div className="wallet-field">
-                      <label>Payment Method</label>
-                      <select value={depositMethod} onChange={(e) => setDepositMethod(e.target.value)}>
-                        <option value="Crypto">Crypto</option>
-                        <option value="Card">Card</option>
-                        <option value="Bank">Bank</option>
-                      </select>
-                    </div>
-
-                    <div className="wallet-field full-width">
-                      <label>Wallet Address / Payment Details</label>
-                      <input
-                        type="text"
-                        placeholder="Enter wallet address or payment details"
-                        value={depositDetails}
-                        onChange={(e) => setDepositDetails(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="wallet-modal-actions">
-                    <button type="button" className="modal-confirm-btn" onClick={handleDepositSubmit} disabled={submittingDeposit}>
-                      Confirm Deposit
-                    </button>
-                    <button type="button" className="modal-cancel-btn" onClick={() => setShowDeposit(false)} disabled={submittingDeposit}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <DepositModal
+                onClose={() => setShowDeposit(false)}
+                currencyDropdownOptions={currencyDropdownOptions}
+                submitDeposit={submitDeposit}
+                submittingDeposit={submittingDeposit}
+                showToast={showToast}
+              />
             )}
 
+            {/* ═══════════════════════════════════════════════════════════ */}
+            {/*  WITHDRAW MODAL COMPONENT                                 */}
+            {/* ═══════════════════════════════════════════════════════════ */}
             {showWithdraw && (
-              <div className="wallet-modal-overlay" onClick={() => setShowWithdraw(false)}>
-                <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
-                  <div className="wallet-modal-title">
-                    <i className="fa-solid fa-circle-up"></i>
-                    <span>Withdraw Funds</span>
-                  </div>
-
-                  <div className="wallet-form-grid">
-                    <div className="wallet-field">
-                      <label>Amount</label>
-                      <input type="text" placeholder="Enter amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
-                    </div>
-
-                    <div className="wallet-field">
-                      <label>Withdrawal Method</label>
-                      <select value={withdrawMethod} onChange={(e) => setWithdrawMethod(e.target.value)}>
-                        <option value="Bank">Bank</option>
-                        <option value="Crypto">Crypto</option>
-                      </select>
-                    </div>
-
-                    <div className="wallet-field full-width">
-                      <label>Destination Details</label>
-                      <input
-                        type="text"
-                        placeholder="Enter destination details"
-                        value={withdrawDestination}
-                        onChange={(e) => setWithdrawDestination(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="wallet-modal-actions">
-                    <button type="button" className="modal-confirm-btn" onClick={handleWithdrawSubmit} disabled={submittingWithdraw}>
-                      Confirm Withdrawal
-                    </button>
-                    <button type="button" className="modal-cancel-btn" onClick={() => setShowWithdraw(false)} disabled={submittingWithdraw}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <WithdrawModal
+                onClose={() => setShowWithdraw(false)}
+                wallets={wallets}
+                currencyDropdownOptions={currencyDropdownOptions}
+                submitWithdraw={submitWithdraw}
+                submittingWithdraw={submittingWithdraw}
+                twoFactorEnabled={profile.twoFactorEnabled || false}
+                showToast={showToast}
+              />
             )}
           </div>
         </main>

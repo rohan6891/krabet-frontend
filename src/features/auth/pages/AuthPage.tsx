@@ -17,6 +17,7 @@ import { AuthSocialButtons } from "@/features/auth/components/AuthSocialButtons"
 import { env } from "@/shared/config/env";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
 import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
+import { persistAuthSession } from "@/shared/utils/session";
 import type { SigninResponse } from "@/features/auth/types/auth.types";
 
 declare global {
@@ -95,17 +96,10 @@ export function AuthPage() {
 
   const saveAuthSession = useCallback(
     (token: string, user?: SigninResponse["user"], provider: "google" | "twitter" | "telegram" | "email" = "email") => {
-    window.localStorage.setItem("accessToken", token);
-    window.localStorage.setItem(
-      "krabets_session",
-      JSON.stringify({
-        token,
-        user: {
-          provider,
-          ...(user || {}),
-        },
-      })
-    );
+      persistAuthSession(token, {
+        provider,
+        ...(user || {}),
+      });
     },
     []
   );

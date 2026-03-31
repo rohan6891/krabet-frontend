@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { clearAuthSession } from "@/shared/utils/session";
 
 export interface SessionUser {
   username?: string;
@@ -75,8 +76,7 @@ export function useSession() {
   }, []);
 
   function logout() {
-    window.localStorage.removeItem("krabets_session");
-    window.localStorage.removeItem("accessToken");
+    clearAuthSession();
     window.location.href = "/auth";
   }
 

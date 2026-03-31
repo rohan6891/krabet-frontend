@@ -9,6 +9,7 @@ import { loginWith2FA } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
 import { getUserFriendlyError } from "@/shared/utils/userFriendlyError";
+import { persistAuthSession } from "@/shared/utils/session";
 
 export function VerifyTwoFactorPage() {
   const router = useRouter();
@@ -40,17 +41,10 @@ export function VerifyTwoFactorPage() {
         throw new Error("2FA verification did not return a token.");
       }
 
-      window.localStorage.setItem("accessToken", data.token);
-      window.localStorage.setItem(
-        "krabets_session",
-        JSON.stringify({
-          token: data.token,
-          user: {
-            provider,
-            ...(data.user || {}),
-          },
-        })
-      );
+      persistAuthSession(data.token, {
+        provider,
+        ...(data.user || {}),
+      });
 
       showToast({ type: "success", title: "Verify 2FA", message: "2FA verified successfully." });
 

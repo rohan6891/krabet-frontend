@@ -2,15 +2,18 @@ import { env } from "@/shared/config/env";
 import { apiRequest } from "@/shared/api/http";
 import type {
   AuthMeResponse,
+  CurrenciesResponse,
   WalletActionResponse,
   WalletBalanceResponse,
   WalletDepositPayload,
+  WalletDepositResponse,
   WalletTransactionsResponse,
   WalletWithdrawPayload,
 } from "@/features/wallet/types/wallet.types";
 
 const WALLET_PREFIX = "/api/v1/wallet";
 const AUTH_PREFIX = "/api/v1/auth";
+const CURRENCIES_PREFIX = "/api/v1/currencies";
 
 function authHeaders(token: string, extraHeaders?: Record<string, string>) {
   return {
@@ -45,8 +48,8 @@ export function fetchAuthMe(token: string): Promise<AuthMeResponse> {
   });
 }
 
-export function createDeposit(token: string, payload: WalletDepositPayload, idempotencyKey: string): Promise<WalletActionResponse> {
-  return apiRequest<WalletActionResponse>(env.apiBaseUrl, `${WALLET_PREFIX}/deposit`, {
+export function createDeposit(token: string, payload: WalletDepositPayload, idempotencyKey: string): Promise<WalletDepositResponse> {
+  return apiRequest<WalletDepositResponse>(env.apiBaseUrl, `${WALLET_PREFIX}/deposit`, {
     method: "POST",
     body: payload,
     headers: authHeaders(token, { "idempotency-key": idempotencyKey }),
@@ -58,5 +61,12 @@ export function createWithdrawal(token: string, payload: WalletWithdrawPayload, 
     method: "POST",
     body: payload,
     headers: authHeaders(token, { "idempotency-key": idempotencyKey }),
+  });
+}
+
+export function fetchCurrencies(token: string): Promise<CurrenciesResponse> {
+  return apiRequest<CurrenciesResponse>(env.apiBaseUrl, `${CURRENCIES_PREFIX}`, {
+    method: "GET",
+    headers: authHeaders(token),
   });
 }

@@ -40,16 +40,55 @@ export type WalletDepositPayload = {
   network?: string;
 };
 
+export type WalletDepositCheckoutData = {
+  paymentUrl: string;
+  address: string;
+  network: string;
+  amount: string;
+  currency: string;
+  qrPayload: string;
+  providerPaymentId?: string;
+};
+
+export type WalletDepositResponse = {
+  success: boolean;
+  data: {
+    payment?: Record<string, unknown>;
+    deposit?: Record<string, unknown>;
+  } & Record<string, unknown>;
+};
+
 export type WalletWithdrawPayload = {
   currency: string;
   amount: string;
   withdrawalAddress: string;
   network?: string;
+  twoFactorCode?: string;
 };
 
 export type WalletActionResponse = {
   success: boolean;
   data: Record<string, unknown>;
+};
+
+export type CurrencyRecord = {
+  code: string;
+  network: string;
+  provider_currency: string;
+  min_deposit: string;
+  min_withdrawal: string;
+  provider_min_deposit: string | null;
+  provider_available: boolean;
+  withdrawal_fee: string;
+  deposit_enabled: boolean;
+  withdraw_enabled: boolean;
+};
+
+export type CurrenciesResponse = {
+  success: boolean;
+  data: {
+    currencies: CurrencyRecord[];
+  };
 };
 
 export type AuthMeResponse = {
@@ -58,6 +97,7 @@ export type AuthMeResponse = {
     user: {
       username: string;
       avatarUrl?: string | null;
+      twoFactorEnabled?: boolean;
     };
   };
 };
