@@ -49,6 +49,12 @@ export type CurrencyDropdownOption = {
   minDeposit: string;
   /** Whether deposits are enabled */
   depositEnabled: boolean;
+  /** Minimum withdrawal amount */
+  minWithdrawal: string;
+  /** Whether withdrawals are enabled */
+  withdrawEnabled: boolean;
+  /** Withdrawal fee amount */
+  withdrawalFee: string;
 };
 
 // ─── Network metadata for UX badges and sorting ──────────────────────
@@ -88,6 +94,9 @@ function buildDropdownOptions(currencies: CurrencyRecord[]): CurrencyDropdownOpt
       providerCurrency: c.provider_currency,
       minDeposit: c.min_deposit,
       depositEnabled: c.deposit_enabled,
+      minWithdrawal: c.min_withdrawal,
+      withdrawEnabled: c.withdraw_enabled,
+      withdrawalFee: c.withdrawal_fee,
     };
   });
 

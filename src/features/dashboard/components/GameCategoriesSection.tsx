@@ -30,6 +30,14 @@ function CategorySkeletonRow() {
 
 export function GameCategoriesSection({ games, loading }: GameCategoriesSectionProps) {
   const cards = games.slice(0, 6);
+  const fallbackCards: DashboardGame[] = categoryLabels.map((label, index) => ({
+    id: `category-${label}-${index}`,
+    code: label.toLowerCase(),
+    name: label,
+    status: true,
+    image_path: undefined,
+  }));
+  const cardsToRender: DashboardGame[] = cards.length ? cards : fallbackCards;
 
   return (
     <section className="content-section categories-section">
@@ -41,12 +49,7 @@ export function GameCategoriesSection({ games, loading }: GameCategoriesSectionP
         <CategorySkeletonRow />
       ) : (
         <div className="categories-row">
-          {(cards.length ? cards : categoryLabels.map((label, index) => ({
-            id: `category-${label}-${index}`,
-            code: label.toLowerCase(),
-            name: label,
-            status: true,
-          }))).map((card) => (
+          {cardsToRender.map((card) => (
             <Link href={getDashboardGameHref(card)} className="category-box" key={card.id}>
               <div className="category-box-inner">
                 <div className="category-visual">
