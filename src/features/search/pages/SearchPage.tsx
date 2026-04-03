@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
+import { useState, useMemo } from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { GameImageWithSkeleton } from "@/features/dashboard/components/GameImageWithSkeleton";
+import { getDashboardGameHref } from "@/features/dashboard/utils/gameNavigation";
 import "@/features/dashboard/pages/DashboardPage.css";
 import "./SearchPage.css";
 
-// We'll borrow the dashboard games from our hook
 export function SearchPage() {
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile, games, loading: gamesLoading } = useDashboardData();
@@ -133,13 +134,13 @@ export function SearchPage() {
                               <span>Popular</span>
                             </div>
 
-                            <a
-                              href={`/play/${game.id}`}
+                            <Link
+                              href={getDashboardGameHref(game)}
                               className="play-now-btn compact-play-btn"
                             >
                               <i className="fa-solid fa-play" />
                               <span>Play</span>
-                            </a>
+                            </Link>
                           </div>
                         </div>
                       </article>
