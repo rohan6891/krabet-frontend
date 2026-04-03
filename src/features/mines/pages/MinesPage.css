@@ -370,19 +370,34 @@ select:disabled {
 
 .mine-tile {
   position: relative;
+  display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
-  border: 1px solid rgba(211, 136, 255, 0.12);
+  border: 1px solid rgba(236, 199, 255, 0.34);
   border-radius: 16px;
   background: transparent;
   padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
   perspective: 900px;
   cursor: pointer;
-  transition: transform 0.16s ease;
+  box-shadow:
+    0 12px 22px rgba(7, 1, 15, 0.24),
+    0 3px 0 rgba(255, 255, 255, 0.1) inset,
+    inset 0 -10px 15px rgba(20, 6, 33, 0.34);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .mine-tile:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-4px);
+  border-color: rgba(247, 223, 255, 0.56);
+  box-shadow:
+    0 19px 30px rgba(8, 2, 18, 0.34),
+    0 4px 0 rgba(255, 255, 255, 0.15) inset,
+    inset 0 -10px 16px rgba(20, 6, 33, 0.4);
 }
 
 .tile-inner {
@@ -391,7 +406,7 @@ select:disabled {
   height: 100%;
   border-radius: inherit;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(28, 8, 46, 0.78), rgba(14, 3, 27, 0.9));
+  background: linear-gradient(180deg, rgba(136, 88, 180, 0.38), rgba(46, 19, 72, 0.82));
 }
 
 .tile-face {
@@ -401,29 +416,44 @@ select:disabled {
   display: grid;
   place-items: center;
   box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 7px 16px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -9px 15px rgba(20, 6, 33, 0.34);
 }
 
 .tile-front {
-  background: linear-gradient(180deg, rgba(121, 43, 206, 0.3), rgba(51, 13, 78, 0.86));
+  background:
+    linear-gradient(180deg, rgba(232, 206, 250, 0.32), rgba(157, 110, 199, 0.56) 58%, rgba(73, 38, 109, 0.86));
   color: #ebdfff;
+  overflow: hidden;
   transition:
     transform 0.44s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.28s ease;
   z-index: 3;
 }
 
-.tile-front-core {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(214, 159, 255, 0.2), rgba(137, 78, 201, 0.15));
-  border: 1px solid rgba(233, 201, 255, 0.22);
-  font-size: 0.82rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+.tile-front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.03) 46%, rgba(255, 255, 255, 0) 72%);
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.tile-front::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(24, 7, 40, 0), rgba(14, 3, 25, 0.38));
+  pointer-events: none;
+}
+
+.mine-tile:hover:not(:disabled) .tile-front::before {
+  opacity: 1;
 }
 
 .tile-reveal-base {
@@ -437,10 +467,11 @@ select:disabled {
 .tile-symbol {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 1.24rem;
+  line-height: 1;
   opacity: 0;
   transform: translateY(14px) scale(0.75);
   transition:
@@ -448,17 +479,22 @@ select:disabled {
     opacity 0.22s ease;
 }
 
+.tile-symbol > i {
+  display: block;
+  transform: translateY(1px);
+}
+
 .tile-symbol.symbol-safe {
-  background: radial-gradient(circle at 30% 25%, rgba(195, 255, 222, 0.95), rgba(68, 205, 122, 0.86));
-  color: #104728;
+  background: radial-gradient(circle at 30% 24%, rgba(201, 255, 225, 0.98), rgba(69, 206, 124, 0.88));
+  color: #1d9458;
   box-shadow:
     0 0 0 4px rgba(80, 255, 162, 0.12),
     0 8px 20px rgba(0, 0, 0, 0.24);
 }
 
 .tile-symbol.symbol-mine {
-  background: radial-gradient(circle at 30% 25%, rgba(255, 195, 216, 0.98), rgba(245, 83, 136, 0.9));
-  color: #5a1330;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 201, 223, 0.98), rgba(241, 99, 150, 0.92));
+  color: #ce5e8f;
   box-shadow:
     0 0 0 4px rgba(255, 116, 166, 0.13),
     0 8px 20px rgba(0, 0, 0, 0.24);

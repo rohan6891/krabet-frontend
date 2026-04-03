@@ -46,11 +46,7 @@ export function MineTile({ tile, isDisabled, isPending, revealDelay, onClick }: 
             {showMine ? <i className="fa-solid fa-bomb"></i> : null}
           </span>
         </span>
-        <span className="tile-face tile-front">
-          <span className="tile-front-core">
-            <i className="fa-solid fa-diamond-turn-right"></i>
-          </span>
-        </span>
+        <span className="tile-face tile-front" aria-hidden="true"></span>
       </span>
     </button>
   );
