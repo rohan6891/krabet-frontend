@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { GameImageWithSkeleton } from "@/features/dashboard/components/GameImageWithSkeleton";
 import type { DashboardGame } from "@/features/dashboard/types/dashboard.types";
+import { getDashboardGameHref } from "@/features/dashboard/utils/gameNavigation";
 
 type GameCategoriesSectionProps = {
   games: DashboardGame[];
@@ -27,6 +29,8 @@ function CategorySkeletonRow() {
 }
 
 export function GameCategoriesSection({ games, loading }: GameCategoriesSectionProps) {
+  const cards = games.slice(0, 6);
+
   return (
     <section className="content-section categories-section">
       <div className="section-title-wrap">
@@ -37,23 +41,28 @@ export function GameCategoriesSection({ games, loading }: GameCategoriesSectionP
         <CategorySkeletonRow />
       ) : (
         <div className="categories-row">
-          {categoryLabels.map((label) => (
-            <a href="#" className="category-box" key={label}>
+          {(cards.length ? cards : categoryLabels.map((label, index) => ({
+            id: `category-${label}-${index}`,
+            code: label.toLowerCase(),
+            name: label,
+            status: true,
+          }))).map((card) => (
+            <Link href={getDashboardGameHref(card)} className="category-box" key={card.id}>
               <div className="category-box-inner">
                 <div className="category-visual">
                   <GameImageWithSkeleton
-                    src="/game_category.png"
-                    alt={label}
+                    src={card.image_path || "/game_category.png"}
+                    alt={card.name}
                     className="category-card-image"
                   />
                 </div>
 
                 <div className="category-text">
-                  <span className="category-name">{label}</span>
+                  <span className="category-name">{card.name}</span>
                   <span className="category-games">Trending game</span>
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       )}

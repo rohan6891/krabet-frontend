@@ -1,0 +1,408 @@
+/* ==========================================================================
+   OVERLAY — no blur, semi-transparent dark
+========================================================================== */
+.header-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(7, 2, 20, 0.55);
+}
+
+/* ==========================================================================
+   BASE POPUP — floating card, top-right
+========================================================================== */
+.header-popup {
+  position: absolute;
+  top: 88px;
+  right: 24px;
+  width: min(92vw, 420px);
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(63,17,103,0.96), rgba(26,7,46,0.98));
+  border: 1px solid rgba(162,94,255,0.35);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.45),
+    0 0 28px rgba(136,66,255,0.22);
+  color: #f6f0ff;
+}
+
+.header-popup-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(176,111,255,0.22);
+  background: linear-gradient(180deg, rgba(115,49,185,0.45), rgba(63,17,103,0.12));
+}
+
+.header-popup-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-popup-title-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(217,183,255,0.12);
+}
+
+.header-popup-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.header-popup-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-popup-close:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.header-popup-body {
+  padding: 18px;
+}
+
+/* ==========================================================================
+   NOTIFICATIONS PANEL
+========================================================================== */
+.notifications-list {
+  max-height: 360px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.notifications-list::-webkit-scrollbar {
+  display: none;
+}
+
+.notification-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(176,111,255,0.14);
+  cursor: pointer;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.unread {
+  opacity: 1;
+}
+
+.notification-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(137,69,255,0.2);
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.notification-title {
+  font-weight: 700;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.notification-time {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.notification-message {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: 4px 0 0;
+}
+
+.hp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: rgba(255,255,255,0.5);
+  gap: 10px;
+}
+
+.hp-empty i {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.hp-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.hp-mark-all-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(176,111,255,0.2);
+  border-radius: 10px;
+  color: #d4a8ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.hp-mark-all-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ==========================================================================
+   USER PANEL (ID CARD STYLE)
+========================================================================== */
+.user-panel {
+  width: min(92vw, 640px);
+}
+
+/* TOP SECTION */
+.user-card-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* avatar */
+.user-card-avatar-wrap {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(180deg, #a66bff, #4c1c7e);
+  flex-shrink: 0;
+}
+
+.user-card-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-card-avatar--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #6e26dd, #3a0e6e);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* name */
+.user-card-name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.user-card-username {
+  margin: 4px 0 10px;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* badges */
+.user-card-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vip-badge {
+  background: rgba(255,211,105,0.15);
+  color: #ffd86f;
+}
+
+.verified-badge {
+  background: rgba(188,151,255,0.12);
+  color: #d4b8ff;
+}
+
+/* balance */
+.user-balance-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+}
+
+.user-balance-label {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-balance-value {
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+/* INFO GRID */
+.user-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.user-info-item {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.user-info-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.user-info-value {
+  display: block;
+  font-weight: 800;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* actions */
+.user-panel-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.user-panel-btn {
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  cursor: pointer;
+}
+
+.user-panel-btn.primary {
+  background: linear-gradient(180deg, #7b43db, #5c2db0);
+  color: white;
+}
+
+.user-panel-btn.secondary {
+  background: rgba(255,255,255,0.05);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-panel-btn:hover {
+  opacity: 0.9;
+}
+
+/* notification badge on bell icon */
+.header-notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+========================================================================== */
+@media (max-width: 760px) {
+  .header-popup {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+
+  .user-card-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-panel-actions {
+    grid-template-columns: 1fr;
+  }
+}

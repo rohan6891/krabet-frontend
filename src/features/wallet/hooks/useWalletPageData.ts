@@ -22,7 +22,6 @@ import type {
 type WalletProfile = {
   username: string;
   avatarUrl: string | null;
-  twoFactorEnabled?: boolean;
 };
 
 type WalletStats = {
@@ -50,8 +49,6 @@ export type CurrencyDropdownOption = {
   minDeposit: string;
   /** Whether deposits are enabled */
   depositEnabled: boolean;
-  minWithdrawal: string;
-  withdrawalFee: string;
 };
 
 // ─── Network metadata for UX badges and sorting ──────────────────────
@@ -90,8 +87,6 @@ function buildDropdownOptions(currencies: CurrencyRecord[]): CurrencyDropdownOpt
       network: c.network,
       providerCurrency: c.provider_currency,
       minDeposit: c.min_deposit,
-      minWithdrawal: c.min_withdrawal,
-      withdrawalFee: c.withdrawal_fee,
       depositEnabled: c.deposit_enabled,
     };
   });
@@ -183,7 +178,6 @@ export function useWalletPageData() {
   const [profile, setProfile] = useState<WalletProfile>({
     username: "Username",
     avatarUrl: null,
-    twoFactorEnabled: false,
   });
 
   const token = useMemo(() => getAccessTokenFromStorage(), []);
@@ -209,7 +203,6 @@ export function useWalletPageData() {
       setProfile({
         username: meRes.data.user.username || sessionUser?.username || "Username",
         avatarUrl: meRes.data.user.avatarUrl || sessionUser?.avatarUrl || null,
-        twoFactorEnabled: meRes.data.user.twoFactorEnabled || (sessionUser as { twoFactorEnabled?: boolean })?.twoFactorEnabled || false,
       });
     } finally {
       setLoading(false);
@@ -307,7 +300,7 @@ export function useWalletPageData() {
   );
 
   const submitWithdraw = useCallback(
-    async (payload: { amount: string; currency: string; withdrawalAddress: string; network?: string; twoFactorCode?: string }) => {
+    async (payload: { amount: string; currency: string; withdrawalAddress: string; network?: string }) => {
       if (!token) return;
 
       setSubmittingWithdraw(true);

@@ -31,6 +31,7 @@ export function DashboardPage() {
           <DashboardHeader
             walletBalance={walletBalance}
             username={profile.username}
+            email={profile.email}
             avatarUrl={profile.avatarUrl}
           />
 

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { GameImageWithSkeleton } from "@/features/dashboard/components/GameImageWithSkeleton";
 import type { DashboardGame } from "@/features/dashboard/types/dashboard.types";
+import { getDashboardGameHref } from "@/features/dashboard/utils/gameNavigation";
 
 type OriginalsSectionProps = {
   games: DashboardGame[];
@@ -31,10 +33,10 @@ export function OriginalsSection({ games, loading }: OriginalsSectionProps) {
       ) : (
         <div className="originals-row">
           {games.map((card) => (
-            <a href="#" className="original-box" key={card.id}>
+            <Link href={getDashboardGameHref(card)} className="original-box" key={card.id}>
               <GameImageWithSkeleton src={card.image_path || ""} alt={card.name} className="original-card-image" />
               <div className="original-label">{card.name}</div>
-            </a>
+            </Link>
           ))}
         </div>
       )}

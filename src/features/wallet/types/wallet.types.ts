@@ -63,7 +63,6 @@ export type WalletWithdrawPayload = {
   amount: string;
   withdrawalAddress: string;
   network?: string;
-  twoFactorCode?: string;
 };
 
 export type WalletActionResponse = {
@@ -97,7 +96,6 @@ export type AuthMeResponse = {
     user: {
       username: string;
       avatarUrl?: string | null;
-      twoFactorEnabled?: boolean;
     };
   };
 };

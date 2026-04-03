@@ -13,6 +13,7 @@ import type { DashboardGame, DashboardWin } from "@/features/dashboard/types/das
 
 type DashboardProfile = {
   username: string;
+  email: string;
   avatarUrl: string | null;
 };
 
@@ -46,6 +47,7 @@ export function useDashboardData() {
   const [walletBalance, setWalletBalance] = useState("0.00");
   const [profile, setProfile] = useState<DashboardProfile>({
     username: "User",
+    email: "",
     avatarUrl: null,
   });
 
@@ -88,6 +90,7 @@ export function useDashboardData() {
         const sessionUser = getStoredSession()?.user;
         setProfile({
           username: meRes.data.user.username || sessionUser?.username || "User",
+          email: meRes.data.user.email || sessionUser?.email || "",
           avatarUrl: meRes.data.user.avatarUrl || sessionUser?.avatarUrl || null,
         });
       } catch {
@@ -115,6 +118,7 @@ export function useDashboardData() {
 
   return {
     loading,
+    games,
     categories,
     originals,
     recentWins,

@@ -333,7 +333,6 @@
 .deposit-card::-webkit-scrollbar {
   width: 4px;
 }
-
 .deposit-card::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
@@ -416,9 +415,9 @@
   justify-content: space-between;
   gap: 12px;
   padding: 0 16px;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  border: 1px solid rgba(55, 65, 81, 0.7);
   border-radius: 12px;
-  background: rgba(27, 9, 42, 0.94);
+  background: #0f172a;
   color: #e2e8f0;
   font-size: 15px;
   font-weight: 600;
@@ -427,12 +426,12 @@
 }
 
 .deposit-dropdown-trigger:hover {
-  border-color: rgba(188, 129, 255, 0.4);
+  border-color: rgba(100, 116, 139, 0.6);
 }
 
 .deposit-dropdown-trigger.open {
-  border-color: #b366ff;
-  box-shadow: 0 0 0 2px rgba(179, 102, 255, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .deposit-dropdown-selected {
@@ -446,7 +445,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8654ff, #5b2db4);
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -523,10 +522,10 @@
   right: 0;
   max-height: 260px;
   overflow-y: auto;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  border: 1px solid rgba(55, 65, 81, 0.7);
   border-radius: 12px;
-  background: rgba(27, 9, 42, 0.98);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+  background: #0f172a;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
   z-index: 10;
   padding: 4px;
 }
@@ -534,7 +533,6 @@
 .deposit-dropdown-menu::-webkit-scrollbar {
   width: 4px;
 }
-
 .deposit-dropdown-menu::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -560,7 +558,7 @@
 }
 
 .deposit-dropdown-option.selected {
-  background: rgba(134, 84, 255, 0.15);
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .deposit-dropdown-option-info {
@@ -578,7 +576,7 @@
 
 .deposit-dropdown-check {
   font-size: 13px;
-  color: #b366ff;
+  color: #3b82f6;
   flex-shrink: 0;
 }
 
@@ -599,10 +597,10 @@
 .deposit-amount-input {
   width: 100%;
   height: 52px;
-  padding: 0 70px 0 16px;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  padding: 0 60px 0 16px;
+  border: 1px solid rgba(55, 65, 81, 0.7);
   border-radius: 12px;
-  background: rgba(27, 9, 42, 0.94);
+  background: #0f172a;
   color: #e2e8f0;
   font-size: 16px;
   font-weight: 600;
@@ -625,8 +623,8 @@
 }
 
 .deposit-amount-input:focus {
-  border-color: #b366ff;
-  box-shadow: 0 0 0 2px rgba(179, 102, 255, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .deposit-amount-currency {
@@ -645,11 +643,11 @@
 
 /* ─── Generate Button ─── */
 .deposit-generate-btn {
-  background: linear-gradient(180deg, rgba(134, 84, 255, 0.56), rgba(91, 45, 180, 0.7));
   width: 100%;
-  height: 52px;
+  height: 48px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
@@ -677,11 +675,10 @@
 
 .deposit-generate-secondary {
   background: transparent;
-  border: 1px solid rgba(188, 129, 255, 0.4);
-  color: #d8b2ff;
-  font-size: 15px;
-  font-weight: 700;
-  height: 52px;
+  border: 1px solid rgba(55, 65, 81, 0.7);
+  color: #94a3b8;
+  font-size: 13px;
+  height: 42px;
 }
 
 .deposit-generate-secondary:hover:not(:disabled) {
@@ -699,9 +696,7 @@
 }
 
 @keyframes spinDeposit {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* ─── Deposit Result ─── */
@@ -713,15 +708,8 @@
 }
 
 @keyframes fadeInResult {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Address Row ─── */
@@ -732,11 +720,11 @@
 
 .deposit-address-input {
   flex: 1;
-  height: 52px;
-  padding: 0 16px;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid rgba(55, 65, 81, 0.7);
   border-radius: 10px;
-  background: rgba(27, 9, 42, 0.94);
+  background: #0f172a;
   color: #e2e8f0;
   font-size: 12px;
   font-family: "JetBrains Mono", "Fira Code", monospace;
@@ -748,13 +736,13 @@
 }
 
 .deposit-copy-btn {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  border: 1px solid rgba(55, 65, 81, 0.7);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
-  color: #d7b5ff;
+  color: #94a3b8;
   font-size: 16px;
   cursor: pointer;
   display: flex;
@@ -784,7 +772,7 @@
   width: 180px;
   height: 180px;
   border-radius: 12px;
-  border: 1px solid rgba(188, 129, 255, 0.3);
+  border: 1px solid rgba(55, 65, 81, 0.5);
   background: #ffffff;
   padding: 10px;
   box-sizing: border-box;
@@ -797,7 +785,7 @@
   gap: 1px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(188, 129, 255, 0.18);
+  border: 1px solid rgba(55, 65, 81, 0.5);
 }
 
 .deposit-info-row {
@@ -805,11 +793,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: rgba(27, 9, 42, 0.6);
+  background: rgba(15, 23, 42, 0.6);
 }
 
-.deposit-info-row+.deposit-info-row {
-  border-top: 1px solid rgba(188, 129, 255, 0.18);
+.deposit-info-row + .deposit-info-row {
+  border-top: 1px solid rgba(55, 65, 81, 0.4);
 }
 
 .deposit-info-row span {
@@ -926,10 +914,10 @@
 .modal-confirm-btn,
 .modal-cancel-btn {
   flex: 1;
-  height: 52px;
+  height: 46px;
   border-radius: 12px;
   border: 1px solid rgba(188, 129, 255, 0.18);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
 }

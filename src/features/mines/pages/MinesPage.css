@@ -1,0 +1,50 @@
+.mines-route-wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+}
+
+.mines-card {
+  width: min(720px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(20, 24, 36, 0.75);
+  border-radius: 18px;
+  padding: 24px;
+  color: #fff;
+}
+
+.mines-card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+}
+
+.mines-card p {
+  margin: 0;
+  opacity: 0.86;
+}
+
+.mines-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mines-btn {
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+}
+
+.mines-btn.primary {
+  background: #15b26b;
+  color: #fff;
+}
+
+.mines-btn.secondary {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
