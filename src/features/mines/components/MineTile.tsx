@@ -24,20 +24,32 @@ export function MineTile({ tile, isDisabled, isPending, revealDelay, onClick }: 
 
   const showSafe = tile.state === TILE_STATE.SAFE;
   const showMine = tile.state === TILE_STATE.MINE;
+  const isRevealed = showSafe || showMine;
 
   const style = {
     ["--reveal-delay" as string]: `${revealDelay}ms`,
   } as CSSProperties;
 
   return (
-    <button className={classes} onClick={onClick} disabled={isDisabled} aria-label={`Tile ${tile.index + 1}`} style={style}>
+    <button
+      className={classes}
+      onClick={onClick}
+      disabled={isDisabled}
+      aria-label={`Tile ${tile.index + 1}`}
+      aria-pressed={isRevealed}
+      style={style}
+    >
       <span className="tile-inner">
-        <span className="tile-face tile-front">
-          <i className="fa-solid fa-diamond-turn-right"></i>
+        <span className="tile-reveal-base" aria-hidden="true">
+          <span className={`tile-symbol ${showSafe ? "symbol-safe" : showMine ? "symbol-mine" : ""}`.trim()}>
+            {showSafe ? <i className="fa-solid fa-gem"></i> : null}
+            {showMine ? <i className="fa-solid fa-bomb"></i> : null}
+          </span>
         </span>
-        <span className="tile-face tile-back">
-          {showSafe ? <i className="fa-solid fa-gem"></i> : null}
-          {showMine ? <i className="fa-solid fa-bomb"></i> : null}
+        <span className="tile-face tile-front">
+          <span className="tile-front-core">
+            <i className="fa-solid fa-diamond-turn-right"></i>
+          </span>
         </span>
       </span>
     </button>

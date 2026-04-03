@@ -390,13 +390,8 @@ select:disabled {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  transform-style: preserve-3d;
-  transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.mine-tile.revealed-safe .tile-inner,
-.mine-tile.revealed-mine .tile-inner {
-  transform: rotateY(180deg);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(28, 8, 46, 0.78), rgba(14, 3, 27, 0.9));
 }
 
 .tile-face {
@@ -405,7 +400,6 @@ select:disabled {
   border-radius: inherit;
   display: grid;
   place-items: center;
-  backface-visibility: hidden;
   box-shadow:
     0 6px 16px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -414,46 +408,96 @@ select:disabled {
 .tile-front {
   background: linear-gradient(180deg, rgba(121, 43, 206, 0.3), rgba(51, 13, 78, 0.86));
   color: #ebdfff;
-  font-size: 0.95rem;
+  transition:
+    transform 0.44s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+  z-index: 3;
 }
 
-.tile-back {
-  transform: rotateY(180deg);
+.tile-front-core {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(214, 159, 255, 0.2), rgba(137, 78, 201, 0.15));
+  border: 1px solid rgba(233, 201, 255, 0.22);
+  font-size: 0.82rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.tile-reveal-base {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+
+.tile-symbol {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   font-size: 1rem;
+  opacity: 0;
+  transform: translateY(14px) scale(0.75);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
 }
 
-.mine-tile.revealed-safe .tile-back {
-  background: linear-gradient(180deg, rgba(23, 126, 67, 0.95), rgba(14, 91, 48, 0.98));
-  color: #caffde;
-  border: 1px solid rgba(103, 239, 159, 0.2);
+.tile-symbol.symbol-safe {
+  background: radial-gradient(circle at 30% 25%, rgba(195, 255, 222, 0.95), rgba(68, 205, 122, 0.86));
+  color: #104728;
   box-shadow:
-    0 0 16px rgba(103, 239, 159, 0.12),
-    0 8px 18px rgba(0, 0, 0, 0.18);
+    0 0 0 4px rgba(80, 255, 162, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.24);
 }
 
-.mine-tile.revealed-mine .tile-back {
-  background: linear-gradient(180deg, rgba(149, 34, 70, 0.95), rgba(93, 15, 42, 0.98));
-  color: #ffd0dc;
-  border: 1px solid rgba(255, 125, 162, 0.2);
+.tile-symbol.symbol-mine {
+  background: radial-gradient(circle at 30% 25%, rgba(255, 195, 216, 0.98), rgba(245, 83, 136, 0.9));
+  color: #5a1330;
   box-shadow:
-    0 0 16px rgba(255, 125, 162, 0.12),
-    0 8px 18px rgba(0, 0, 0, 0.18);
+    0 0 0 4px rgba(255, 116, 166, 0.13),
+    0 8px 20px rgba(0, 0, 0, 0.24);
 }
 
-.mine-tile.flash .tile-back {
-  animation: tilePulse 0.45s ease var(--reveal-delay, 0ms);
+.mine-tile.revealed-safe .tile-front,
+.mine-tile.revealed-mine .tile-front {
+  transform: translateY(-108%);
+  opacity: 0.05;
+  pointer-events: none;
 }
 
-.mine-tile.flash-safe .tile-back {
+.mine-tile.revealed-safe .tile-symbol,
+.mine-tile.revealed-mine .tile-symbol {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: symbolPop 0.45s ease var(--reveal-delay, 0ms);
+}
+
+.mine-tile.revealed-safe {
+  border-color: rgba(103, 239, 159, 0.4);
+  box-shadow: 0 0 18px rgba(103, 239, 159, 0.14);
+}
+
+.mine-tile.revealed-mine {
+  border-color: rgba(255, 125, 162, 0.42);
+  box-shadow: 0 0 18px rgba(255, 125, 162, 0.15);
+}
+
+.mine-tile.flash-safe .tile-symbol.symbol-safe {
   box-shadow:
-    0 0 18px rgba(103, 239, 159, 0.22),
-    0 10px 22px rgba(0, 0, 0, 0.2);
+    0 0 0 5px rgba(80, 255, 162, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
-.mine-tile.flash-mine .tile-back {
+.mine-tile.flash-mine .tile-symbol.symbol-mine {
   box-shadow:
-    0 0 18px rgba(255, 125, 162, 0.24),
-    0 10px 22px rgba(0, 0, 0, 0.2);
+    0 0 0 5px rgba(255, 116, 166, 0.19),
+    0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
 .mine-tile.pending .tile-front {
@@ -480,13 +524,25 @@ select:disabled {
 
 @keyframes tilePulse {
   0% {
-    transform: rotateY(180deg) scale(0.92);
+    transform: scale(0.92);
   }
   60% {
-    transform: rotateY(180deg) scale(1.04);
+    transform: scale(1.04);
   }
   100% {
-    transform: rotateY(180deg) scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes symbolPop {
+  0% {
+    transform: translateY(14px) scale(0.72);
+  }
+  65% {
+    transform: translateY(-2px) scale(1.06);
+  }
+  100% {
+    transform: translateY(0) scale(1);
   }
 }
 
