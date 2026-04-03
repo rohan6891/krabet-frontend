@@ -5,10 +5,11 @@ import "@/features/dashboard/pages/DashboardPage.css";
 import "./WalletPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { DepositModal } from "@/features/wallet/components/DepositModal";
+import { WithdrawModal } from "@/features/wallet/components/WithdrawModal";
 import { useWalletPageData } from "@/features/wallet/hooks/useWalletPageData";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
-import type { WalletDepositCheckoutData, WalletTransaction } from "@/features/wallet/types/wallet.types";
-import type { CurrencyDropdownOption } from "@/features/wallet/hooks/useWalletPageData";
+import type { WalletTransaction } from "@/features/wallet/types/wallet.types";
 
 function formatCurrency(value: string | number): string {
   const numeric = Number(value);
@@ -47,10 +48,6 @@ function buildTxView(tx: WalletTransaction): { icon: string; className: string; 
   };
 }
 
-function buildQrUrl(value: string): string {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(value)}`;
-}
-
 export function WalletPage() {
   const { showToast } = useToast();
   const {
@@ -59,11 +56,11 @@ export function WalletPage() {
     loading,
     submittingDeposit,
     submittingWithdraw,
+    wallets,
     transactions,
     profile,
     totalBalance,
     stats,
-    availableCurrencies,
     currencyDropdownOptions,
     submitDeposit,
     submitWithdraw,
@@ -72,126 +69,14 @@ export function WalletPage() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
-  // ─── Deposit state ───
-  const [depositAmount, setDepositAmount] = useState("");
-  const [selectedCurrencyKey, setSelectedCurrencyKey] = useState("");
-  const [depositCheckout, setDepositCheckout] = useState<WalletDepositCheckoutData | null>(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // ─── Withdraw state ───
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawMethod, setWithdrawMethod] = useState("Bank");
-  const [withdrawDestination, setWithdrawDestination] = useState("");
-
   const transactionsList = useMemo(() => transactions.slice(0, 8), [transactions]);
 
-  // Find the selected currency option
-  const selectedOption: CurrencyDropdownOption | null = useMemo(() => {
-    if (!selectedCurrencyKey && currencyDropdownOptions.length) {
-      return currencyDropdownOptions[0];
-    }
-    return currencyDropdownOptions.find((opt) => opt.key === selectedCurrencyKey) ?? null;
-  }, [selectedCurrencyKey, currencyDropdownOptions]);
-
-  // Auto-select best default when options load
-  const effectiveKey = selectedOption?.key ?? "";
-
   const openDeposit = () => {
-    setDepositAmount("");
-    setDepositCheckout(null);
-    setDropdownOpen(false);
-    // Pick the first option as default
-    if (currencyDropdownOptions.length) {
-      setSelectedCurrencyKey(currencyDropdownOptions[0].key);
-    }
     setShowDeposit(true);
   };
 
   const openWithdraw = () => {
-    setWithdrawMethod("Bank");
-    setWithdrawAmount("");
-    setWithdrawDestination("");
     setShowWithdraw(true);
-  };
-
-  const handleCurrencySelect = (option: CurrencyDropdownOption) => {
-    setSelectedCurrencyKey(option.key);
-    setDropdownOpen(false);
-    // Reset checkout when currency changes
-    setDepositCheckout(null);
-  };
-
-  const handleDepositSubmit = async () => {
-    if (!selectedOption) {
-      showToast({ type: "error", title: "Deposit", message: "Select a currency first." });
-      return;
-    }
-    if (!depositAmount || Number(depositAmount) <= 0) {
-      showToast({ type: "error", title: "Deposit", message: "Enter a valid amount." });
-      return;
-    }
-
-    const minDep = Number(selectedOption.minDeposit);
-    if (minDep > 0 && Number(depositAmount) < minDep) {
-      showToast({
-        type: "error",
-        title: "Deposit",
-        message: `Minimum deposit is ${selectedOption.minDeposit} ${selectedOption.code}.`,
-      });
-      return;
-    }
-
-    try {
-      const checkout = await submitDeposit({
-        amount: depositAmount,
-        currency: selectedOption.code,
-        network: selectedOption.network !== selectedOption.code ? selectedOption.network : undefined,
-      });
-
-      setDepositCheckout(checkout);
-      showToast({ type: "success", title: "Deposit", message: "Deposit address generated." });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create deposit.";
-      showToast({ type: "error", title: "Deposit", message });
-    }
-  };
-
-  const copyDepositAddress = async () => {
-    if (!depositCheckout?.address) return;
-
-    try {
-      await navigator.clipboard.writeText(depositCheckout.address);
-      showToast({ type: "success", title: "Copied", message: "Address copied to clipboard." });
-    } catch {
-      showToast({ type: "error", title: "Deposit", message: "Failed to copy address." });
-    }
-  };
-
-  const handleWithdrawSubmit = async () => {
-    if (!withdrawAmount || Number(withdrawAmount) <= 0) {
-      showToast({ type: "error", title: "Withdraw", message: "Enter a valid amount." });
-      return;
-    }
-
-    if (!withdrawDestination.trim()) {
-      showToast({ type: "error", title: "Withdraw", message: "Destination details are required." });
-      return;
-    }
-
-    try {
-      const currencyOptions = availableCurrencies.length ? availableCurrencies : ["USDT"];
-      await submitWithdraw({
-        amount: withdrawAmount,
-        currency: currencyOptions[0],
-        withdrawalAddress: withdrawDestination.trim(),
-      });
-
-      showToast({ type: "success", title: "Withdraw", message: "Withdrawal request submitted." });
-      setShowWithdraw(false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to submit withdrawal request.";
-      showToast({ type: "error", title: "Withdraw", message });
-    }
   };
 
   if (isChecking) {
@@ -348,258 +233,26 @@ export function WalletPage() {
               </div>
             </div>
 
-            {/* ═══════════════════════════════════════════════════════════ */}
-            {/*  STAKE-STYLE DEPOSIT MODAL                                */}
-            {/* ═══════════════════════════════════════════════════════════ */}
             {showDeposit && (
-              <div className="wallet-modal-overlay" onClick={() => setShowDeposit(false)}>
-                <div className="deposit-card" onClick={(e) => e.stopPropagation()}>
-                  {/* Header */}
-                  <div className="deposit-card-header">
-                    <div className="deposit-card-header-left">
-                      <i className="fa-solid fa-wallet"></i>
-                      <span>Deposit</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="deposit-card-close"
-                      onClick={() => setShowDeposit(false)}
-                      aria-label="Close"
-                    >
-                      <i className="fa-solid fa-xmark"></i>
-                    </button>
-                  </div>
-
-                  <div className="deposit-card-body">
-                    {/* Currency Selection */}
-                    <div className="deposit-field">
-                      <label className="deposit-field-label">Currency</label>
-                      <div className="deposit-dropdown-container">
-                        <button
-                          type="button"
-                          className={`deposit-dropdown-trigger ${dropdownOpen ? "open" : ""}`}
-                          onClick={() => setDropdownOpen(!dropdownOpen)}
-                        >
-                          {selectedOption ? (
-                            <div className="deposit-dropdown-selected">
-                              <div className="deposit-coin-icon">
-                                <span className="deposit-coin-symbol">{selectedOption.code.charAt(0)}</span>
-                              </div>
-                              <div className="deposit-dropdown-selected-info">
-                                <span className="deposit-dropdown-coin-name">{selectedOption.label}</span>
-                                {selectedOption.badge && (
-                                  <span className={`deposit-badge ${selectedOption.badge.includes("High") ? "badge-warn" : "badge-good"}`}>
-                                    {selectedOption.badge}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="deposit-dropdown-placeholder">Select currency</span>
-                          )}
-                          <i className={`fa-solid fa-chevron-${dropdownOpen ? "up" : "down"} deposit-dropdown-arrow`}></i>
-                        </button>
-
-                        {dropdownOpen && (
-                          <div className="deposit-dropdown-menu">
-                            {currencyDropdownOptions.length === 0 && (
-                              <div className="deposit-dropdown-empty">No currencies available</div>
-                            )}
-                            {currencyDropdownOptions.map((opt) => (
-                              <button
-                                key={opt.key}
-                                type="button"
-                                className={`deposit-dropdown-option ${opt.key === effectiveKey ? "selected" : ""}`}
-                                onClick={() => handleCurrencySelect(opt)}
-                              >
-                                <div className="deposit-coin-icon">
-                                  <span className="deposit-coin-symbol">{opt.code.charAt(0)}</span>
-                                </div>
-                                <div className="deposit-dropdown-option-info">
-                                  <span className="deposit-dropdown-option-name">{opt.label}</span>
-                                  {opt.badge && (
-                                    <span className={`deposit-badge deposit-badge-sm ${opt.badge.includes("High") ? "badge-warn" : "badge-good"}`}>
-                                      {opt.badge}
-                                    </span>
-                                  )}
-                                </div>
-                                {opt.key === effectiveKey && (
-                                  <i className="fa-solid fa-check deposit-dropdown-check"></i>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Amount Input */}
-                    <div className="deposit-field">
-                      <label className="deposit-field-label">Amount</label>
-                      <div className="deposit-amount-wrap">
-                        <input
-                          id="deposit-amount-input"
-                          type="number"
-                          className="deposit-amount-input"
-                          placeholder="0.00"
-                          min="0"
-                          step="any"
-                          value={depositAmount}
-                          onChange={(e) => setDepositAmount(e.target.value)}
-                        />
-                        {selectedOption && (
-                          <span className="deposit-amount-currency">{selectedOption.code}</span>
-                        )}
-                      </div>
-                      {selectedOption && Number(selectedOption.minDeposit) > 0 && (
-                        <span className="deposit-min-hint">
-                          Min: {selectedOption.minDeposit} {selectedOption.code}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Generate Button */}
-                    {!depositCheckout && (
-                      <button
-                        type="button"
-                        className="deposit-generate-btn"
-                        onClick={handleDepositSubmit}
-                        disabled={submittingDeposit || !selectedOption}
-                      >
-                        {submittingDeposit ? (
-                          <>
-                            <span className="deposit-spinner"></span>
-                            Generating...
-                          </>
-                        ) : (
-                          "Generate Deposit Address"
-                        )}
-                      </button>
-                    )}
-
-                    {/* ─── Address + QR Result ─── */}
-                    {depositCheckout && (depositCheckout.address || depositCheckout.qrPayload) && (
-                      <div className="deposit-result">
-                        {/* Address */}
-                        <div className="deposit-field">
-                          <label className="deposit-field-label">Address</label>
-                          <div className="deposit-address-row">
-                            <input
-                              type="text"
-                              className="deposit-address-input"
-                              readOnly
-                              value={depositCheckout.address || "Address not available"}
-                            />
-                            <button
-                              type="button"
-                              className="deposit-copy-btn"
-                              onClick={copyDepositAddress}
-                              disabled={!depositCheckout.address}
-                              title="Copy address"
-                            >
-                              <i className="fa-regular fa-copy"></i>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* QR Code */}
-                        <div className="deposit-qr-section">
-                          <img
-                            className="deposit-qr-img"
-                            src={buildQrUrl(depositCheckout.qrPayload || depositCheckout.address)}
-                            alt="Deposit QR code"
-                          />
-                        </div>
-
-                        {/* Info Rows */}
-                        <div className="deposit-info-grid">
-                          <div className="deposit-info-row">
-                            <span>Network</span>
-                            <strong>{selectedOption?.network !== selectedOption?.code ? selectedOption?.network : selectedOption?.code}</strong>
-                          </div>
-                          <div className="deposit-info-row">
-                            <span>Amount</span>
-                            <strong>{depositCheckout.amount || depositAmount} {depositCheckout.currency}</strong>
-                          </div>
-                          <div className="deposit-info-row">
-                            <span>Confirmations</span>
-                            <strong>2 Confirmations</strong>
-                          </div>
-                        </div>
-
-                        {/* Network Warning */}
-                        <div className="deposit-warning">
-                          <i className="fa-solid fa-triangle-exclamation"></i>
-                          <p>
-                            Send only <strong>{selectedOption?.code}</strong> via the{" "}
-                            <strong>{selectedOption?.network !== selectedOption?.code ? selectedOption?.network : selectedOption?.code}</strong>{" "}
-                            network to this address. Sending via a different network may result in{" "}
-                            <strong>permanent loss of funds</strong>.
-                          </p>
-                        </div>
-
-                        {/* Generate New */}
-                        <button
-                          type="button"
-                          className="deposit-generate-btn deposit-generate-secondary"
-                          onClick={handleDepositSubmit}
-                          disabled={submittingDeposit}
-                        >
-                          {submittingDeposit ? "Generating..." : "Generate New Address"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <DepositModal
+                onClose={() => setShowDeposit(false)}
+                currencyDropdownOptions={currencyDropdownOptions}
+                submitDeposit={submitDeposit}
+                submittingDeposit={submittingDeposit}
+                showToast={showToast}
+              />
             )}
 
-            {/* ═══════════════════════════════════════════════════════════ */}
-            {/*  WITHDRAW MODAL (unchanged)                               */}
-            {/* ═══════════════════════════════════════════════════════════ */}
             {showWithdraw && (
-              <div className="wallet-modal-overlay" onClick={() => setShowWithdraw(false)}>
-                <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
-                  <div className="wallet-modal-title">
-                    <i className="fa-solid fa-circle-up"></i>
-                    <span>Withdraw Funds</span>
-                  </div>
-
-                  <div className="wallet-form-grid">
-                    <div className="wallet-field">
-                      <label>Amount</label>
-                      <input type="text" placeholder="Enter amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
-                    </div>
-
-                    <div className="wallet-field">
-                      <label>Withdrawal Method</label>
-                      <select value={withdrawMethod} onChange={(e) => setWithdrawMethod(e.target.value)}>
-                        <option value="Bank">Bank</option>
-                        <option value="Crypto">Crypto</option>
-                      </select>
-                    </div>
-
-                    <div className="wallet-field full-width">
-                      <label>Destination Details</label>
-                      <input
-                        type="text"
-                        placeholder="Enter destination details"
-                        value={withdrawDestination}
-                        onChange={(e) => setWithdrawDestination(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="wallet-modal-actions">
-                    <button type="button" className="modal-confirm-btn" onClick={handleWithdrawSubmit} disabled={submittingWithdraw}>
-                      Confirm Withdrawal
-                    </button>
-                    <button type="button" className="modal-cancel-btn" onClick={() => setShowWithdraw(false)} disabled={submittingWithdraw}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <WithdrawModal
+                onClose={() => setShowWithdraw(false)}
+                wallets={wallets}
+                currencyDropdownOptions={currencyDropdownOptions}
+                submitWithdraw={submitWithdraw}
+                submittingWithdraw={submittingWithdraw}
+                twoFactorEnabled={false}
+                showToast={showToast}
+              />
             )}
           </div>
         </main>

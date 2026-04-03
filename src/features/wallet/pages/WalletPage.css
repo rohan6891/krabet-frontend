@@ -430,8 +430,8 @@
 }
 
 .deposit-dropdown-trigger.open {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: #8654ff;
+  box-shadow: 0 0 0 2px rgba(134, 84, 255, 0.2);
 }
 
 .deposit-dropdown-selected {
@@ -445,7 +445,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: linear-gradient(135deg, #8654ff, #5b2db4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -623,8 +623,8 @@
 }
 
 .deposit-amount-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: #8654ff;
+  box-shadow: 0 0 0 2px rgba(134, 84, 255, 0.2);
 }
 
 .deposit-amount-currency {
@@ -647,7 +647,7 @@
   height: 48px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #8654ff, #5b2db4);
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
