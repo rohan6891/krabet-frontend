@@ -178,9 +178,13 @@ export function MinesPage() {
 
   function applyBackendState(
     payload: Parameters<typeof normalizeMinesState>[0],
-    options: { action?: "sync" | "start" | "move" | "cashout"; recordHistory?: boolean } = {},
+    options: {
+      action?: "sync" | "start" | "move" | "cashout";
+      recordHistory?: boolean;
+      clickedTileIndex?: number | null;
+    } = {},
   ) {
-    const { action = "sync", recordHistory = true } = options;
+    const { action = "sync", recordHistory = true, clickedTileIndex = null } = options;
     const normalized = normalizeMinesState(payload);
 
     setSessionId(normalized.sessionId || "");
@@ -249,7 +253,7 @@ export function MinesPage() {
       previousRevealedRef.current = [];
       previousStatusRef.current = GAME_STATUS.IDLE;
       setMinePositions([]);
-      applyBackendState(data, { action: "start", recordHistory: false });
+      applyBackendState(data, { action: "start", recordHistory: false, clickedTileIndex: null });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to start game.");
     } finally {
@@ -273,7 +277,7 @@ export function MinesPage() {
         tileIndex,
       });
 
-      applyBackendState(data, { action: "move", recordHistory: true });
+      applyBackendState(data, { action: "move", recordHistory: true, clickedTileIndex: tileIndex });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to process move.");
     } finally {
@@ -290,7 +294,7 @@ export function MinesPage() {
 
     try {
       const data = await cashoutMinesSession({ sessionId });
-      applyBackendState(data, { action: "cashout", recordHistory: true });
+      applyBackendState(data, { action: "cashout", recordHistory: true, clickedTileIndex: null });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to cash out.");
     } finally {
@@ -457,6 +461,7 @@ export function MinesPage() {
                     </div>
                   </section>
                 </div>
+
               </div>
             </div>
           </div>

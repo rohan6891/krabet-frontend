@@ -194,10 +194,17 @@
 .casino-input:disabled,
 .casino-range:disabled,
 .casino-btn:disabled,
-.mine-tile:disabled,
 select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.mine-tile:disabled {
+  cursor: not-allowed;
+}
+
+.mine-tile:disabled:not(.is-revealed) {
+  opacity: 0.62;
 }
 
 .casino-range {
@@ -407,6 +414,16 @@ select:disabled {
   border-radius: inherit;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(136, 88, 180, 0.38), rgba(46, 19, 72, 0.82));
+  isolation: isolate;
+}
+
+.tile-overlay-icon {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }
 
 .tile-face {
@@ -461,54 +478,59 @@ select:disabled {
   inset: 0;
   display: grid;
   place-items: center;
-  z-index: 1;
+  z-index: 4;
 }
 
 .tile-symbol {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 1.24rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   transform: translateY(14px) scale(0.75);
   transition:
     transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.22s ease;
+  position: relative;
+  z-index: 5;   /* above tile-front's z-index: 3 */
 }
 
-.tile-symbol > i {
+.tile-icon {
   display: block;
-  transform: translateY(1px);
+  width: clamp(52px, 72%, 96px);
+  height: clamp(52px, 72%, 96px);
+  object-fit: contain;
+  transform: translateY(0) scale(1);
+  transform-origin: center;
 }
 
-.tile-symbol.symbol-safe {
-  background: radial-gradient(circle at 30% 24%, rgba(201, 255, 225, 0.98), rgba(69, 206, 124, 0.88));
-  color: #1d9458;
-  box-shadow:
-    0 0 0 4px rgba(80, 255, 162, 0.12),
-    0 8px 20px rgba(0, 0, 0, 0.24);
+.tile-icon-gem {
+  width: clamp(125px, 76%, 165px);
+  height: clamp(125px, 76%, 165px);
+  filter: drop-shadow(0 4px 8px rgba(63, 210, 120, 0.24));
+  /* remove display: block and margin: auto */
 }
 
-.tile-symbol.symbol-mine {
-  background: radial-gradient(circle at 30% 25%, rgba(255, 201, 223, 0.98), rgba(241, 99, 150, 0.92));
-  color: #ce5e8f;
-  box-shadow:
-    0 0 0 4px rgba(255, 116, 166, 0.13),
-    0 8px 20px rgba(0, 0, 0, 0.24);
+.tile-icon-mine {
+  width: clamp(135px, 74%, 165px);
+  height: clamp(135px, 74%, 165px);
+  filter: drop-shadow(0 4px 8px rgba(255, 91, 143, 0.3));
+  /* remove display: block and margin: auto */
 }
 
-.mine-tile.revealed-safe .tile-front,
-.mine-tile.revealed-mine .tile-front {
+.mine-tile.is-revealed .tile-front {
   transform: translateY(-108%);
-  opacity: 0.05;
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
-.mine-tile.revealed-safe .tile-symbol,
-.mine-tile.revealed-mine .tile-symbol {
+.mine-tile.is-revealed .tile-reveal-base {
+  z-index: 4;
+}
+
+.tile-symbol.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
   animation: symbolPop 0.45s ease var(--reveal-delay, 0ms);
@@ -525,15 +547,11 @@ select:disabled {
 }
 
 .mine-tile.flash-safe .tile-symbol.symbol-safe {
-  box-shadow:
-    0 0 0 5px rgba(80, 255, 162, 0.18),
-    0 10px 24px rgba(0, 0, 0, 0.24);
+  transform: scale(1.06);
 }
 
 .mine-tile.flash-mine .tile-symbol.symbol-mine {
-  box-shadow:
-    0 0 0 5px rgba(255, 116, 166, 0.19),
-    0 10px 24px rgba(0, 0, 0, 0.24);
+  transform: scale(1.06);
 }
 
 .mine-tile.pending .tile-front {
@@ -552,6 +570,33 @@ select:disabled {
 
 .board-shake {
   animation: boardShake 0.34s ease;
+}
+
+.mines-debug-panel {
+  margin-top: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(214, 155, 255, 0.25);
+  background: rgba(21, 6, 36, 0.86);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  padding: 10px 12px;
+}
+
+.mines-debug-panel h3 {
+  margin: 0 0 8px;
+  color: #f4deff;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.mines-debug-panel pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow: auto;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #e8ccff;
 }
 
 .value-pulse {

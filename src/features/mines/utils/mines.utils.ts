@@ -25,6 +25,14 @@ function normalizeStatus(status?: string): GameStatus {
   return GAME_STATUS.IDLE;
 }
 
+function normalizeIndexArray(values: unknown): number[] {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value >= 0);
+}
+
 export function normalizeMinesState(payload: MinesSessionResponse): NormalizedMinesState {
   const base = (payload?.state as MinesSessionResponse | undefined) ?? payload ?? {};
 
@@ -33,16 +41,8 @@ export function normalizeMinesState(payload: MinesSessionResponse): NormalizedMi
     status: normalizeStatus(base.status),
     mineCount: Number(base.mine_count ?? base.mineCount ?? 3),
     multiplier: Number(base.multiplier ?? 1),
-    revealedCells: Array.isArray(base.revealed_cells)
-      ? base.revealed_cells
-      : Array.isArray(base.revealedCells)
-      ? base.revealedCells
-      : [],
-    minePositions: Array.isArray(base.mine_positions)
-      ? base.mine_positions
-      : Array.isArray(base.minePositions)
-      ? base.minePositions
-      : [],
+    revealedCells: normalizeIndexArray(base.revealed_cells ?? base.revealedCells),
+    minePositions: normalizeIndexArray(base.mine_positions ?? base.minePositions),
   };
 }
 
