@@ -16,6 +16,18 @@ type RealtimeEnvelope = {
   user_id?: string;
 };
 
+const BALANCE_AFFECTING_NOTIFICATION_TYPES = new Set([
+  "bet_win",
+  "big_win",
+  "deposit_confirmed",
+  "withdraw_processing",
+  "withdraw_failed",
+  "withdraw_completed",
+  "withdraw_requested",
+  "withdrawal_requested",
+  "withdrawal_completed",
+]);
+
 function toWebSocketBaseUrl(apiBaseUrl: string): string {
   const normalized = apiBaseUrl.replace(/\/$/, "");
   if (normalized.startsWith("https://")) {
@@ -94,6 +106,17 @@ export function useNotifications() {
 
       if (shouldIncrementUnread) {
         setUnreadCount((count) => count + 1);
+      }
+
+      if (BALANCE_AFFECTING_NOTIFICATION_TYPES.has(String(incoming.type))) {
+        window.dispatchEvent(
+          new CustomEvent("krabets:wallet-refresh", {
+            detail: {
+              reason: "notification_created",
+              notificationType: incoming.type,
+            },
+          }),
+        );
       }
     };
 

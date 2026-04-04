@@ -35,9 +35,9 @@ export function WithdrawModal({
   const [show2FAPopup, setShow2FAPopup] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Filter options to only those that have withdraw enabled
+  // Only show assets that are withdraw-enabled.
   const withdrawableOptions = useMemo(
-    () => currencyDropdownOptions, // Ideally we would filter by opt.withdrawEnabled if it existed!
+    () => currencyDropdownOptions.filter((opt) => opt.withdrawEnabled),
     [currencyDropdownOptions]
   );
 
@@ -53,6 +53,7 @@ export function WithdrawModal({
   }, [selectedCurrencyKey, withdrawableOptions]);
 
   const effectiveKey = selectedOption?.key ?? "";
+  const selectedNetwork = selectedOption?.network ?? "";
 
   const selectedWallet = useMemo(() => {
     if (!selectedOption) return null;
@@ -77,7 +78,7 @@ export function WithdrawModal({
         amount: withdrawAmount,
         currency: selectedOption!.code,
         withdrawalAddress: withdrawDestination.trim(),
-        network: selectedOption!.network !== selectedOption!.code ? selectedOption!.network : undefined,
+        network: selectedOption!.network,
         twoFactorCode: twoFactorEnabled ? twoFactorCode.trim() : undefined,
       });
 
@@ -279,12 +280,14 @@ export function WithdrawModal({
 
           {/* Address Input */}
           <div className="wallet-field font-inter">
-            <label className="deposit-field-label">Address <span style={{ color: '#ef4444' }}>*</span></label>
+            <label className="deposit-field-label">
+              Destination Address ({selectedNetwork || "Network"}) <span style={{ color: '#ef4444' }}>*</span>
+            </label>
             <div className="deposit-address-row">
               <input
                 type="text"
                 className="deposit-address-input wallet-field-input"
-                placeholder="Enter destination address"
+                placeholder={selectedNetwork ? `Enter ${selectedNetwork} address` : "Enter destination address"}
                 value={withdrawDestination}
                 onChange={(e) => setWithdrawDestination(e.target.value)}
               />

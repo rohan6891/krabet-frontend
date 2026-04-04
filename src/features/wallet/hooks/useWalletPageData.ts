@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HttpError } from "@/shared/api/http";
 import { clearAuthSession, getAccessTokenFromStorage, getStoredSession } from "@/shared/utils/session";
@@ -124,6 +124,7 @@ function sumByType(transactions: WalletTransaction[], type: WalletTransaction["t
   return sum.toFixed(2);
 }
 
+
 function getPreferredWallet(wallets: WalletEntry[]): WalletEntry | null {
   if (!wallets.length) return null;
   return wallets.find((wallet) => wallet.currency === "USDT") || wallets[0];
@@ -190,6 +191,7 @@ export function useWalletPageData() {
   });
 
   const token = useMemo(() => getAccessTokenFromStorage(), []);
+  const lastRealtimeRefreshAtRef = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!token) return;
@@ -258,6 +260,24 @@ export function useWalletPageData() {
     init();
     return () => { cancelled = true; };
   }, [router, token, refresh]);
+
+  useEffect(() => {
+    const handler = () => {
+      const now = Date.now();
+      // Prevent burst-refresh loops if multiple websocket messages land together.
+      if (now - lastRealtimeRefreshAtRef.current < 1000) {
+        return;
+      }
+
+      lastRealtimeRefreshAtRef.current = now;
+      void refresh();
+    };
+
+    window.addEventListener("krabets:wallet-refresh", handler);
+    return () => {
+      window.removeEventListener("krabets:wallet-refresh", handler);
+    };
+  }, [refresh]);
 
   const preferredWallet = useMemo(() => getPreferredWallet(wallets), [wallets]);
   const totalBalance = preferredWallet?.availableBalance || "0.00";

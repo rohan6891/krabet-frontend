@@ -18,8 +18,16 @@ function formatTimeAgo(dateStr: string): string {
 
 function notifIcon(type: string): string {
   switch (type) {
-    case "deposit_success": return "fa-circle-check";
+    case "deposit_success":
+    case "deposit_confirmed":
+      return "fa-circle-check";
+    case "withdraw_requested":
     case "withdrawal_requested": return "fa-arrow-up";
+    case "withdraw_processing":
+      return "fa-hourglass-half";
+    case "withdraw_failed":
+      return "fa-triangle-exclamation";
+    case "withdraw_completed":
     case "withdrawal_completed": return "fa-check-circle";
     case "security_alert": return "fa-shield-halved";
     case "bonus": return "fa-gift";

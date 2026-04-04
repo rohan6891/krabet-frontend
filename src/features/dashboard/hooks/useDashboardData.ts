@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { env } from "@/shared/config/env";
 import { getAccessTokenFromStorage, getStoredSession } from "@/shared/utils/session";
 import {
@@ -16,6 +16,11 @@ type DashboardProfile = {
   email: string;
   avatarUrl: string | null;
 };
+
+function pickPreferredWalletBalance(wallets: Array<{ currency?: string; availableBalance: string }>): string {
+  const preferredWallet = wallets.find((wallet) => wallet.currency === "USDT") || wallets[0];
+  return preferredWallet?.availableBalance || "0.00";
+}
 
 function withApiBase(path?: string): string {
   if (!path) {
@@ -51,6 +56,19 @@ export function useDashboardData() {
     avatarUrl: null,
   });
 
+  const refreshWalletBalance = useCallback(async () => {
+    const token = getAccessTokenFromStorage();
+    if (!token) return;
+
+    try {
+      const walletRes = await fetchWalletBalance(token);
+      const wallets = walletRes.data.wallets || [];
+      setWalletBalance(pickPreferredWalletBalance(wallets));
+    } catch {
+      // silently ignore transient realtime refresh failures
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
@@ -84,8 +102,7 @@ export function useDashboardData() {
         setRecentWins(winsRes.data.wins || []);
 
         const wallets = walletRes.data.wallets || [];
-        const preferredWallet = wallets.find((wallet) => wallet.currency === "USDT") || wallets[0];
-        setWalletBalance(preferredWallet?.availableBalance || "0.00");
+        setWalletBalance(pickPreferredWalletBalance(wallets));
 
         const sessionUser = getStoredSession()?.user;
         setProfile({
@@ -112,6 +129,17 @@ export function useDashboardData() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      void refreshWalletBalance();
+    };
+
+    window.addEventListener("krabets:wallet-refresh", handler);
+    return () => {
+      window.removeEventListener("krabets:wallet-refresh", handler);
+    };
+  }, [refreshWalletBalance]);
 
   const categories = useMemo(() => games.slice(0, 6), [games]);
   const originals = useMemo(() => games.slice(0, 7), [games]);

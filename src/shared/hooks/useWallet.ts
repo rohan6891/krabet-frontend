@@ -54,10 +54,8 @@ export function useWallet() {
         const data = await res.json();
         if (data.success && data.data && data.data.wallets) {
           setWallets(data.data.wallets);
-          const usdWallet = data.data.wallets.find((w: WalletData) => w.currency === 'USD' || w.currency === 'USDT') || data.data.wallets[0];
-          if (usdWallet) {
-             setTotalBalance(usdWallet.availableBalance);
-          }
+          const preferredWallet = data.data.wallets.find((w: WalletData) => w.currency === "USDT") || data.data.wallets[0];
+          setTotalBalance(preferredWallet?.availableBalance || "0.00");
         }
       } catch (err) {
         console.error(err);
