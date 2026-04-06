@@ -1,6 +1,7 @@
 const sidebarTopLinks = [
   { label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
   { label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
+  { label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
   { label: "Search", href: "/dashboard/search", icon: "fa-solid fa-magnifying-glass" },
   { label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
 ];
