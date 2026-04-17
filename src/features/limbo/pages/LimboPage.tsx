@@ -231,6 +231,15 @@ export function LimboPage() {
       setIsAnimating(false);
       setRolledMultiplier(Number(result.rolledMultiplier).toFixed(2));
       setBalance(Number(result.updatedBalance).toFixed(2));
+      window.dispatchEvent(
+        new CustomEvent("krabets:wallet-refresh", {
+          detail: {
+            reason: "bet_settled",
+            game: "limbo",
+            outcome: result.outcome,
+          },
+        }),
+      );
 
       const isWin = result.outcome === "win";
       setResultState(isWin ? RESULT_STATES.WIN : RESULT_STATES.LOSS);

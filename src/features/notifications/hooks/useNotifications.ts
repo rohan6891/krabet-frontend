@@ -130,6 +130,11 @@ export function useNotifications() {
       socket = new WebSocket(`${wsBase}/ws?token=${encodeURIComponent(token)}`);
 
       socket.onopen = () => {
+        if (closedByHook) {
+          socket?.close();
+          return;
+        }
+
         const userId = getStoredSession()?.user?.id;
         if (userId) {
           subscribeToUserNotifications(userId);
@@ -169,7 +174,9 @@ export function useNotifications() {
     return () => {
       closedByHook = true;
       if (reconnectTimer) clearTimeout(reconnectTimer);
-      socket?.close();
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
     };
   }, []);
 

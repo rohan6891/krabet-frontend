@@ -10,7 +10,7 @@ import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDo
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeCoinflipBet } from "@/features/coinflip/api/coinflip.api";
-import type { CoinSide, CoinflipMode } from "@/features/coinflip/types/coinflip.types";
+import type { CoinSide, CoinflipMode, CoinflipOutcome } from "@/features/coinflip/types/coinflip.types";
 
 declare global {
   interface Window {
@@ -19,7 +19,6 @@ declare global {
 }
 
 const DEFAULT_BALANCE = 0;
-const DEFAULT_DEMO_BALANCE = 1000;
 const MIN_BET = 1;
 const QUICK_AMOUNTS = [5, 10, 25, 50];
 const FLIP_DURATION = 2.55;
@@ -35,8 +34,10 @@ function formatMoney(value: number): string {
 function createHistoryEntry(params: {
   mode: CoinflipMode;
   choice: CoinSide;
-  outcome: CoinSide;
+  outcomeSide: CoinSide;
+  outcome: CoinflipOutcome;
   amount: number;
+  payout: number;
 }): {
   id: string;
   mode: "Demo" | "Live";
@@ -46,14 +47,14 @@ function createHistoryEntry(params: {
   payout: number;
   status: "win" | "lose";
 } {
-  const status = params.choice === params.outcome ? "win" : "lose";
+  const status = params.outcome === "win" ? "win" : "lose";
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     mode: params.mode === "demo" ? "Demo" : "Live",
     choice: params.choice,
-    outcome: params.outcome,
+    outcome: params.outcomeSide,
     amount: params.amount,
-    payout: status === "win" ? params.amount * 2 : 0,
+    payout: params.payout,
     status,
   };
 }
@@ -411,7 +412,6 @@ export function CoinflipPage() {
 
   const [mode, setMode] = useState<CoinflipMode>("live");
   const [liveBalance, setLiveBalance] = useState(DEFAULT_BALANCE);
-  const [demoBalance, setDemoBalance] = useState(DEFAULT_DEMO_BALANCE);
   const [betAmount, setBetAmount] = useState("10.00");
   const [selectedSide, setSelectedSide] = useState<CoinSide>("heads");
   const [isFlipping, setIsFlipping] = useState(false);
@@ -447,7 +447,7 @@ export function CoinflipPage() {
     return parsed;
   }, [betAmount]);
 
-  const activeBalance = mode === "demo" ? demoBalance : liveBalance;
+  const activeBalance = liveBalance;
 
   const potentialReturn = numericBet > 0 ? numericBet * 2 : 0;
   const canPlay = !isFlipping && numericBet >= MIN_BET && numericBet <= activeBalance && Number.isFinite(numericBet);
@@ -505,15 +505,11 @@ export function CoinflipPage() {
     setHistory((prev) => [pendingEntry, ...prev].slice(0, 12));
 
     if (typeof pendingBalanceOverride === "number") {
-      if (pendingMode === "demo") {
-        setDemoBalance(pendingBalanceOverride);
-      } else {
+      if (pendingMode === "live") {
         setLiveBalance(pendingBalanceOverride);
       }
     } else if (pendingEntry.status === "win") {
-      if (pendingMode === "demo") {
-        setDemoBalance((prev) => prev + pendingEntry.amount * 2);
-      } else {
+      if (pendingMode === "live") {
         setLiveBalance((prev) => prev + pendingEntry.amount * 2);
       }
     }
@@ -538,8 +534,10 @@ export function CoinflipPage() {
       const entry = createHistoryEntry({
         mode,
         choice: selectedSide,
-        outcome: outcomeSide,
+        outcomeSide,
+        outcome: response.outcome,
         amount: numericBet,
+        payout: response.payout,
       });
 
       startResolvedFlip({
@@ -548,6 +546,16 @@ export function CoinflipPage() {
         entry,
         balanceOverride: response.updatedBalance,
       });
+
+      window.dispatchEvent(
+        new CustomEvent("krabets:wallet-refresh", {
+          detail: {
+            reason: "bet_settled",
+            game: "coinflip",
+            outcome: response.outcome,
+          },
+        }),
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to play Coinflip.";
       setPopupMessage(message);
@@ -681,7 +689,7 @@ export function CoinflipPage() {
                   <div className="cf-panel cf-controls-panel">
                     <div className="cf-balance-top">
                       <div>
-                        <span className="cf-mini-label">{mode === "demo" ? "Demo Balance" : "Balance"}</span>
+                        <span className="cf-mini-label">Balance</span>
                         <h2>${formatMoney(activeBalance)}</h2>
                       </div>
                       <div className="cf-odds-pill">2.00x</div>
