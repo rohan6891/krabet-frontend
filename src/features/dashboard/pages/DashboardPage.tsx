@@ -7,6 +7,7 @@ import { HeroSection } from "@/features/dashboard/components/HeroSection";
 import { RecentWinsStrip } from "@/features/dashboard/components/RecentWinsStrip";
 import { GameCategoriesSection } from "@/features/dashboard/components/GameCategoriesSection";
 import { OriginalsSection } from "@/features/dashboard/components/OriginalsSection";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 
@@ -41,6 +42,8 @@ export function DashboardPage() {
             <GameCategoriesSection games={categories} loading={loading} />
             <OriginalsSection games={originals} loading={loading} />
           </div>
+
+          <MobileBottomDock />
         </main>
       </div>
     </div>

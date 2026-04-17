@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { GameImageWithSkeleton } from "@/features/dashboard/components/GameImageWithSkeleton";
@@ -158,6 +159,8 @@ export function SearchPage() {
               </section>
             </main>
           </div>
+
+          <MobileBottomDock />
         </main>
       </div>
     </div>

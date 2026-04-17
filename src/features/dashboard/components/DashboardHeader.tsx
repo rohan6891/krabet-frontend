@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProfileAvatar } from "@/features/dashboard/components/ProfileAvatar";
 import { NotificationPanel, ProfilePanel } from "@/features/dashboard/components/HeaderPopups";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
@@ -19,6 +19,7 @@ type DashboardHeaderProps = {
   email?: string;
   avatarUrl: string | null;
   walletHref?: string;
+  onAlertsClick?: () => void;
 };
 
 export function DashboardHeader({
@@ -27,12 +28,26 @@ export function DashboardHeader({
   email = "",
   avatarUrl,
   walletHref = "/dashboard/wallet",
+  onAlertsClick,
 }: DashboardHeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { notifications, unreadCount, loading, reload, markRead, markAllRead } =
     useNotifications();
   const { logout } = useSession();
+
+  useEffect(() => {
+    const openNotifications = () => {
+      setProfileOpen(false);
+      setNotifOpen(true);
+      reload();
+    };
+
+    window.addEventListener("krabets:open-notifications", openNotifications);
+    return () => {
+      window.removeEventListener("krabets:open-notifications", openNotifications);
+    };
+  }, [reload]);
 
   const handleNotifToggle = () => {
     setProfileOpen(false);
@@ -57,6 +72,10 @@ export function DashboardHeader({
           ))}
         </nav>
 
+        <a href="/dashboard" className="header-mobile-logo-link" aria-label="KraBets Home">
+          <img src="/KRABETS-LOGO.png" alt="KraBet logo" className="header-mobile-logo-image" />
+        </a>
+
         <div className="header-actions">
           <a href={walletHref} className="wallet-pill">
             <span className="wallet-pill-icon">
@@ -74,7 +93,10 @@ export function DashboardHeader({
           <button
             className="header-icon-btn"
             aria-label="Notifications"
-            onClick={handleNotifToggle}
+            onClick={() => {
+              handleNotifToggle();
+              if (onAlertsClick) onAlertsClick();
+            }}
             style={{ position: "relative" }}
           >
             <i className="fa-solid fa-bell" aria-hidden="true"></i>

@@ -5,6 +5,7 @@ import "@/features/dashboard/pages/DashboardPage.css";
 import "./WalletPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { DepositModal } from "@/features/wallet/components/DepositModal";
 import { WithdrawModal } from "@/features/wallet/components/WithdrawModal";
 import { useWalletPageData } from "@/features/wallet/hooks/useWalletPageData";
@@ -255,6 +256,8 @@ export function WalletPage() {
               />
             )}
           </div>
+
+          <MobileBottomDock />
         </main>
       </div>
     </div>

@@ -149,6 +149,7 @@ img {
   min-width: 0;
   position: relative;
   background: url("/background.jpg") center top / cover no-repeat;
+  padding-top: 56px;
 }
 
 /* =============================================================================
@@ -164,6 +165,25 @@ img {
   gap: 14px;
   padding: 10px;
   background: linear-gradient(180deg, rgba(22, 0, 33, 0.96) 0%, rgba(8, 0, 16, 0.98) 100%);
+  position: fixed;
+  top: 0;
+  left: 170px;
+  right: 0;
+  z-index: 2600;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
+.header-mobile-logo-link {
+  display: none;
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.header-mobile-logo-image {
+  width: clamp(82px, 22vw, 110px);
+  height: auto;
+  object-fit: contain;
 }
 
 .header-nav {
@@ -246,6 +266,7 @@ img {
   font-size: 11px;
   font-weight: 700;
   color: #ffffff;
+  margin-bottom: 3px;
 }
 
 .wallet-crypto {
@@ -656,6 +677,7 @@ img {
   .krabet-header {
     flex-direction: column;
     align-items: flex-start;
+    left: 0;
   }
 
   .header-actions {
@@ -690,5 +712,101 @@ img {
     flex-wrap: wrap;
     padding: 10px 14px;
     gap: 14px;
+  }
+}
+
+@media (max-width: 790px) {
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  .krabet-shell {
+    min-height: 100svh;
+  }
+
+  .krabet-sidebar {
+    display: none;
+  }
+
+  .krabet-main {
+    width: 100%;
+    padding-top: 52px;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .krabet-header {
+    min-height: 48px;
+    padding: 8px 10px;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    left: 0;
+    right: 0;
+    top: 0;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.34);
+  }
+
+  .header-mobile-logo-link {
+    display: inline-flex;
+  }
+
+  .header-nav {
+    display: none;
+  }
+
+  .header-actions {
+    width: auto;
+    flex: 0 1 auto;
+    margin-left: auto;
+    gap: 6px;
+    min-width: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+
+  .wallet-pill {
+    flex: 0 1 auto;
+    max-width: min(58vw, 210px);
+    height: 36px;
+    padding-right: 6px;
+    gap: 6px;
+  }
+
+  .wallet-pill-text {
+    min-width: 0;
+  }
+
+  .wallet-amount {
+    font-size: clamp(10px, 2.8vw, 12px);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wallet-crypto {
+    font-size: clamp(8px, 2.2vw, 9px);
+    white-space: nowrap;
+  }
+
+  .header-icon-btn {
+    display: none;
+  }
+
+  .wallet-pill-icon,
+  .profile-link {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    flex: 0 0 auto;
   }
 }

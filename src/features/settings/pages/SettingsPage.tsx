@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { getAccessTokenFromStorage } from "@/shared/utils/session";
@@ -381,6 +382,8 @@ export function SettingsPage() {
               </div>
             </section>
           </div>
+
+          <MobileBottomDock />
         </main>
       </div>
 

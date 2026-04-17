@@ -7,6 +7,7 @@ import "@/features/dashboard/pages/DashboardPage.css";
 import "./MinesPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { MinesBoard } from "@/features/mines/components/MinesBoard";
@@ -465,6 +466,8 @@ export function MinesPage() {
               </div>
             </div>
           </div>
+
+          <MobileBottomDock />
         </main>
       </div>
     </div>

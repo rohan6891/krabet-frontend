@@ -1,12 +1,13 @@
-const sidebarTopLinks = [
+export const sidebarTopLinks = [
   { label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
   { label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
   { label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
+  { label: "Coinflip", href: "/dashboard/coinflip", icon: "fa-solid fa-coins" },
   { label: "Search", href: "/dashboard/search", icon: "fa-solid fa-magnifying-glass" },
   { label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
 ];
 
-const sidebarBottomLinks = [
+export const sidebarBottomLinks = [
   { label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
   { label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
   { label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },

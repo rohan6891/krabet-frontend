@@ -11,5 +11,13 @@ export function getDashboardGameHref(game: DashboardGame): string {
     return "/dashboard/mines";
   }
 
+  if (code === "limbo") {
+    return "/dashboard/limbo";
+  }
+
+  if (code === "coinflip") {
+    return "/dashboard/coinflip";
+  }
+
   return `/dashboard/search?game=${encodeURIComponent(code || game.name || "")}`;
 }
