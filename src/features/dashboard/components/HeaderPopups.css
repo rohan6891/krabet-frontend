@@ -6,18 +6,26 @@
   inset: 0;
   z-index: 3000;
   background: rgba(7, 2, 20, 0.55);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 88px 16px 16px;
+  overflow-y: auto;
 }
 
 /* ==========================================================================
    BASE POPUP — floating card, top-right
 ========================================================================== */
 .header-popup {
-  position: absolute;
-  top: 88px;
-  right: 24px;
+  position: relative;
+  top: auto;
+  right: auto;
   width: min(92vw, 420px);
+  max-height: calc(100dvh - 104px);
   border-radius: 22px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(180deg, rgba(63,17,103,0.96), rgba(26,7,46,0.98));
   border: 1px solid rgba(162,94,255,0.35);
   box-shadow:
@@ -76,14 +84,16 @@
 
 .header-popup-body {
   padding: 18px;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* ==========================================================================
    NOTIFICATIONS PANEL
 ========================================================================== */
 .notifications-list {
-  max-height: 360px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -387,9 +397,13 @@
    RESPONSIVE
 ========================================================================== */
 @media (max-width: 760px) {
+  .header-popup-overlay {
+    justify-content: center;
+    padding: 68px 10px calc(10px + env(safe-area-inset-bottom));
+  }
+
   .header-popup {
-    left: 12px;
-    right: 12px;
+    max-height: calc(100dvh - 84px - env(safe-area-inset-bottom));
     width: auto;
   }
 
@@ -404,5 +418,19 @@
 
   .user-panel-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 760px) {
+  .header-popup-overlay {
+    padding-top: 64px;
+  }
+
+  .header-popup {
+    max-height: calc(100dvh - 76px);
+  }
+
+  .header-popup-body {
+    padding: 14px;
   }
 }
