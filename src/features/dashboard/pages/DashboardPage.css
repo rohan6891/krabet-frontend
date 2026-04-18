@@ -157,7 +157,7 @@ img {
    Top nav on left, compact control group on right
 ============================================================================= */
 .krabet-header {
-  width: 100%;
+  width: calc(100% - 170px); /* ← CHANGE from width: 100% */
   min-height: 42px;
   display: flex;
   align-items: center;
@@ -690,9 +690,11 @@ img {
 
   /* REMOVE flex-direction: column from .krabet-header */
   .krabet-header {
+    width: 100%;
+    left: 0;
+    right: 0;
     flex-direction: row;      /* ← changed from column to row */
     align-items: center;      /* ← changed from flex-start */
-    left: 0;
   }
 
   .header-actions {
@@ -758,6 +760,7 @@ img {
   }
 
   .krabet-header {
+    width: 100%;
     min-height: 48px;
     padding: 8px 10px;
     gap: 10px;
@@ -824,23 +827,5 @@ img {
     height: 34px;
     border-radius: 11px;
     flex: 0 0 auto;
-  }
-}
-
-
-@media (min-width: 901px) {
-  .krabet-header {
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-  }
-
-  .header-actions {
-    display: flex !important;
-    margin-left: auto;
-  }
-
-  .header-icon-btn {
-    display: flex !important;
   }
 }
