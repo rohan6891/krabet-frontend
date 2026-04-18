@@ -19,6 +19,11 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Krabets",
   description: "Krabets Gaming Dashboard",
+  icons: {
+    icon: "/KRABETS-FAVICON.png",
+    shortcut: "/KRABETS-FAVICON.png",
+    apple: "/KRABETS-FAVICON.png",
+  },
 };
 
 export default function RootLayout({
