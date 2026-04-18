@@ -34,15 +34,20 @@ import { clamp, getTileState, normalizeMinesState } from "@/features/mines/utils
 import type { MineTileView, MinesHistoryEntry } from "@/features/mines/types/mines.types";
 import type { GameStatus } from "@/features/mines/constants/mines.constants";
 
+type MinesMode = "live" | "demo";
+
 export function MinesPage() {
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile } = useDashboardData();
 
+  const [mode, setMode] = useState<MinesMode>("live");
   const gridSize = DEFAULT_GRID_SIZE;
   const [minesCount, setMinesCount] = useState(DEFAULT_MINES);
   const [betAmount, setBetAmount] = useState(DEFAULT_BET);
   const [stakeAmount, setStakeAmount] = useState(DEFAULT_STAKE);
   const [currency] = useState(DEFAULT_CURRENCY);
+  const [displayWalletBalance, setDisplayWalletBalance] = useState(walletBalance);
+  const [pendingDisplayWalletBalance, setPendingDisplayWalletBalance] = useState<string | null>(null);
 
   const [sessionId, setSessionId] = useState("");
   const [gameStatus, setGameStatus] = useState<GameStatus>(GAME_STATUS.IDLE);
@@ -70,9 +75,10 @@ export function MinesPage() {
 
   const totalTiles = useMemo(() => gridSize * gridSize, [gridSize]);
   const maxMines = useMemo(() => Math.max(1, totalTiles - 1), [totalTiles]);
-
   const isBusy = isStarting || isMoving || isCashingOut;
   const isPlaying = gameStatus === GAME_STATUS.PLAYING;
+  const isRevealAnimating = useMemo(() => Object.keys(flashByIndex).length > 0, [flashByIndex]);
+  const shouldDeferWalletSync = isBusy || isRevealAnimating || isLossAnimating;
 
   const payoutNow = useMemo(() => Number((Number(betAmount) * Number(multiplier)).toFixed(2)), [betAmount, multiplier]);
 
@@ -86,6 +92,38 @@ export function MinesPage() {
   useEffect(() => {
     setMinesCount((prev) => clamp(prev, 1, maxMines));
   }, [maxMines]);
+
+  useEffect(() => {
+    if (mode !== "live") return;
+
+    if (shouldDeferWalletSync) {
+      setPendingDisplayWalletBalance(walletBalance);
+      return;
+    }
+
+    setDisplayWalletBalance(walletBalance);
+    setPendingDisplayWalletBalance(null);
+  }, [mode, walletBalance, shouldDeferWalletSync]);
+
+  useEffect(() => {
+    if (mode !== "demo") return;
+
+    if (shouldDeferWalletSync) {
+      setPendingDisplayWalletBalance(walletBalance);
+      return;
+    }
+
+    setDisplayWalletBalance(walletBalance);
+    setPendingDisplayWalletBalance(null);
+  }, [mode, walletBalance, shouldDeferWalletSync]);
+
+  useEffect(() => {
+    if (shouldDeferWalletSync) return;
+    if (!pendingDisplayWalletBalance) return;
+
+    setDisplayWalletBalance(pendingDisplayWalletBalance);
+    setPendingDisplayWalletBalance(null);
+  }, [pendingDisplayWalletBalance, shouldDeferWalletSync]);
 
   useEffect(() => {
     if (sessionId) {
@@ -246,6 +284,7 @@ export function MinesPage() {
       }
 
       const data = await startMinesSession({
+        mode,
         amount: amount.toFixed(2),
         currency,
         mine_count: minesCount,
@@ -365,7 +404,7 @@ export function MinesPage() {
         <DashboardSidebar logoSrc="/KRABETS-LOGO.png" />
         <main className="krabet-main">
           <DashboardHeader
-            walletBalance={walletBalance}
+            walletBalance={displayWalletBalance}
             username={profile.username}
             email={profile.email}
             avatarUrl={profile.avatarUrl}
@@ -405,6 +444,7 @@ export function MinesPage() {
                   />
 
                   <MinesControls
+                    mode={mode}
                     gridSize={gridSize}
                     betAmount={betAmount}
                     stakeAmount={stakeAmount}
@@ -422,6 +462,11 @@ export function MinesPage() {
                     sessionId={sessionId}
                     pulseMultiplier={pulseMultiplier}
                     pulsePayout={pulsePayout}
+                    onModeChange={(nextMode) => {
+                      if (nextMode === mode) return;
+                      handleReset();
+                      setMode(nextMode);
+                    }}
                     onBetChange={handleBetChange}
                     onStakeChange={handleStakeChange}
                     onMinesCountChange={(e) => setMinesCount(Number(e.target.value))}

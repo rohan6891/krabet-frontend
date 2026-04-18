@@ -3,6 +3,7 @@ import { MinesStats } from "@/features/mines/components/MinesStats";
 import { formatMoney } from "@/features/mines/utils/mines.utils";
 
 type MinesControlsProps = {
+  mode: "live" | "demo";
   gridSize: number;
   betAmount: number;
   stakeAmount: number;
@@ -20,6 +21,7 @@ type MinesControlsProps = {
   sessionId: string;
   pulseMultiplier: boolean;
   pulsePayout: boolean;
+  onModeChange: (mode: "live" | "demo") => void;
   onBetChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onStakeChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onMinesCountChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -31,6 +33,7 @@ type MinesControlsProps = {
 };
 
 export function MinesControls({
+  mode,
   gridSize,
   betAmount,
   stakeAmount,
@@ -48,6 +51,7 @@ export function MinesControls({
   sessionId,
   pulseMultiplier,
   pulsePayout,
+  onModeChange,
   onBetChange,
   onStakeChange,
   onMinesCountChange,
@@ -59,6 +63,25 @@ export function MinesControls({
 }: MinesControlsProps) {
   return (
     <aside className="mines-controls">
+      <div className="mines-mode-switch" role="group" aria-label="Mines mode">
+        <button
+          type="button"
+          className={`mines-mode-btn ${mode === "demo" ? "active" : ""}`}
+          onClick={() => onModeChange("demo")}
+          disabled={isBusy}
+        >
+          Demo
+        </button>
+        <button
+          type="button"
+          className={`mines-mode-btn ${mode === "live" ? "active" : ""}`}
+          onClick={() => onModeChange("live")}
+          disabled={isBusy}
+        >
+          Live
+        </button>
+      </div>
+
       <div className="section-intro">
         <h2>Bet Controls</h2>
         <p>Set your round and play.</p>

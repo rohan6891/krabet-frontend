@@ -162,6 +162,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 14px;
   padding: 10px;
   background: linear-gradient(180deg, rgba(22, 0, 33, 0.96) 0%, rgba(8, 0, 16, 0.98) 100%);
@@ -190,14 +191,17 @@ img {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .header-nav-link {
   font-size: 11px;
   letter-spacing: 0.12px;
   color: #f4eaff;
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 999px;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -211,6 +215,8 @@ img {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .wallet-pill {
@@ -241,6 +247,14 @@ img {
   border: 1px solid rgba(196, 120, 255, 0.18);
   box-shadow: 0 0 10px rgba(125, 52, 189, 0.16);
   transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.profile-link {
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+  overflow: hidden;
 }
 
 .header-icon-btn:hover,
@@ -674,16 +688,18 @@ img {
     border-bottom: 1px solid rgba(187, 95, 255, 0.16);
   }
 
+  /* REMOVE flex-direction: column from .krabet-header */
   .krabet-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;      /* ← changed from column to row */
+    align-items: center;      /* ← changed from flex-start */
     left: 0;
   }
 
   .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    width: auto;              /* ← remove width: 100% */
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    margin-left: auto;
   }
 
   .hero-section {
@@ -808,5 +824,23 @@ img {
     height: 34px;
     border-radius: 11px;
     flex: 0 0 auto;
+  }
+}
+
+
+@media (min-width: 901px) {
+  .krabet-header {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+
+  .header-actions {
+    display: flex !important;
+    margin-left: auto;
+  }
+
+  .header-icon-btn {
+    display: flex !important;
   }
 }

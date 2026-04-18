@@ -17,6 +17,7 @@ function authHeaders(): HeadersInit {
 }
 
 export function startMinesSession(payload: {
+  mode: "live" | "demo";
   amount: string;
   currency: string;
   mine_count: number;
@@ -26,6 +27,7 @@ export function startMinesSession(payload: {
     method: "POST",
     headers: authHeaders(),
     body: {
+      mode: payload.mode,
       amount: String(payload.amount),
       currency: payload.currency,
       mine_count: payload.mine_count,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { NotificationItem } from "@/features/notifications/types/notification.types";
 import "./HeaderPopups.css";
 
@@ -146,7 +146,7 @@ type ProfilePanelProps = {
   email: string;
   avatarUrl: string | null;
   walletBalance: string;
-  onLogout: () => void;
+  onLogout?: () => void;
 };
 
 export function ProfilePanel({
@@ -156,9 +156,9 @@ export function ProfilePanel({
   email,
   avatarUrl,
   walletBalance,
-  onLogout,
 }: ProfilePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -204,8 +204,8 @@ export function ProfilePanel({
           {/* Avatar + Name */}
           <div className="user-card-hero">
             <div className="user-card-avatar-wrap">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={username} className="user-card-avatar" />
+              {avatarUrl && !imageError ? (
+                <img src={avatarUrl} alt={username} className="user-card-avatar" onError={() => setImageError(true)} />
               ) : (
                 <div className="user-card-avatar user-card-avatar--initial">
                   {initial}
@@ -218,6 +218,10 @@ export function ProfilePanel({
               <p className="user-card-username">@{username.toLowerCase()}</p>
 
               <div className="user-card-badges">
+                <span className="user-badge vip-badge">
+                  <i className="fa-solid fa-crown" aria-hidden="true" />
+                  VIP Gold
+                </span>
                 <span className="user-badge verified-badge">
                   <i className="fa-solid fa-circle-check" aria-hidden="true" />
                   Verified
@@ -233,16 +237,45 @@ export function ProfilePanel({
               {" "}Total Balance
             </div>
             <div className="user-balance-value">${walletBalance}</div>
+            <div className="user-balance-sub">1.25 BTC</div>
           </div>
 
           {/* Info Grid */}
           <div className="user-info-grid">
             <div className="user-info-item">
               <span className="user-info-label">
-                <i className="fa-solid fa-envelope" aria-hidden="true" />
-                Email
+                <i className="fa-solid fa-globe" aria-hidden="true" />
+                Country / Region
               </span>
-              <span className="user-info-value">{email || "Not set"}</span>
+              <span className="user-info-value">Nigeria</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">
+                <i className="fa-solid fa-trophy" aria-hidden="true" />
+                VIP Level
+              </span>
+              <span className="user-info-value">Gold III</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">
+                <i className="fa-solid fa-coins" aria-hidden="true" />
+                Total Wagered
+              </span>
+              <span className="user-info-value">$84,920.00</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">
+                <i className="fa-solid fa-medal" aria-hidden="true" />
+                Total Wins
+              </span>
+              <span className="user-info-value">$19,305.40</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">
+                <i className="fa-solid fa-calendar-days" aria-hidden="true" />
+                Member Since
+              </span>
+              <span className="user-info-value">Jan 2025</span>
             </div>
             <div className="user-info-item">
               <span className="user-info-label">

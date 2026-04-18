@@ -121,6 +121,36 @@
   font-size: 0.8rem;
 }
 
+.mines-mode-switch {
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mines-mode-btn {
+  min-width: 78px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 112, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: #d9c0ef;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mines-mode-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(161, 79, 255, 0.15);
+}
+
+.mines-mode-btn.active {
+  background: linear-gradient(180deg, #a14fff, #7a2cdd);
+  border-color: rgba(213, 145, 255, 0.5);
+  color: #ffffff;
+}
+
 .control-card {
   padding: 10px;
   border-radius: 14px;
