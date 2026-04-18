@@ -426,14 +426,16 @@ export function CoinflipPage() {
   const [pendingEntry, setPendingEntry] = useState<ReturnType<typeof createHistoryEntry> | null>(null);
   const [pendingBalanceOverride, setPendingBalanceOverride] = useState<number | null>(null);
   const [pendingMode, setPendingMode] = useState<CoinflipMode>("live");
+  const [pendingOutcome, setPendingOutcome] = useState<CoinflipOutcome | null>(null);
 
   const bannerTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (isFlipping) return;
     const parsed = Number(walletBalance);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (Number.isFinite(parsed)) setLiveBalance(parsed);
-  }, [walletBalance]);
+  }, [walletBalance, isFlipping]);
 
   useEffect(() => {
     return () => {
@@ -484,10 +486,12 @@ export function CoinflipPage() {
   function startResolvedFlip(input: {
     mode: CoinflipMode;
     outcome: CoinSide;
+    outcomeType: CoinflipOutcome;
     entry: ReturnType<typeof createHistoryEntry>;
     balanceOverride?: number | null;
   }) {
     setPendingMode(input.mode);
+    setPendingOutcome(input.outcomeType);
     setPendingEntry(input.entry);
     setPendingBalanceOverride(input.balanceOverride ?? null);
     setResolvedOutcome(input.outcome);
@@ -515,8 +519,20 @@ export function CoinflipPage() {
     }
 
     showBanner(pendingEntry.status);
+    if (pendingMode === "live" && pendingOutcome) {
+      window.dispatchEvent(
+        new CustomEvent("krabets:wallet-refresh", {
+          detail: {
+            reason: "bet_settled",
+            game: "coinflip",
+            outcome: pendingOutcome,
+          },
+        }),
+      );
+    }
     setPendingEntry(null);
     setPendingBalanceOverride(null);
+    setPendingOutcome(null);
   }
 
   async function playRound() {
@@ -543,19 +559,10 @@ export function CoinflipPage() {
       startResolvedFlip({
         mode,
         outcome: outcomeSide,
+        outcomeType: response.outcome,
         entry,
         balanceOverride: response.updatedBalance,
       });
-
-      window.dispatchEvent(
-        new CustomEvent("krabets:wallet-refresh", {
-          detail: {
-            reason: "bet_settled",
-            game: "coinflip",
-            outcome: response.outcome,
-          },
-        }),
-      );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to play Coinflip.";
       setPopupMessage(message);
