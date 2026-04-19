@@ -11,7 +11,7 @@ import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader
 import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
-import { fetchDiceDemoBalance, placeDiceBet } from "@/features/dice/api/dice.api";
+import { placeDiceBet } from "@/features/dice/api/dice.api";
 import type { DiceMode } from "@/features/dice/types/dice.types";
 
 const HOUSE_EDGE = 1;
@@ -304,7 +304,6 @@ export function DicePage() {
   const [betAmount, setBetAmount] = useState<number | "">(DEFAULT_BET);
   const [target, setTarget] = useState(50);
   const [isRollOver, setIsRollOver] = useState(false);
-  const [demoBalance, setDemoBalance] = useState(0);
   const [liveBalance, setLiveBalance] = useState(0);
   const [lastResult, setLastResult] = useState("-");
   const [history, setHistory] = useState<DiceHistoryEntry[]>([]);
@@ -328,40 +327,10 @@ export function DicePage() {
     }
   }, [walletBalance]);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    let cancelled = false;
-
-    const loadDemoBalance = async () => {
-      try {
-        const balance = await fetchDiceDemoBalance();
-        if (!cancelled) {
-          // Keep demo usable even if a stale backend demo value is still 0.
-          const fallback = liveBalance > 0 ? liveBalance : 0;
-          setDemoBalance(balance > 0 ? balance : fallback);
-        }
-      } catch {
-        if (!cancelled) {
-          if (liveBalance > 0) {
-            setDemoBalance(liveBalance);
-          }
-          setErrorMessage("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
-        }
-      }
-    };
-
-    void loadDemoBalance();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated, liveBalance]);
-
   const winChance = useMemo(() => getWinChance(target, isRollOver), [target, isRollOver]);
   const multiplier = useMemo(() => getMultiplier(winChance), [winChance]);
   const potentialReturn = useMemo(() => getPotentialProfit(Number(betAmount || 0), multiplier), [betAmount, multiplier]);
-  const activeBalance = mode === "demo" ? demoBalance : liveBalance;
+  const activeBalance = liveBalance;
 
   const clearStageResultTimers = useCallback(() => {
     if (resultToastTimeoutRef.current) {
@@ -628,16 +597,15 @@ export function DicePage() {
   }, []);
 
   const settleRound = useCallback(
-    ({ roll, balance, win }: { roll: number; balance: number; win: boolean }) => {
+    ({ roll, balance, win, updateWallet }: { roll: number; balance: number; win: boolean; updateWallet: boolean }) => {
       setLastResult(win ? "WIN" : "LOSE");
 
       stopRollingNumbers(roll);
       showStageResult(roll, win);
 
-      if (mode === "demo") setDemoBalance(balance);
-      if (mode === "live") setLiveBalance(balance);
+      if (updateWallet) setLiveBalance(balance);
     },
-    [mode, showStageResult, stopRollingNumbers],
+    [showStageResult, stopRollingNumbers],
   );
 
   const runDemoRound = useCallback(async () => {
@@ -668,7 +636,7 @@ export function DicePage() {
       startRollAnimation(getDiceFaceFromRoll(roll));
       await new Promise((resolve) => setTimeout(resolve, 4000));
 
-      settleRound({ roll, balance: response.updatedBalance, win });
+      settleRound({ roll, balance: response.updatedBalance, win, updateWallet: false });
       pushHistory({
         id: `${Date.now()}-${roll}`,
         mode: "Demo",
@@ -722,7 +690,7 @@ export function DicePage() {
       await new Promise((resolve) => setTimeout(resolve, 4000));
 
       const didWin = response.outcome === "win";
-      settleRound({ roll: response.roll, balance: response.updatedBalance, win: didWin });
+      settleRound({ roll: response.roll, balance: response.updatedBalance, win: didWin, updateWallet: true });
       pushHistory({
         id: `${Date.now()}-${response.roll}`,
         mode: "Live",
@@ -861,7 +829,7 @@ export function DicePage() {
                 <aside className="dice-control-card dice-grid-controls">
                   <div className="dice-balance-row">
                     <div>
-                      <div className="dice-small-label">{mode === "demo" ? "Demo Balance" : "Live Balance"}</div>
+                      <div className="dice-small-label">Wallet Balance</div>
                       <div className="dice-balance-value">${formatAmount(activeBalance)}</div>
                     </div>
                     <div className="dice-odds-badge">{multiplier.toFixed(2)}x</div>
