@@ -4,6 +4,7 @@ import { getAccessTokenFromStorage } from "@/shared/utils/session";
 import type { DiceBetApiResponse, DiceRoundResult } from "@/features/dice/types/dice.types";
 
 const BETS_PREFIX = "/api/v1/bets";
+const WALLET_PREFIX = "/api/v1/wallet";
 const BET_CURRENCY = "USDT";
 
 function authHeaders(extraHeaders?: Record<string, string>): HeadersInit {
@@ -21,6 +22,19 @@ function authHeaders(extraHeaders?: Record<string, string>): HeadersInit {
 function toFinite(value: unknown, fallback = 0): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function deriveUpdatedBalance(walletResponse: {
+  data: {
+    wallets?: Array<{
+      currency: string;
+      availableBalance: string;
+    }>;
+  };
+}): number {
+  const wallets = walletResponse.data.wallets || [];
+  const preferred = wallets.find((wallet) => wallet.currency === BET_CURRENCY) || wallets[0];
+  return toFinite(preferred?.availableBalance, 0);
 }
 
 export async function placeDiceBet(payload: {
@@ -59,5 +73,48 @@ export async function placeDiceBet(payload: {
     };
   }
 
-  throw new Error("Invalid Dice response from server.");
+  const bet = response.data?.bet;
+  if (!bet) {
+    throw new Error("Invalid Dice response from server.");
+  }
+
+  const metadata = (bet.metadata || {}) as Record<string, unknown>;
+  const roll = toFinite(metadata.roll, 0);
+  const target = toFinite(metadata.target, payload.target);
+  const rollOver = Boolean(metadata.roll_over ?? payload.rollOver);
+  const payout = toFinite(bet.payout, 0);
+  const wager = toFinite(bet.bet_amount, 0);
+  const outcome = bet.status === "won" ? "win" : "loss";
+
+  const walletResponse = await apiRequest<{ data: { wallets?: Array<{ currency: string; availableBalance: string }> } }>(
+    env.apiBaseUrl,
+    `${WALLET_PREFIX}/balance`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    },
+  );
+
+  return {
+    roll,
+    target,
+    rollOver,
+    outcome,
+    payout,
+    profit: payout - wager,
+    updatedBalance: deriveUpdatedBalance(walletResponse),
+  };
+}
+
+export async function fetchDiceDemoBalance(): Promise<number> {
+  const response = await apiRequest<{ data?: { currency?: string; balance?: number | string } }>(
+    env.apiBaseUrl,
+    `${BETS_PREFIX}/demo-balance`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    },
+  );
+
+  return toFinite(response.data?.balance, 0);
 }

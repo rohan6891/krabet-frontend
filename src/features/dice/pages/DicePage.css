@@ -1,254 +1,351 @@
-.dice-page-shell {
-  padding: 16px;
-  color: #f8ecff;
+.dice-game-shell {
+  --bg-1: #11011f;
+  --bg-2: #22033d;
+  --bg-3: #34095e;
+  --border: rgba(182, 109, 255, 0.34);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --text: #f6ecff;
+  --muted: #c8aee8;
+  --panel: linear-gradient(180deg, rgba(66, 9, 117, 0.92) 0%, rgba(28, 1, 51, 0.96) 100%);
+  --panel-strong: linear-gradient(180deg, rgba(78, 16, 137, 0.97) 0%, rgba(33, 2, 59, 0.98) 100%);
+  --button: linear-gradient(180deg, #a05bff 0%, #7a2be2 100%);
+  --button-dark: linear-gradient(180deg, rgba(67, 15, 119, 0.95) 0%, rgba(41, 5, 78, 0.98) 100%);
+  width: 100%;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top center, rgba(159, 86, 255, 0.18), transparent 26%),
+    radial-gradient(circle at 20% 20%, rgba(255, 186, 111, 0.1), transparent 18%),
+    linear-gradient(180deg, #130022 0%, #080010 100%);
+  border: 1px solid rgba(162, 92, 255, 0.22);
+  border-radius: 24px;
+  padding: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.dice-page-head {
-  margin-bottom: 12px;
-}
-
-.dice-page-head h1 {
-  margin: 0;
-}
-
-.dice-breadcrumb {
-  margin: 0 0 6px;
-  color: rgba(231, 206, 255, 0.75);
-}
-
-.dice-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
-  gap: 12px;
-}
-
-.dice-card {
-  border-radius: 16px;
-  border: 1px solid rgba(194, 120, 255, 0.28);
-  background: linear-gradient(180deg, rgba(62, 10, 110, 0.9), rgba(20, 2, 37, 0.95));
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
-}
-
-.dice-stage,
-.dice-controls,
-.dice-history {
-  padding: 12px;
-}
-
-.dice-stage {
-  grid-column: 1;
-}
-
-.dice-history {
-  grid-column: 1 / -1;
-}
-
-.dice-stage-top {
+.dice-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-.dice-mode-switch {
+.dice-mode-toggle {
   display: inline-flex;
-  gap: 6px;
   padding: 4px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  gap: 4px;
+  background: rgba(72, 14, 122, 0.72);
+  border-radius: 14px;
+  border: 1px solid var(--border);
 }
 
-.dice-mode-switch button,
-.dice-segment-row button,
-.dice-bet-row button,
-.dice-quick-bets button,
-.dice-roll-button {
+.dice-mode-toggle button,
+.dice-chip-row button,
+.dice-segmented-row button,
+.dice-step-btn,
+.dice-roll-btn,
+.dice-error-modal button {
   border: 0;
-  color: #f6ecff;
+  color: var(--text);
+  font: inherit;
   cursor: pointer;
 }
 
-.dice-mode-switch button {
-  min-width: 70px;
-  border-radius: 8px;
-  padding: 8px 12px;
+.dice-mode-toggle button {
+  min-width: 62px;
+  padding: 10px 16px;
+  border-radius: 11px;
   background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  transition: 0.18s ease;
 }
 
-.dice-mode-switch button.active {
-  background: linear-gradient(180deg, #b768ff, #7c31e6);
+.dice-mode-toggle button.active {
+  background: var(--button);
+  color: white;
+  box-shadow: 0 8px 20px rgba(129, 54, 233, 0.4);
 }
 
 .dice-status-pill {
+  padding: 10px 15px;
   border-radius: 999px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 0.8rem;
+  background: linear-gradient(180deg, rgba(87, 33, 142, 0.95), rgba(58, 10, 110, 0.98));
+  border: 1px solid rgba(255, 184, 91, 0.45);
+  color: #ffdca0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.dice-roll-display {
-  min-height: 220px;
-  margin-top: 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.dice-main-grid {
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 0.95fr);
+  grid-template-areas:
+    "display controls"
+    "history guide";
+  gap: 14px;
+}
+
+.dice-grid-display {
+  grid-area: display;
+}
+.dice-grid-controls {
+  grid-area: controls;
+}
+.dice-grid-history {
+  grid-area: history;
+}
+.dice-grid-guide {
+  grid-area: guide;
+}
+
+.dice-display-card,
+.dice-control-card,
+.dice-history-card,
+.dice-guide-card {
+  background: var(--panel);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 34px rgba(0, 0, 0, 0.2);
+}
+
+.dice-display-card {
+  overflow: hidden;
+}
+
+.dice-display-stage {
+  position: relative;
+  min-height: 420px;
+  border-radius: 18px;
+  background: url("/dice-background.jpg") center / cover no-repeat;
+  isolation: isolate;
+}
+
+.dice-background-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(circle at center, rgba(184, 111, 255, 0.25), transparent 45%),
-    linear-gradient(180deg, rgba(20, 2, 37, 0.95), rgba(9, 1, 17, 0.96));
+    radial-gradient(circle at center, rgba(255, 201, 120, 0.2), transparent 20%),
+    radial-gradient(circle at center, rgba(145, 66, 250, 0.22), transparent 42%);
+  filter: blur(10px);
 }
 
-.dice-roll-display span {
-  font-size: clamp(2.4rem, 6vw, 4.2rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
+.dice-canvas-wrap {
+  position: absolute;
+  inset: 0;
 }
 
-.dice-roll-display.is-rolling span {
-  animation: dicePulse 0.45s ease-in-out infinite;
+.dice-canvas-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
-@keyframes dicePulse {
-  0% { transform: scale(1); opacity: 0.86; }
-  50% { transform: scale(1.06); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.86; }
+.dice-loading-state {
+  position: absolute;
+  inset: auto 16px 16px 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(18, 0, 37, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
-.dice-stage-metrics {
-  margin-top: 10px;
+.dice-info-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 184, 91, 0.25);
+  background: linear-gradient(180deg, rgba(67, 8, 116, 0.82), rgba(39, 2, 72, 0.96));
 }
 
-.dice-stage-metrics article {
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+.dice-info-box,
+.dice-summary-box {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(79, 13, 134, 0.9), rgba(38, 4, 73, 0.98));
+  box-shadow: 0 1px 2px rgb(16, 12, 20);
 }
 
-.dice-stage-metrics span {
-  color: rgba(239, 223, 255, 0.76);
+.dice-info-box span,
+.dice-summary-box span,
+.dice-history-item span,
+.dice-small-label,
+.dice-field-label,
+.dice-card-header span,
+.dice-meta-row,
+.dice-inline-value {
+  display: block;
+  color: var(--muted);
   font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
-.dice-stage-metrics strong {
-  display: block;
-  margin-top: 6px;
-  font-size: 1rem;
-}
-
-.dice-balance-box {
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.dice-balance-box span {
-  font-size: 0.72rem;
-  color: rgba(239, 223, 255, 0.76);
-  text-transform: uppercase;
-}
-
-.dice-balance-box strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 1.6rem;
-}
-
-.dice-field-group {
-  margin-top: 12px;
-}
-
-.dice-field-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.85rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.dice-segment-row {
+.dice-info-box strong,
+.dice-summary-box strong,
+.dice-history-item strong,
+.dice-balance-value {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.dice-control-card,
+.dice-history-card,
+.dice-guide-card {
+  padding: 14px;
+}
+
+.dice-balance-row,
+.dice-card-header,
+.dice-field-row,
+.dice-meta-row,
+.dice-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dice-balance-value {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.dice-odds-badge {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--button);
+  font-size: 1rem;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(129, 54, 233, 0.3);
+}
+
+.dice-form-block {
+  margin-top: 14px;
+}
+
+.dice-segmented-row,
+.dice-chip-row,
+.dice-summary-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.dice-segment-row button,
-.dice-quick-bets button,
-.dice-bet-row button {
-  border-radius: 10px;
-  min-height: 40px;
-  background: rgba(255, 255, 255, 0.08);
+.dice-chip-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 8px;
 }
 
-.dice-segment-row button.active {
-  background: linear-gradient(180deg, #b768ff, #7c31e6);
+.dice-segmented-row button,
+.dice-chip-row button,
+.dice-step-btn {
+  padding: 12px 10px;
+  border-radius: 12px;
+  background: var(--button-dark);
+  border: 1px solid rgba(171, 103, 255, 0.25);
+  color: #e9d4ff;
+  font-weight: 800;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
 
-.dice-field-group input[type="range"] {
+.dice-segmented-row button.active {
+  background: var(--button);
+  color: white;
+}
+
+.dice-segmented-row button:hover,
+.dice-chip-row button:hover,
+.dice-step-btn:hover,
+.dice-roll-btn:hover,
+.dice-mode-toggle button:hover {
+  transform: translateY(-1px);
+}
+
+.dice-range {
   width: 100%;
-  accent-color: #b768ff;
+  margin-top: 10px;
+  accent-color: #9d5dff;
 }
 
 .dice-bet-row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
   gap: 8px;
+  margin-top: 8px;
 }
 
 .dice-bet-row input {
   width: 100%;
   min-width: 0;
-  border-radius: 10px;
-  border: 1px solid rgba(198, 136, 255, 0.28);
-  min-height: 40px;
-  background: rgba(15, 2, 27, 0.92);
-  color: #fff;
-  text-align: center;
-}
-
-.dice-quick-bets {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.dice-roll-button {
-  width: 100%;
-  margin-top: 12px;
-  min-height: 48px;
+  height: 42px;
+  padding: 0 14px;
   border-radius: 12px;
-  background: linear-gradient(180deg, #3bf4a6, #1edc86);
-  color: #052012;
-  font-size: 1rem;
+  border: 1px solid rgba(171, 103, 255, 0.25);
+  background: rgba(45, 4, 83, 0.85);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+}
+
+.dice-summary-row {
+  margin-top: 14px;
+}
+
+.dice-roll-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border-radius: 15px;
+  background: var(--button);
+  font-size: 1.05rem;
   font-weight: 900;
+  box-shadow: 0 12px 26px rgba(129, 54, 233, 0.38);
 }
 
-.dice-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+.dice-roll-btn:disabled,
+.dice-chip-row button:disabled,
+.dice-segmented-row button:disabled,
+.dice-step-btn:disabled,
+.dice-mode-toggle button:disabled,
+.dice-bet-row input:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.dice-card-head h3 {
+.dice-card-header {
+  margin-bottom: 12px;
+}
+
+.dice-card-header h3 {
   margin: 0;
+  font-size: 1.05rem;
 }
 
-.dice-card-head span {
-  color: rgba(239, 223, 255, 0.76);
-  font-size: 0.78rem;
-}
-
-.dice-empty {
-  min-height: 100px;
-  border-radius: 10px;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
+.dice-empty-history {
+  min-height: 112px;
   display: grid;
   place-items: center;
-  color: rgba(239, 223, 255, 0.76);
+  text-align: center;
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(34, 2, 61, 0.5);
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .dice-history-list {
@@ -256,25 +353,378 @@
   gap: 8px;
 }
 
-.dice-history-row {
+.dice-history-item {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(18, 2, 31, 0.88);
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(33, 2, 59, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.dice-history-row.win strong {
-  color: #72efbf;
+.dice-history-item.win {
+  box-shadow: inset 0 0 0 1px rgba(126, 255, 181, 0.08);
 }
 
-.dice-history-row.lose strong {
-  color: #ff93a6;
+.dice-history-item.lose {
+  box-shadow: inset 0 0 0 1px rgba(255, 153, 153, 0.06);
+}
+
+.dice-guide-list p {
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f0defe;
+  line-height: 1.5;
+  font-size: 0.94rem;
+}
+
+.dice-guide-list p:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.dice-guide-list code {
+  color: #ffdca0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.dice-error-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(5, 0, 12, 0.72);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.dice-error-modal {
+  width: min(420px, 100%);
+  padding: 22px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(52, 6, 92, 0.98), rgba(22, 1, 40, 0.98));
+  border: 1px solid rgba(255, 133, 133, 0.35);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.dice-error-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.dice-error-modal p {
+  margin: 0 0 16px;
+  color: #f5d9ef;
+  line-height: 1.5;
+}
+
+.dice-error-modal button {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--button);
+  font-weight: 800;
 }
 
 @media (max-width: 980px) {
-  .dice-grid {
+  .dice-main-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "display"
+      "controls"
+      "history"
+      "guide";
+  }
+
+  .dice-display-stage {
+    min-height: 360px;
+  }
+
+  .dice-guide-card,
+  .dice-history-card,
+  .dice-control-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .dice-game-shell {
+    border-radius: 18px;
+    padding: 10px;
+  }
+
+  .dice-top-row {
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .dice-mode-toggle button {
+    min-width: 54px;
+    padding: 8px 12px;
+    font-size: 0.84rem;
+  }
+
+  .dice-status-pill {
+    padding: 8px 11px;
+    font-size: 0.68rem;
+  }
+
+  .dice-display-stage {
+    min-height: 260px;
+  }
+
+  .dice-info-strip {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .dice-info-box,
+  .dice-summary-box {
+    padding: 10px 11px;
+    border-radius: 12px;
+  }
+
+  .dice-info-box strong,
+  .dice-summary-box strong,
+  .dice-history-item strong,
+  .dice-balance-value {
+    font-size: 0.9rem;
+  }
+
+  .dice-small-label,
+  .dice-field-label,
+  .dice-info-box span,
+  .dice-summary-box span,
+  .dice-history-item span,
+  .dice-card-header span,
+  .dice-meta-row,
+  .dice-inline-value {
+    font-size: 0.62rem;
+  }
+
+  .dice-control-card,
+  .dice-history-card,
+  .dice-guide-card {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .dice-balance-value {
+    font-size: 1.6rem;
+  }
+
+  .dice-odds-badge {
+    padding: 9px 11px;
+    border-radius: 12px;
+    font-size: 0.86rem;
+  }
+
+  .dice-segmented-row button,
+  .dice-chip-row button,
+  .dice-step-btn {
+    padding: 10px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+  }
+
+  .dice-bet-row {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 6px;
+  }
+
+  .dice-bet-row input {
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+  }
+
+  .dice-roll-btn {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+  }
+
+  .dice-card-header h3 {
+    font-size: 0.94rem;
+  }
+
+  .dice-history-item {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .dice-empty-history {
+    min-height: 84px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+  }
+
+  .dice-guide-list p {
+    padding: 11px 0;
+    font-size: 0.82rem;
+  }
+}
+
+.dice-canvas-wrap {
+  cursor: grab;
+}
+
+.dice-display-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.dice-stage-result {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  max-width: calc(100% - 24px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform-origin: center;
+}
+
+.dice-stage-result.show {
+  animation: diceStageResultBounceIn 0.5s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+.dice-stage-result.hide {
+  animation: diceStageResultBounceOut 0.38s ease forwards;
+}
+
+.dice-stage-result.win {
+  color: #2d1600;
+  background: linear-gradient(180deg, #ffe7a3 0%, #ffcf52 52%, #e3a80c 100%);
+}
+
+.dice-stage-result.lose {
+  color: #fff4f4;
+  background: linear-gradient(180deg, #ff7a7a 0%, #f13f3f 55%, #be1515 100%);
+}
+
+.dice-stage-roll-value {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 7;
+  pointer-events: none;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-size: clamp(1.6rem, 5vw, 3.6rem);
+  color: rgba(129, 7, 199, 0.94);
+  text-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.671),
+    0 0 26px rgba(183, 120, 255, 0.18);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dice-stage-roll-value.rolling {
+  opacity: 1;
+  animation: diceRollingNumberPulse 0.42s ease-in-out infinite;
+}
+
+.dice-stage-roll-value.settled {
+  opacity: 0.96;
+  transform: translateY(0) scale(1);
+}
+
+@keyframes diceStageResultBounceIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-18px) scale(0.72);
+  }
+  45% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(4px) scale(1.08);
+  }
+  70% {
+    transform: translateX(-50%) translateY(-2px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes diceStageResultBounceOut {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(4px) scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-18px) scale(0.72);
+  }
+}
+
+@keyframes diceRollingNumberPulse {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-2px) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 768px) {
+  .dice-stage-result {
+    top: 10px;
+    min-width: 98px;
+    max-width: calc(100% - 18px);
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+  }
+
+  .dice-stage-roll-value {
+    left: 12px;
+    bottom: 12px;
+    font-size: clamp(1.75rem, 8vw, 3.1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .dice-stage-result {
+    top: 8px;
+    padding: 7px 12px;
+    font-size: 0.72rem;
+  }
+
+  .dice-stage-roll-value {
+    left: 10px;
+    bottom: 10px;
+    font-size: clamp(1.45rem, 9vw, 2.45rem);
   }
 }
