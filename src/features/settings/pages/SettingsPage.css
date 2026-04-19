@@ -176,8 +176,7 @@
   color: #cf8cff;
 }
 
-.settings-label-group input,
-.settings-label-group select {
+.settings-label-group:not(.settings-label-group--datepicker) input {
   width: 100%;
   border: 1px solid rgba(199, 132, 255, 0.18);
   outline: none;
@@ -192,21 +191,212 @@
   font-size: 0.95rem;
 }
 
-.settings-label-group input.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: rgba(13, 4, 24, 0.5);
-}
-
-.settings-label-group input::placeholder {
-  color: var(--settings-text-faded);
-}
-
-.settings-label-group input:focus,
-.settings-label-group select:focus {
+.settings-label-group:not(.settings-label-group--datepicker) input:focus {
   border-color: rgba(219, 148, 255, 0.44);
   box-shadow: 0 0 0 3px rgba(177, 88, 255, 0.14);
 }
+
+.settings-label-group select {
+  color-scheme: dark;
+}
+
+.settings-inline-input-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.settings-dropdown {
+  position: relative;
+}
+
+.settings-dropdown__trigger {
+  list-style: none;
+  width: 100%;
+  border: 1px solid rgba(199, 132, 255, 0.18);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background:
+    linear-gradient(180deg, rgba(71, 18, 117, 0.466), rgba(37, 9, 71, 0.849)),
+    rgba(13, 4, 24, 0.884);
+  box-shadow: inset 0 1px 0 rgba(59, 24, 104, 0.795);
+  color: var(--settings-text);
+  font: inherit;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.settings-dropdown__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.settings-dropdown[open] .settings-dropdown__trigger {
+  border-color: rgba(219, 148, 255, 0.44);
+  box-shadow: 0 0 0 3px rgba(177, 88, 255, 0.14);
+}
+
+.settings-dropdown__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  border: 1px solid rgba(199, 132, 255, 0.25);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(14, 4, 28, 0.96);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+}
+
+.settings-dropdown__search {
+  width: 100%;
+  border: 1px solid rgba(199, 132, 255, 0.18);
+  outline: none;
+  color: var(--settings-text);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: rgba(19, 6, 32, 0.82);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.settings-dropdown__search::placeholder {
+  color: var(--settings-text-faded);
+}
+
+.settings-dropdown__search:focus {
+  border-color: rgba(219, 148, 255, 0.44);
+}
+
+.settings-dropdown__list {
+  margin-top: 8px;
+  max-height: 220px;
+  overflow: auto;
+  display: grid;
+  gap: 4px;
+}
+
+.settings-dropdown__item {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--settings-text-soft);
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.settings-dropdown__item:hover,
+.settings-dropdown__item.is-selected {
+  color: #fff;
+  background: rgba(135, 61, 211, 0.45);
+}
+
+.settings-themed-calendar {
+  color-scheme: dark;
+}
+
+.settings-mui-picker {
+  width: 100%;
+}
+
+.settings-picker-popper .MuiPaper-root {
+  border: 1px solid rgba(220, 150, 255, 0.24);
+  background: linear-gradient(180deg, rgba(93, 26, 154, 0.28), rgba(29, 8, 53, 0.95)), #090312;
+  color: #f6ecff;
+}
+
+.settings-picker-popper .MuiPickersDay-root {
+  color: #f6ecff !important;
+}
+
+.settings-picker-popper .MuiButtonBase-root.MuiPickersDay-root,
+.settings-picker-popper .MuiPickersDay-dayWithMargin,
+.settings-picker-popper .MuiDayCalendar-weekContainer .MuiPickersDay-root {
+  color: #f6ecff !important;
+}
+
+.settings-picker-popper .MuiTypography-root,
+.settings-picker-popper .MuiPickersCalendarHeader-label,
+.settings-picker-popper .MuiDayCalendar-weekDayLabel,
+.settings-picker-popper .MuiPickersYear-yearButton,
+.settings-picker-popper .MuiPickersMonth-monthButton {
+  color: #f6ecff !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.Mui-disabled,
+.settings-picker-popper .MuiPickersMonth-monthButton.Mui-disabled,
+.settings-picker-popper .MuiPickersYear-yearButton.Mui-disabled {
+  color: rgba(246, 236, 255, 0.38);
+}
+
+.settings-picker-popper .MuiPickersDay-root.Mui-selected,
+.settings-picker-popper .MuiPickersDay-root.Mui-selected:hover,
+.settings-picker-popper .MuiPickersDay-root.Mui-selected:focus {
+  color: #ffffff !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.MuiPickersDay-today {
+  border-color: rgba(207, 140, 255, 0.85) !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.Mui-selected {
+  background: linear-gradient(180deg, #8439b9, #460aa7);
+}
+
+.settings-picker-popper .MuiPickersCalendarHeader-root,
+.settings-picker-popper .MuiDayCalendar-weekDayLabel,
+.settings-picker-popper .MuiPickersArrowSwitcher-button,
+.settings-picker-popper .MuiIconButton-root {
+  color: #cf8cff;
+}
+
+.settings-help-text {
+  color: var(--settings-text-soft);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.settings-field-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: -2px;
+}
+
+.settings-field-status--available,
+.settings-field-status--current {
+  color: #86efac;
+}
+
+.settings-field-status--taken,
+.settings-field-status--invalid,
+.settings-field-status--error {
+  color: #ff7aa5;
+}
+
+.settings-field-status--checking,
+.settings-field-status--idle {
+  color: var(--settings-text-soft);
+}
+
+/* .settings-label-group input.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(13, 4, 24, 0.5);
+} */
+
+/* 
+.settings-label-group input::placeholder {
+  color: var(--settings-text-faded);
+} */
 
 /* Profile Picture Box */
 .settings-profile-picture {
@@ -248,6 +438,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.settings-avatar-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(12, 3, 22, 0.85);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 
 .settings-profile-picture__meta h4 {
@@ -509,6 +715,63 @@
   margin-bottom: 20px;
 }
 
+.settings-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.settings-modal--avatar {
+  width: min(100%, 460px);
+}
+
+.settings-avatar-dropzone {
+  min-height: 220px;
+  border-radius: 16px;
+  border: 1px dashed rgba(220, 150, 255, 0.32);
+  background: rgba(20, 5, 34, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--settings-text-soft);
+}
+
+.settings-avatar-dropzone input {
+  display: none;
+}
+
+.settings-avatar-dropzone i {
+  font-size: 1.5rem;
+  color: #cf8cff;
+}
+
+.settings-avatar-dropzone small {
+  color: var(--settings-text-faded);
+}
+
+.settings-avatar-preview-card {
+  position: relative;
+  min-height: 220px;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 150, 255, 0.24);
+  background: rgba(20, 5, 34, 0.65);
+  display: grid;
+  place-items: center;
+}
+
+.settings-avatar-preview-image {
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+}
+
 @media (max-width: 1180px) {
   .settings-grid,
   .settings-support-grid {
@@ -530,10 +793,38 @@
     grid-template-columns: 1fr;
   }
 
+  .settings-inline-input-grid {
+    grid-template-columns: 1fr;
+  }
+
   .settings-profile-picture,
   .settings-profile-picture__left,
   .settings-profile-picture__actions {
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+.settings-dob-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-dob-field span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f2deff;
+}
+
+.settings-dob-field span i {
+  color: #cf8cff;
+}
+
+.settings-dob-field > div:focus-within {
+  border-color: rgba(219, 148, 255, 0.44) !important;
+  box-shadow: inset 0 1px 0 rgba(59, 24, 104, 0.795), 0 0 0 3px rgba(177, 88, 255, 0.14) !important;
 }

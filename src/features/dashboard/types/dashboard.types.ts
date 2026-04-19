@@ -56,6 +56,13 @@ export type MeResponse = {
       email: string | null;
       displayName: string | null;
       avatarUrl: string | null;
+      phoneNumber?: string | null;
+      phoneCountryCode?: string | null;
+      country?: string | null;
+      timezone?: string | null;
+      preferredLanguage?: string | null;
+      dateOfBirth?: string | null;
+      preferredDateTime?: string | null;
     };
   };
 };

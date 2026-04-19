@@ -5,6 +5,13 @@ export type StoredSession = {
     username?: string;
     email?: string;
     avatarUrl?: string;
+    displayName?: string;
+    phoneNumber?: string;
+    phoneCountryCode?: string;
+    country?: string;
+    timezone?: string;
+    preferredLanguage?: string;
+    dateOfBirth?: string;
     provider?: string;
   };
 };
@@ -88,4 +95,28 @@ export function getStoredSession(): StoredSession | null {
   } catch {
     return null;
   }
+}
+
+export function patchStoredSessionUser(patch: Partial<NonNullable<StoredSession["user"]>>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const current = getStoredSession();
+  if (!current) {
+    return;
+  }
+
+  const nextUser = {
+    ...(current.user || {}),
+    ...patch,
+  };
+
+  window.localStorage.setItem(
+    "krabets_session",
+    JSON.stringify({
+      token: current.token,
+      user: nextUser,
+    } satisfies StoredSession),
+  );
 }

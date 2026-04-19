@@ -6,6 +6,20 @@ interface RequestOptions {
   headers?: HeadersInit;
 }
 
+function isFormDataBody(value: unknown): value is FormData {
+  return typeof FormData !== "undefined" && value instanceof FormData;
+}
+
+function isBodyInitLike(value: unknown): value is BodyInit {
+  return (
+    typeof value === "string" ||
+    (typeof URLSearchParams !== "undefined" && value instanceof URLSearchParams) ||
+    (typeof Blob !== "undefined" && value instanceof Blob) ||
+    (typeof ArrayBuffer !== "undefined" && value instanceof ArrayBuffer) ||
+    (typeof ReadableStream !== "undefined" && value instanceof ReadableStream)
+  );
+}
+
 export class HttpError extends Error {
   status: number;
 
@@ -23,19 +37,33 @@ export async function apiRequest<T>(baseUrl: string, path: string, options: Requ
   const { method = "GET", body, headers } = options;
   const requestHeaders = new Headers(headers || {});
   const hasBody = body !== undefined && body !== null;
+  const isFormData = isFormDataBody(body);
 
   if (isNgrokUrl(baseUrl) && !requestHeaders.has("ngrok-skip-browser-warning")) {
     requestHeaders.set("ngrok-skip-browser-warning", "true");
   }
 
-  if (hasBody && !requestHeaders.has("Content-Type")) {
+  if (hasBody && !isFormData && !requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
+  }
+
+  if (isFormData && requestHeaders.has("Content-Type")) {
+    requestHeaders.delete("Content-Type");
+  }
+
+  let requestBody: BodyInit | undefined;
+  if (hasBody) {
+    if (isFormData || isBodyInitLike(body)) {
+      requestBody = body as BodyInit;
+    } else {
+      requestBody = JSON.stringify(body);
+    }
   }
 
   const response = await fetch(`${baseUrl}${path}`, {
     method,
     headers: requestHeaders,
-    body: hasBody ? JSON.stringify(body) : undefined,
+    body: requestBody,
   });
 
   let payload: Record<string, unknown> = {};

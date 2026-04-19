@@ -95,7 +95,15 @@ export type AuthMeResponse = {
   data: {
     user: {
       username: string;
+      email?: string | null;
+      displayName?: string | null;
       avatarUrl?: string | null;
+      phoneNumber?: string | null;
+      phoneCountryCode?: string | null;
+      country?: string | null;
+      timezone?: string | null;
+      preferredLanguage?: string | null;
+      dateOfBirth?: string | null;
     };
   };
 };

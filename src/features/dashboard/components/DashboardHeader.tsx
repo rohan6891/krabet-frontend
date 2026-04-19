@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { ProfileAvatar } from "@/features/dashboard/components/ProfileAvatar";
 import { NotificationPanel, ProfilePanel } from "@/features/dashboard/components/HeaderPopups";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
+import { useI18n } from "@/shared/i18n/useI18n";
 import { useSession } from "@/shared/hooks/useSession";
 
 const topNavLinks = [
-  { label: "Casino", href: "/dashboard", active: true },
-  { label: "Sports", href: "#" },
-  { label: "Live", href: "#" },
-  { label: "Promotions", href: "#" },
+  { key: "nav.casino", label: "Casino", href: "/dashboard", active: true },
+  { key: "nav.sports", label: "Sports", href: "#" },
+  { key: "nav.live", label: "Live", href: "#" },
+  { key: "nav.promotions", label: "Promotions", href: "#" },
 ];
 
 type DashboardHeaderProps = {
@@ -18,6 +19,12 @@ type DashboardHeaderProps = {
   username: string;
   email?: string;
   avatarUrl: string | null;
+  displayName?: string;
+  country?: string;
+  phoneNumber?: string;
+  phoneCountryCode?: string;
+  preferredLanguage?: string;
+  dateOfBirth?: string;
   walletHref?: string;
   onAlertsClick?: () => void;
 };
@@ -27,6 +34,12 @@ export function DashboardHeader({
   username,
   email = "",
   avatarUrl,
+  displayName = "",
+  country = "",
+  phoneNumber = "",
+  phoneCountryCode = "",
+  preferredLanguage = "",
+  dateOfBirth = "",
   walletHref = "/dashboard/wallet",
   onAlertsClick,
 }: DashboardHeaderProps) {
@@ -35,6 +48,7 @@ export function DashboardHeader({
   const { notifications, unreadCount, loading, reload, markRead, markAllRead } =
     useNotifications();
   const { logout } = useSession();
+  const { t } = useI18n();
 
   useEffect(() => {
     const openNotifications = () => {
@@ -67,7 +81,7 @@ export function DashboardHeader({
         <nav className="header-nav">
           {topNavLinks.map((item) => (
             <a href={item.href} key={item.label} className={`header-nav-link ${item.active ? "active" : ""}`}>
-              {item.label}
+              {t(item.key, item.label)}
             </a>
           ))}
         </nav>
@@ -86,13 +100,13 @@ export function DashboardHeader({
             </span>
           </a>
 
-          <a href="/dashboard/search" className="header-icon-btn" aria-label="Search">
+          <a href="/dashboard/search" className="header-icon-btn" aria-label={t("aria.search", "Search")}>
             <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           </a>
 
           <button
             className="header-icon-btn"
-            aria-label="Notifications"
+            aria-label={t("aria.notifications", "Notifications")}
             onClick={() => {
               handleNotifToggle();
               if (onAlertsClick) onAlertsClick();
@@ -105,11 +119,11 @@ export function DashboardHeader({
             )}
           </button>
 
-          <a href="/dashboard/settings" className="header-icon-btn" aria-label="Settings">
+          <a href="/dashboard/settings" className="header-icon-btn" aria-label={t("aria.settings", "Settings")}>
             <i className="fa-solid fa-gear" aria-hidden="true"></i>
           </a>
 
-          <button className="profile-link" aria-label="Profile" onClick={handleProfileToggle}>
+          <button className="profile-link" aria-label={t("aria.profile", "Profile")} onClick={handleProfileToggle}>
             <ProfileAvatar username={username} avatarUrl={avatarUrl} />
           </button>
         </div>
@@ -132,6 +146,12 @@ export function DashboardHeader({
         email={email}
         avatarUrl={avatarUrl}
         walletBalance={walletBalance}
+        displayName={displayName}
+        country={country}
+        phoneNumber={phoneNumber}
+        phoneCountryCode={phoneCountryCode}
+        preferredLanguage={preferredLanguage}
+        dateOfBirth={dateOfBirth}
         onLogout={logout}
       />
     </>

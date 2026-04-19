@@ -49,6 +49,12 @@ export function SearchPage() {
             username={profile.username}
             email={profile.email}
             avatarUrl={profile.avatarUrl}
+            displayName={profile.displayName}
+            country={profile.country}
+            phoneNumber={profile.phoneNumber}
+            phoneCountryCode={profile.phoneCountryCode}
+            preferredLanguage={profile.preferredLanguage}
+            dateOfBirth={profile.dateOfBirth}
           />
 
           <div className="krabet-wallet-content">

@@ -1,19 +1,23 @@
+"use client";
+
+import { useI18n } from "@/shared/i18n/useI18n";
+
 export const sidebarTopLinks = [
-  { label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
-  { label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
-  { label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
-  { label: "Coinflip", href: "/dashboard/coinflip", icon: "fa-solid fa-coins" },
-  { label: "Search", href: "/dashboard/search", icon: "fa-solid fa-magnifying-glass" },
-  { label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
+  { key: "nav.casino", label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
+  { key: "nav.mines", label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
+  { key: "nav.limbo", label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
+  { key: "nav.coinflip", label: "Coinflip", href: "/dashboard/coinflip", icon: "fa-solid fa-coins" },
+  { key: "nav.search", label: "Search", href: "/dashboard/search", icon: "fa-solid fa-magnifying-glass" },
+  { key: "nav.wallet", label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
 ];
 
 export const sidebarBottomLinks = [
-  { label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
-  { label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
-  { label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },
-  { label: "Referral", href: "/dashboard", icon: "fa-solid fa-user-plus" },
-  { label: "Form", href: "/dashboard/settings", icon: "fa-regular fa-file-lines" },
-  { label: "Responsible Gambling", href: "/dashboard/settings", icon: "fa-solid fa-shield-halved" },
+  { key: "nav.promotions", label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
+  { key: "nav.vipClub", label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
+  { key: "nav.bonus", label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },
+  { key: "nav.referral", label: "Referral", href: "/dashboard", icon: "fa-solid fa-user-plus" },
+  { key: "nav.form", label: "Form", href: "/dashboard/settings", icon: "fa-regular fa-file-lines" },
+  { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "/dashboard/settings", icon: "fa-solid fa-shield-halved" },
 ];
 
 type DashboardSidebarProps = {
@@ -21,6 +25,8 @@ type DashboardSidebarProps = {
 };
 
 export function DashboardSidebar({ logoSrc }: DashboardSidebarProps) {
+  const { t } = useI18n();
+
   return (
     <aside className="krabet-sidebar">
       <a href="/dashboard" className="sidebar-logo-link">
@@ -33,7 +39,7 @@ export function DashboardSidebar({ logoSrc }: DashboardSidebarProps) {
             <span className="sidebar-link-icon">
               <i className={item.icon} aria-hidden="true"></i>
             </span>
-            <span className="sidebar-link-text">{item.label}</span>
+            <span className="sidebar-link-text">{t(item.key, item.label)}</span>
           </a>
         ))}
       </div>
@@ -44,7 +50,7 @@ export function DashboardSidebar({ logoSrc }: DashboardSidebarProps) {
             <span className="sidebar-link-icon">
               <i className={item.icon} aria-hidden="true"></i>
             </span>
-            <span className="sidebar-link-text">{item.label}</span>
+            <span className="sidebar-link-text">{t(item.key, item.label)}</span>
           </a>
         ))}
       </div>

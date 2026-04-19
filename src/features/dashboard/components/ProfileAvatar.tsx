@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { resolveAssetUrl } from "@/shared/utils/assetUrl";
 
 type ProfileAvatarProps = {
   username: string;
@@ -15,15 +16,16 @@ function firstLetter(value: string): string {
 
 export function ProfileAvatar({ username, avatarUrl }: ProfileAvatarProps) {
   const [hasImageError, setHasImageError] = useState(false);
+  const avatarSrc = resolveAssetUrl(avatarUrl);
 
   useEffect(() => {
     setHasImageError(false);
   }, [avatarUrl]);
 
-  if (avatarUrl && !hasImageError) {
+  if (avatarSrc && !hasImageError) {
     return (
       <img
-        src={avatarUrl}
+        src={avatarSrc}
         alt="Profile"
         className="profile-image"
         onError={() => setHasImageError(true)}

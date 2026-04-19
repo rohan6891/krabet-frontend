@@ -588,6 +588,12 @@ export function CoinflipPage() {
             username={profile.username}
             email={profile.email}
             avatarUrl={profile.avatarUrl}
+            displayName={profile.displayName}
+            country={profile.country}
+            phoneNumber={profile.phoneNumber}
+            phoneCountryCode={profile.phoneCountryCode}
+            preferredLanguage={profile.preferredLanguage}
+            dateOfBirth={profile.dateOfBirth}
             walletHref="/dashboard/wallet"
           />
 

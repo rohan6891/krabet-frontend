@@ -15,6 +15,13 @@ type DashboardProfile = {
   username: string;
   email: string;
   avatarUrl: string | null;
+  displayName: string;
+  phoneNumber: string;
+  phoneCountryCode: string;
+  country: string;
+  timezone: string;
+  preferredLanguage: string;
+  dateOfBirth: string;
 };
 
 function pickPreferredWalletBalance(wallets: Array<{ currency?: string; availableBalance: string }>): string {
@@ -54,6 +61,13 @@ export function useDashboardData() {
     username: "User",
     email: "",
     avatarUrl: null,
+    displayName: "",
+    phoneNumber: "",
+    phoneCountryCode: "",
+    country: "",
+    timezone: "",
+    preferredLanguage: "",
+    dateOfBirth: "",
   });
 
   const refreshWalletBalance = useCallback(async () => {
@@ -109,6 +123,13 @@ export function useDashboardData() {
           username: meRes.data.user.username || sessionUser?.username || "User",
           email: meRes.data.user.email || sessionUser?.email || "",
           avatarUrl: meRes.data.user.avatarUrl || sessionUser?.avatarUrl || null,
+          displayName: meRes.data.user.displayName || sessionUser?.displayName || "",
+          phoneNumber: meRes.data.user.phoneNumber || sessionUser?.phoneNumber || "",
+          phoneCountryCode: meRes.data.user.phoneCountryCode || sessionUser?.phoneCountryCode || "",
+          country: meRes.data.user.country || sessionUser?.country || "",
+          timezone: meRes.data.user.timezone || sessionUser?.timezone || "",
+          preferredLanguage: meRes.data.user.preferredLanguage || sessionUser?.preferredLanguage || "",
+          dateOfBirth: meRes.data.user.dateOfBirth || sessionUser?.dateOfBirth || "",
         });
       } catch {
         if (!mounted) {

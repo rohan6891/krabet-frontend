@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { NotificationItem } from "@/features/notifications/types/notification.types";
+import { useI18n } from "@/shared/i18n/useI18n";
+import { resolveAssetUrl } from "@/shared/utils/assetUrl";
 import "./HeaderPopups.css";
 
 /* ─── helpers ─────────────────────────────────────────── */
@@ -146,8 +148,19 @@ type ProfilePanelProps = {
   email: string;
   avatarUrl: string | null;
   walletBalance: string;
+  displayName?: string;
+  country?: string;
+  phoneNumber?: string;
+  phoneCountryCode?: string;
+  preferredLanguage?: string;
+  dateOfBirth?: string;
   onLogout?: () => void;
 };
+
+function profileValue(value?: string | null, fallback = "N/A"): string {
+  const normalized = value?.trim();
+  return normalized ? normalized : fallback;
+}
 
 export function ProfilePanel({
   open,
@@ -156,9 +169,21 @@ export function ProfilePanel({
   email,
   avatarUrl,
   walletBalance,
+  displayName,
+  country,
+  phoneNumber,
+  phoneCountryCode,
+  preferredLanguage,
+  dateOfBirth,
 }: ProfilePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [imageError, setImageError] = useState(false);
+  const { t } = useI18n();
+  const avatarSrc = resolveAssetUrl(avatarUrl);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarUrl]);
 
   useEffect(() => {
     if (!open) return;
@@ -174,6 +199,7 @@ export function ProfilePanel({
   if (!open) return null;
 
   const initial = (username || "U")[0].toUpperCase();
+  const fullPhone = [phoneCountryCode, phoneNumber].filter(Boolean).join(" ").trim();
 
   return (
     <div className="header-popup-overlay" onClick={onClose}>
@@ -187,7 +213,7 @@ export function ProfilePanel({
             <span className="header-popup-title-icon">
               <i className="fa-solid fa-id-card" aria-hidden="true" />
             </span>
-            <h3 className="header-popup-title">Player Profile</h3>
+            <h3 className="header-popup-title">{t("profile.panelTitle", "My Profile")}</h3>
           </div>
 
           <button
@@ -204,8 +230,8 @@ export function ProfilePanel({
           {/* Avatar + Name */}
           <div className="user-card-hero">
             <div className="user-card-avatar-wrap">
-              {avatarUrl && !imageError ? (
-                <img src={avatarUrl} alt={username} className="user-card-avatar" onError={() => setImageError(true)} />
+              {avatarSrc && !imageError ? (
+                <img src={avatarSrc} alt={username} className="user-card-avatar" onError={() => setImageError(true)} />
               ) : (
                 <div className="user-card-avatar user-card-avatar--initial">
                   {initial}
@@ -214,7 +240,7 @@ export function ProfilePanel({
             </div>
 
             <div className="user-card-main-info">
-              <h2 className="user-card-name">{username}</h2>
+              <h2 className="user-card-name">{profileValue(displayName || username)}</h2>
               <p className="user-card-username">@{username.toLowerCase()}</p>
 
               <div className="user-card-badges">
@@ -234,7 +260,7 @@ export function ProfilePanel({
           <div className="user-balance-card">
             <div className="user-balance-label">
               <i className="fa-solid fa-wallet" aria-hidden="true" />
-              {" "}Total Balance
+              {" "}{t("profile.walletBalance", "Wallet Balance")}
             </div>
             <div className="user-balance-value">${walletBalance}</div>
             <div className="user-balance-sub">1.25 BTC</div>
@@ -244,45 +270,38 @@ export function ProfilePanel({
           <div className="user-info-grid">
             <div className="user-info-item">
               <span className="user-info-label">
+                <i className="fa-solid fa-envelope" aria-hidden="true" />
+                {t("profile.email", "Email")}
+              </span>
+              <span className="user-info-value">{profileValue(email, t("common.na", "N/A"))}</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">
                 <i className="fa-solid fa-globe" aria-hidden="true" />
-                Country / Region
+                {t("profile.country", "Country")}
               </span>
-              <span className="user-info-value">Nigeria</span>
+              <span className="user-info-value">{profileValue(country, t("common.na", "N/A"))}</span>
             </div>
             <div className="user-info-item">
               <span className="user-info-label">
-                <i className="fa-solid fa-trophy" aria-hidden="true" />
-                VIP Level
+                <i className="fa-solid fa-phone" aria-hidden="true" />
+                {t("profile.phone", "Phone")}
               </span>
-              <span className="user-info-value">Gold III</span>
-            </div>
-            <div className="user-info-item">
-              <span className="user-info-label">
-                <i className="fa-solid fa-coins" aria-hidden="true" />
-                Total Wagered
-              </span>
-              <span className="user-info-value">$84,920.00</span>
-            </div>
-            <div className="user-info-item">
-              <span className="user-info-label">
-                <i className="fa-solid fa-medal" aria-hidden="true" />
-                Total Wins
-              </span>
-              <span className="user-info-value">$19,305.40</span>
+              <span className="user-info-value">{profileValue(fullPhone, t("common.na", "N/A"))}</span>
             </div>
             <div className="user-info-item">
               <span className="user-info-label">
                 <i className="fa-solid fa-calendar-days" aria-hidden="true" />
-                Member Since
+                {t("profile.dateOfBirth", "Date of Birth")}
               </span>
-              <span className="user-info-value">Jan 2025</span>
+              <span className="user-info-value">{profileValue(dateOfBirth, t("common.na", "N/A"))}</span>
             </div>
             <div className="user-info-item">
               <span className="user-info-label">
-                <i className="fa-solid fa-shield-halved" aria-hidden="true" />
-                Account Status
+                <i className="fa-solid fa-language" aria-hidden="true" />
+                {t("profile.language", "Language")}
               </span>
-              <span className="user-info-value">Secure</span>
+              <span className="user-info-value">{profileValue(preferredLanguage, t("common.na", "N/A"))}</span>
             </div>
           </div>
 

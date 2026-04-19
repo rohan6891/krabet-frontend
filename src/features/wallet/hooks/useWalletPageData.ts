@@ -21,7 +21,15 @@ import type {
 
 type WalletProfile = {
   username: string;
+  email: string;
   avatarUrl: string | null;
+  displayName: string;
+  phoneNumber: string;
+  phoneCountryCode: string;
+  country: string;
+  timezone: string;
+  preferredLanguage: string;
+  dateOfBirth: string;
 };
 
 type WalletStats = {
@@ -187,7 +195,15 @@ export function useWalletPageData() {
   const [currencyRecords, setCurrencyRecords] = useState<CurrencyRecord[]>([]);
   const [profile, setProfile] = useState<WalletProfile>({
     username: "Username",
+    email: "",
     avatarUrl: null,
+    displayName: "",
+    phoneNumber: "",
+    phoneCountryCode: "",
+    country: "",
+    timezone: "",
+    preferredLanguage: "",
+    dateOfBirth: "",
   });
 
   const token = useMemo(() => getAccessTokenFromStorage(), []);
@@ -213,7 +229,15 @@ export function useWalletPageData() {
       setCurrencyRecords(currRes.data.currencies || []);
       setProfile({
         username: meRes.data.user.username || sessionUser?.username || "Username",
+        email: meRes.data.user.email || sessionUser?.email || "",
         avatarUrl: meRes.data.user.avatarUrl || sessionUser?.avatarUrl || null,
+        displayName: meRes.data.user.displayName || sessionUser?.displayName || "",
+        phoneNumber: meRes.data.user.phoneNumber || sessionUser?.phoneNumber || "",
+        phoneCountryCode: meRes.data.user.phoneCountryCode || sessionUser?.phoneCountryCode || "",
+        country: meRes.data.user.country || sessionUser?.country || "",
+        timezone: meRes.data.user.timezone || sessionUser?.timezone || "",
+        preferredLanguage: meRes.data.user.preferredLanguage || sessionUser?.preferredLanguage || "",
+        dateOfBirth: meRes.data.user.dateOfBirth || sessionUser?.dateOfBirth || "",
       });
     } finally {
       setLoading(false);
