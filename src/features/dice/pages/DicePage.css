@@ -1,0 +1,280 @@
+.dice-page-shell {
+  padding: 16px;
+  color: #f8ecff;
+}
+
+.dice-page-head {
+  margin-bottom: 12px;
+}
+
+.dice-page-head h1 {
+  margin: 0;
+}
+
+.dice-breadcrumb {
+  margin: 0 0 6px;
+  color: rgba(231, 206, 255, 0.75);
+}
+
+.dice-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: 12px;
+}
+
+.dice-card {
+  border-radius: 16px;
+  border: 1px solid rgba(194, 120, 255, 0.28);
+  background: linear-gradient(180deg, rgba(62, 10, 110, 0.9), rgba(20, 2, 37, 0.95));
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+}
+
+.dice-stage,
+.dice-controls,
+.dice-history {
+  padding: 12px;
+}
+
+.dice-stage {
+  grid-column: 1;
+}
+
+.dice-history {
+  grid-column: 1 / -1;
+}
+
+.dice-stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dice-mode-switch {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dice-mode-switch button,
+.dice-segment-row button,
+.dice-bet-row button,
+.dice-quick-bets button,
+.dice-roll-button {
+  border: 0;
+  color: #f6ecff;
+  cursor: pointer;
+}
+
+.dice-mode-switch button {
+  min-width: 70px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: transparent;
+}
+
+.dice-mode-switch button.active {
+  background: linear-gradient(180deg, #b768ff, #7c31e6);
+}
+
+.dice-status-pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem;
+}
+
+.dice-roll-display {
+  min-height: 220px;
+  margin-top: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at center, rgba(184, 111, 255, 0.25), transparent 45%),
+    linear-gradient(180deg, rgba(20, 2, 37, 0.95), rgba(9, 1, 17, 0.96));
+}
+
+.dice-roll-display span {
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.dice-roll-display.is-rolling span {
+  animation: dicePulse 0.45s ease-in-out infinite;
+}
+
+@keyframes dicePulse {
+  0% { transform: scale(1); opacity: 0.86; }
+  50% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.86; }
+}
+
+.dice-stage-metrics {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dice-stage-metrics article {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dice-stage-metrics span {
+  color: rgba(239, 223, 255, 0.76);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.dice-stage-metrics strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1rem;
+}
+
+.dice-balance-box {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dice-balance-box span {
+  font-size: 0.72rem;
+  color: rgba(239, 223, 255, 0.76);
+  text-transform: uppercase;
+}
+
+.dice-balance-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.6rem;
+}
+
+.dice-field-group {
+  margin-top: 12px;
+}
+
+.dice-field-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dice-segment-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dice-segment-row button,
+.dice-quick-bets button,
+.dice-bet-row button {
+  border-radius: 10px;
+  min-height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dice-segment-row button.active {
+  background: linear-gradient(180deg, #b768ff, #7c31e6);
+}
+
+.dice-field-group input[type="range"] {
+  width: 100%;
+  accent-color: #b768ff;
+}
+
+.dice-bet-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  gap: 8px;
+}
+
+.dice-bet-row input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(198, 136, 255, 0.28);
+  min-height: 40px;
+  background: rgba(15, 2, 27, 0.92);
+  color: #fff;
+  text-align: center;
+}
+
+.dice-quick-bets {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dice-roll-button {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #3bf4a6, #1edc86);
+  color: #052012;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.dice-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dice-card-head h3 {
+  margin: 0;
+}
+
+.dice-card-head span {
+  color: rgba(239, 223, 255, 0.76);
+  font-size: 0.78rem;
+}
+
+.dice-empty {
+  min-height: 100px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  display: grid;
+  place-items: center;
+  color: rgba(239, 223, 255, 0.76);
+}
+
+.dice-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.dice-history-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(18, 2, 31, 0.88);
+}
+
+.dice-history-row.win strong {
+  color: #72efbf;
+}
+
+.dice-history-row.lose strong {
+  color: #ff93a6;
+}
+
+@media (max-width: 980px) {
+  .dice-grid {
+    grid-template-columns: 1fr;
+  }
+}

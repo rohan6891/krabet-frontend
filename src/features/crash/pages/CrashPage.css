@@ -1,0 +1,808 @@
+.crash-game-shell {
+  --bg-1: #0d0419;
+  --bg-2: #1f0538;
+  --bg-3: #2d0d4f;
+  --card-1: linear-gradient(180deg, rgba(74, 17, 130, 0.96) 0%, rgba(28, 2, 51, 0.98) 100%);
+  --card-2: linear-gradient(180deg, rgba(56, 10, 98, 0.96) 0%, rgba(20, 2, 40, 0.98) 100%);
+  --line-purple: #8d41ff;
+  --line-purple-light: #c77dff;
+  --line-red: #ff4e68;
+  --gold: #ffcf7d;
+  --text-main: #ffffff;
+  --text-soft: rgba(255, 255, 255, 0.76);
+  --text-dim: rgba(255, 255, 255, 0.58);
+  --border-soft: rgba(192, 123, 255, 0.34);
+  --shadow-deep: 0 18px 50px rgba(0, 0, 0, 0.42);
+  width: 100%;
+  min-height: 100%;
+  color: var(--text-main);
+
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.crash-top-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0 10px;
+  scrollbar-width: none;
+}
+
+.crash-top-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.crash-top-strip.inside-display {
+  margin-top: 6px;
+}
+
+.crash-history-pill {
+  flex: 0 0 auto;
+  min-width: 64px;
+  padding: 5px 10px;
+  text-align: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, rgba(33, 6, 58, 0.98) 0%, rgba(22, 3, 40, 0.98) 100%);
+  border: 1px solid rgba(130, 70, 194, 0.34);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.42);
+}
+
+.crash-history-pill.good {
+  color: #4ef0b2;
+}
+
+.crash-history-pill.bad {
+  color: #ffaf83;
+}
+
+.crash-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.95fr) minmax(320px, 0.95fr);
+  grid-template-areas:
+    "display controls"
+    "history howto";
+  gap: 12px;
+}
+
+.crash-display-card,
+.crash-controls-card,
+.crash-history-card,
+.crash-howto-card {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-deep);
+  overflow: hidden;
+}
+
+.crash-display-card {
+  grid-area: display;
+  background: var(--card-1);
+  padding: 9px;
+}
+
+.crash-controls-card {
+  grid-area: controls;
+  background: var(--card-2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crash-history-card {
+  grid-area: history;
+  background: var(--card-1);
+  padding: 9px;
+}
+
+.crash-howto-card {
+  grid-area: howto;
+  background: var(--card-2);
+  padding: 10px;
+}
+
+.crash-display-toolbar,
+.card-header-row,
+.controls-balance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.crash-mode-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crash-mode-switch button,
+.quick-bet-row button,
+.amount-stepper button,
+.primary-bet-button,
+.crash-error-card button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.16s ease, opacity 0.16s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.crash-mode-switch button {
+  min-width: 74px;
+  padding: 9px 13px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.crash-mode-switch button.active {
+  background: linear-gradient(180deg, #bd72ff 0%, #8d41ff 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(141, 65, 255, 0.32);
+}
+
+.crash-round-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crash-round-badge {
+  text-transform: capitalize;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.crash-round-badge.running {
+  color: #cf96ff;
+  border-color: rgba(210, 132, 255, 0.34);
+}
+
+.crash-round-badge.crashed {
+  color: #ff8b99;
+  border-color: rgba(255, 78, 104, 0.4);
+}
+
+.crash-graph-board {
+  position: relative;
+  min-height: 398px;
+  margin-top: 6px;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at center, rgba(159, 93, 255, 0.1), transparent 38%),
+    linear-gradient(180deg, rgba(13, 17, 28, 0.94) 0%, rgba(13, 17, 28, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.crash-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 16.66% 20%;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.crash-graph-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.crash-line {
+  fill: none;
+  stroke: url(#crashLineGradient);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 14px rgba(141, 65, 255, 0.46));
+}
+
+.crash-line.crashed {
+  stroke: var(--line-red);
+  filter: drop-shadow(0 0 12px rgba(255, 78, 104, 0.34));
+}
+
+.crash-area {
+  fill: rgba(141, 65, 255, 0.16);
+}
+
+.crash-dot {
+  fill: #f6e8ff;
+  stroke: var(--line-purple-light);
+  stroke-width: 5;
+  filter: drop-shadow(0 0 12px rgba(176, 110, 255, 0.66));
+}
+
+.crash-dot.crashed {
+  fill: #ffd1d8;
+  stroke: var(--line-red);
+  filter: drop-shadow(0 0 10px rgba(255, 78, 104, 0.5));
+}
+
+.crash-multiplier-readout {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -56%);
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+.crash-multiplier-readout.crashed {
+  color: #ffb6c3;
+}
+
+.crash-axis-labels,
+.crash-network-status {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.crash-axis-labels {
+  bottom: 12px;
+}
+
+.crash-network-status {
+  bottom: 36px;
+  justify-content: flex-end;
+}
+
+.crash-display-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.display-stat-box,
+.controls-metrics-grid article {
+  min-height: 84px;
+  padding: 10px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(76, 12, 132, 0.95) 0%, rgba(31, 3, 57, 0.96) 100%);
+  border: 1px solid rgba(204, 141, 255, 0.18);
+}
+
+.display-stat-box strong,
+.controls-metrics-grid strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.14rem;
+  font-weight: 900;
+}
+
+.positive {
+  color: #6ff0bf;
+}
+
+.negative {
+  color: #ff8ea1;
+}
+
+.mini-label,
+.stat-caption,
+.card-header-row span {
+  color: var(--text-dim);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controls-balance-row strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 1.72rem;
+  font-weight: 900;
+}
+
+.form-group-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.amount-stepper {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  gap: 8px;
+  align-items: center;
+}
+
+.amount-stepper button,
+.amount-stepper input,
+.quick-bet-row button {
+  min-height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  font-weight: 800;
+  text-align: center;
+}
+
+.amount-stepper button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.amount-stepper input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+  font-size: 0.96rem;
+  outline: none;
+}
+
+.quick-bet-row,
+.controls-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.controls-metrics-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.primary-bet-button {
+  order: 2;
+  min-height: 64px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #3bf4a6 0%, #1edc86 100%);
+  color: #08160f;
+  font-size: 0.96rem;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 32px rgba(33, 239, 150, 0.26);
+}
+
+.primary-bet-button.cashout {
+  background: linear-gradient(180deg, #ffcf7d 0%, #ffa747 100%);
+  color: #2d1300;
+  box-shadow: 0 16px 32px rgba(255, 178, 85, 0.28);
+}
+
+.primary-bet-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-bet-button small {
+  margin-top: 3px;
+  font-size: 0.72rem;
+  opacity: 0.86;
+}
+
+.integration-note {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.integration-note strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.84rem;
+}
+
+.integration-note p,
+.howto-steps p,
+.empty-history-state {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+  font-size: 12px;
+}
+
+.card-header-row {
+  margin-bottom: 8px;
+}
+
+.card-header-row h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.05;
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.history-table th {
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-table .won {
+  color: #68f0bb;
+  font-weight: 800;
+}
+
+.history-table .lost {
+  color: #ff8997;
+  font-weight: 800;
+}
+
+.empty-history-state {
+  min-height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.howto-steps {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.howto-steps p {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.howto-steps p:last-child {
+  border-bottom: none;
+}
+
+.crash-error-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5, 0, 10, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.crash-error-card {
+  width: min(100%, 420px);
+  padding: 22px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2c0b4c 0%, #130320 100%);
+  border: 1px solid rgba(255, 120, 140, 0.36);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.48);
+}
+
+.crash-error-card h4 {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+}
+
+.crash-error-card p {
+  margin: 0 0 16px;
+  color: var(--text-soft);
+}
+
+.crash-error-card button {
+  min-width: 110px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ff6d87 0%, #ff4e68 100%);
+  color: #fff;
+  font-weight: 900;
+}
+
+.crash-mode-switch button:hover,
+.quick-bet-row button:hover,
+.amount-stepper button:hover,
+.primary-bet-button:hover,
+.crash-error-card button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1120px) {
+  .crash-layout-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "display"
+      "controls"
+      "history"
+      "howto";
+  }
+}
+
+@media (max-width: 760px) {
+  .crash-game-shell {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .crash-top-strip {
+    gap: 6px;
+    padding-bottom: 10px;
+  }
+
+  .crash-history-pill {
+    min-width: 60px;
+    padding: 6px 10px;
+    font-size: 0.68rem;
+  }
+
+  .crash-layout-grid {
+    gap: 10px;
+  }
+
+  .crash-display-card,
+  .crash-controls-card,
+  .crash-history-card,
+  .crash-howto-card {
+    border-radius: 12px;
+  }
+
+  .crash-display-card,
+  .crash-controls-card,
+  .crash-history-card,
+  .crash-howto-card {
+    padding: 10px;
+  }
+
+  .crash-mode-switch button {
+    min-width: 72px;
+    padding: 9px 12px;
+    font-size: 0.72rem;
+  }
+
+  .crash-round-badge {
+    padding: 8px 10px;
+    font-size: 0.72rem;
+  }
+
+  .crash-graph-board {
+    min-height: 290px;
+    margin-top: 10px;
+  }
+
+  .crash-multiplier-readout {
+    font-size: clamp(2rem, 11vw, 3rem);
+  }
+
+  .crash-axis-labels,
+  .crash-network-status {
+    font-size: 0.66rem;
+  }
+
+  .crash-display-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .display-stat-box,
+  .controls-metrics-grid article {
+    min-height: 72px;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .display-stat-box strong,
+  .controls-metrics-grid strong,
+  .controls-balance-row strong,
+  .card-header-row h3 {
+    font-size: 1.2rem;
+  }
+
+  .display-stat-box {
+    min-height: 62px;
+    padding: 8px 7px;
+  }
+
+  .display-stat-box strong {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    line-height: 1.08;
+  }
+
+  .display-stat-box .stat-caption {
+    font-size: 0.54rem;
+    line-height: 1;
+  }
+
+  .amount-stepper {
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+  }
+
+  .amount-stepper button,
+  .amount-stepper input,
+  .quick-bet-row button {
+    min-height: 40px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+  }
+
+  .quick-bet-row {
+    gap: 6px;
+  }
+
+  .primary-bet-button {
+    order: 2;
+    min-height: 62px;
+    border-radius: 14px;
+    font-size: 0.92rem;
+  }
+
+  .controls-metrics-grid {
+    gap: 6px;
+  }
+
+  .history-table th,
+  .history-table td,
+  .howto-steps p,
+  .integration-note p,
+  .empty-history-state {
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .crash-game-shell {
+    padding: 8px;
+  }
+
+  .crash-display-toolbar,
+  .card-header-row,
+  .controls-balance-row {
+    gap: 6px;
+  }
+
+  .controls-balance-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .crash-mode-switch {
+    width: 100%;
+  }
+
+  .crash-mode-switch button {
+    flex: 1 1 50%;
+  }
+
+  .controls-metrics-grid,
+  .quick-bet-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .crash-display-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .display-stat-box {
+    min-width: 0;
+    min-height: 58px;
+    padding: 7px 6px;
+  }
+
+  .display-stat-box strong {
+    font-size: 0.82rem;
+  }
+
+  .display-stat-box .stat-caption {
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .quick-bet-row button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .crash-graph-board {
+    min-height: 246px;
+  }
+
+  .card-header-row h3 {
+    font-size: 1.06rem;
+  }
+
+  .mini-label,
+  .stat-caption,
+  .card-header-row span,
+  .history-table th {
+    font-size: 0.66rem;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 10px 8px;
+  }
+
+  .primary-bet-button small {
+    font-size: 0.7rem;
+  }
+}
+
+.primary-bet-button-top {
+  order: 1;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.form-group-block,
+.quick-bet-row,
+.controls-metrics-grid,
+.integration-note {
+  order: 3;
+}
+
+.amount-stepper button,
+.amount-stepper input,
+.quick-bet-row button,
+.crash-history-pill {
+  background: linear-gradient(180deg, rgba(31, 5, 55, 0.98) 0%, rgba(18, 3, 33, 0.98) 100%);
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(125, 74, 182, 0.3);
+}
+
+.quick-bet-row button {
+  color: #f4e9ff;
+}
+
+@media (max-width: 760px) {
+  .crash-controls-card {
+    gap: 8px;
+  }
+
+  .amount-stepper {
+    gap: 6px;
+  }
+
+  .primary-bet-button-top {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
