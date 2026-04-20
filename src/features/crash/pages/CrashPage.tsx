@@ -123,7 +123,7 @@ function makeInitialGraph(): Point[] {
 
 function multiplierFromElapsed(elapsedMs: number): number {
   const t = elapsedMs / 1000;
-  return Math.exp(0.3 * t);
+  return Math.exp(0.06 * t);
 }
 
 function compressGraphPoints(points: Point[], maxPoints = MAX_VISIBLE_POINTS): Point[] {
@@ -834,7 +834,7 @@ export function CrashPage() {
           const now = Date.now();
           if (statusChanged || !roundStartedAtRef.current) {
             const baseMultiplier = Number(snapshot.multiplier || 1);
-            const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.3) * 1000;
+            const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.06) * 1000;
             roundStartedAtRef.current = now - elapsedSoFar;
 
             if (elapsedSoFar > 100) {
@@ -1081,16 +1081,16 @@ export function CrashPage() {
     if (playMode === "demo") {
       if (roundStatus !== "waiting") return 0;
       const elapsed = Date.now() - waitStartedAtRef.current;
-      return clamp(elapsed / DEMO_WAITING_MS, 0, 1);
+      return clamp(1 - elapsed / DEMO_WAITING_MS, 0, 1);
     }
 
     const endsAt = waitingEndsAtRef.current;
     const total = totalWaitingMsRef.current;
     if (!endsAt || !total) return 0;
     const remainingRaw = endsAt - Date.now();
-    if (remainingRaw <= -300) return 1;
+    if (remainingRaw <= -300) return 0;
     const remaining = Math.max(0, remainingRaw);
-    return clamp(1 - remaining / total, 0, 1);
+    return clamp(remaining / total, 0, 1);
   }, [playMode, roundStatus, renderTick]);
 
   if (isChecking) {
