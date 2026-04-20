@@ -175,30 +175,48 @@
   border-color: rgba(255, 78, 104, 0.4);
 }
 
-.crash-waiting-progress {
-  margin-top: 8px;
-  margin-bottom: 8px;
+.crash-center-countdown {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  width: min(340px, calc(100% - 48px));
+  display: grid;
+  gap: 8px;
+  z-index: 3;
 }
 
-.crash-waiting-progress-track {
-  width: 100%;
-  height: 10px;
+.crash-center-countdown-chip {
+  justify-self: center;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+  background: rgba(20, 26, 43, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
-.crash-waiting-progress-fill {
+.crash-center-countdown-track {
+  width: 100%;
+  height: 42px;
+  border-radius: 9px;
+  background: rgba(72, 91, 118, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.crash-center-countdown-fill {
   height: 100%;
   width: 0;
-  border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%),
-    linear-gradient(90deg, #c77dff 0%, #8d41ff 60%, #6f2af4 100%);
+    linear-gradient(90deg, rgba(255, 247, 204, 0.28) 0%, rgba(255, 247, 204, 0) 25%),
+    linear-gradient(90deg, #f6b454 0%, #f1a52f 60%, #ea8f07 100%);
   background-size: 220% 100%, 100% 100%;
   transition: width 80ms linear;
-  animation: waitingShimmer 1.15s linear infinite;
+  animation: waitingShimmer 1.1s linear infinite;
 }
 
 @keyframes waitingShimmer {

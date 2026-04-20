@@ -2,9 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// @ts-expect-error side-effect stylesheet import is handled by Next.js runtime
 import "@/features/dashboard/pages/DashboardPage.css";
-// @ts-expect-error side-effect stylesheet import is handled by Next.js runtime
 import "./DicePage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";

@@ -1,0 +1,622 @@
+.krabets-landing {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(123, 61, 201, 0.26), transparent 28%),
+    radial-gradient(circle at top left, rgba(78, 20, 130, 0.24), transparent 32%),
+    linear-gradient(180deg, #170022 0%, #0c0013 55%, #07000d 100%);
+  color: #ffffff;
+}
+
+.krabets-landing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(255, 216, 120, 0.85) 0 1px, transparent 2px),
+    radial-gradient(circle at 24% 68%, rgba(255, 216, 120, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 41% 32%, rgba(255, 216, 120, 0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 63% 18%, rgba(255, 216, 120, 0.6) 0 1px, transparent 2px),
+    radial-gradient(circle at 77% 54%, rgba(255, 216, 120, 0.75) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 28%, rgba(255, 216, 120, 0.55) 0 1px, transparent 2px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.krabets-landing-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(182, 102, 255, 0.08), transparent 40%),
+    linear-gradient(180deg, rgba(10, 0, 18, 0.08), rgba(4, 0, 10, 0.32));
+  pointer-events: none;
+}
+
+.krabets-landing-header,
+.krabets-hero,
+.krabets-bottom-strip {
+  position: relative;
+  z-index: 1;
+}
+
+.krabets-landing-header {
+  width: min(1280px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+
+.krabets-brand {
+  display: flex;
+  align-items: center;
+}
+
+.krabets-brand-logo {
+  width: clamp(130px, 15vw, 190px);
+  height: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 18px rgba(168, 92, 255, 0.14))
+    drop-shadow(0 10px 24px rgba(0, 0, 0, 0.34));
+}
+
+.krabets-signin-btn,
+.krabets-cta-primary,
+.krabets-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: transform 0.2s ease, filter 0.2s ease, background 0.2s ease;
+}
+
+.krabets-signin-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(92, 38, 145, 0.94), rgba(44, 12, 74, 0.96));
+  border: 1px solid rgba(210, 148, 255, 0.22);
+  color: #f5eaff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.krabets-signin-btn:hover,
+.krabets-cta-primary:hover,
+.krabets-cta-secondary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.krabets-hero {
+  width: min(1280px, 100%);
+  min-height: calc(100vh - 110px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.krabets-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.krabets-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: #ffe08a;
+  background: rgba(122, 58, 199, 0.52);
+  border: 1px solid rgba(219, 160, 255, 0.28);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.krabets-hero-copy h1 {
+  margin: 0;
+  max-width: 12ch;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.krabets-hero-copy p {
+  margin: 0;
+  max-width: 620px;
+  color: rgba(243, 232, 255, 0.84);
+  font-size: clamp(0.98rem, 1.5vw, 1.15rem);
+  line-height: 1.6;
+}
+
+.krabets-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.krabets-cta-primary {
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #d9a5ff 0%, #a65eff 100%);
+  color: #14051f;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 12px 24px rgba(127, 58, 204, 0.3);
+}
+
+.krabets-cta-secondary {
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(216, 147, 255, 0.24);
+  color: #f0deff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.krabets-stats-row {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.krabets-stat-card {
+  min-width: 148px;
+  min-height: 58px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(58, 17, 94, 0.86), rgba(20, 6, 35, 0.92));
+  border: 1px solid rgba(205, 132, 255, 0.18);
+  color: #f4eaff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
+.krabets-stat-card i {
+  color: #e4b7ff;
+  font-size: 16px;
+}
+
+.krabets-stat-card span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.krabets-hero-panel {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.krabets-panel-card {
+  width: min(100%, 500px);
+  padding: 24px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(190, 129, 255, 0.2), transparent 38%),
+    linear-gradient(180deg, rgba(43, 10, 68, 0.9), rgba(16, 4, 28, 0.96));
+  border: 1px solid rgba(205, 132, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 36px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.krabets-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+  background: rgba(157, 86, 244, 0.18);
+  border: 1px solid rgba(217, 164, 255, 0.22);
+  color: #ffe08a;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.krabets-feature-list {
+  display: grid;
+  gap: 14px;
+}
+
+.krabets-feature-card {
+  padding: 16px;
+  border-radius: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(205, 132, 255, 0.14);
+}
+
+.krabets-feature-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(209, 147, 255, 0.3), rgba(109, 45, 197, 0.34));
+  color: #f0deff;
+  font-size: 18px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.krabets-feature-text h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff5ff;
+}
+
+.krabets-feature-text p {
+  margin: 0;
+  color: #d8c5e7;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.krabets-bottom-strip {
+  width: min(1280px, 100%);
+  margin: 18px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.krabets-bottom-item {
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(205, 132, 255, 0.14);
+  color: #f2e6ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.krabets-bottom-item i {
+  color: #ffe08a;
+}
+
+@media (max-width: 980px) {
+  .krabets-hero {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    min-height: auto;
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  .krabets-hero-panel {
+    justify-content: stretch;
+  }
+
+  .krabets-panel-card {
+    width: 100%;
+  }
+
+  .krabets-hero-copy h1 {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 790px) {
+  .krabets-landing {
+    padding: 14px 14px 18px;
+  }
+
+  .krabets-landing-header {
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .krabets-brand-logo {
+    width: clamp(104px, 28vw, 118px);
+  }
+
+  .krabets-signin-btn {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 11px;
+    font-size: 11px;
+    gap: 7px;
+  }
+
+  .krabets-hero {
+    gap: 24px;
+    min-height: auto;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    align-items: start;
+  }
+
+  .krabets-pill {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 9px;
+    gap: 6px;
+    border-radius: 999px;
+  }
+
+  .krabets-hero-copy {
+    gap: 16px;
+  }
+
+  .krabets-hero-copy h1 {
+    font-size: clamp(2rem, 9vw, 2.55rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .krabets-hero-copy p {
+    max-width: 100%;
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
+
+  .krabets-hero-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex-wrap: unset;
+  }
+
+  .krabets-cta-primary,
+  .krabets-cta-secondary {
+    min-height: 42px;
+    padding: 0 12px;
+    border-radius: 13px;
+    font-size: 12px;
+    width: 100%;
+    gap: 7px;
+    flex: unset;
+  }
+
+  .krabets-stats-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex-wrap: unset;
+    display: none;
+  }
+
+  .krabets-stat-card {
+    min-width: 0;
+    min-height: 48px;
+    padding: 11px 12px;
+    border-radius: 13px;
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .krabets-stat-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .krabets-stat-card i {
+    font-size: 13px;
+  }
+
+  .krabets-stat-card span {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .krabets-panel-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .krabets-panel-badge {
+    min-height: 28px;
+    padding: 0 11px;
+    margin-bottom: 16px;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+  }
+
+  .krabets-feature-list {
+    gap: 12px;
+  }
+
+  .krabets-feature-card {
+    padding: 13px;
+    border-radius: 15px;
+    gap: 11px;
+  }
+
+  .krabets-feature-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 11px;
+    font-size: 15px;
+  }
+
+  .krabets-feature-text h3 {
+    font-size: 13px;
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+
+  .krabets-feature-text p {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .krabets-bottom-strip {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    justify-content: stretch;
+  }
+
+  .krabets-bottom-item {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 11px;
+    gap: 7px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .krabets-bottom-item:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 430px) {
+  .krabets-landing {
+    padding: 12px 12px 16px;
+  }
+
+  .krabets-landing-header {
+    padding-bottom: 14px;
+  }
+
+  .krabets-brand-logo {
+    width: 102px;
+  }
+
+  .krabets-signin-btn {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 10px;
+    border-radius: 10px;
+  }
+
+  .krabets-hero {
+    gap: 22px;
+  }
+
+  .krabets-hero-copy {
+    gap: 15px;
+  }
+
+  .krabets-pill {
+    min-height: 26px;
+    padding: 0 9px;
+    font-size: 8px;
+  }
+
+  .krabets-hero-copy h1 {
+    font-size: clamp(1.9rem, 9.2vw, 2.3rem);
+  }
+
+  .krabets-hero-copy p {
+    font-size: 0.76rem;
+    line-height: 1.65;
+  }
+
+  .krabets-hero-actions {
+    gap: 10px;
+  }
+
+  .krabets-cta-primary,
+  .krabets-cta-secondary {
+    min-height: 40px;
+    font-size: 11px;
+    padding: 0 10px;
+    border-radius: 12px;
+  }
+
+  .krabets-stats-row {
+    gap: 10px;
+  }
+
+  .krabets-stat-card {
+    min-height: 46px;
+    padding: 10px 11px;
+    border-radius: 12px;
+  }
+
+  .krabets-stat-card span {
+    font-size: 10px;
+  }
+
+  .krabets-panel-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .krabets-panel-badge {
+    margin-bottom: 14px;
+    font-size: 8px;
+  }
+
+  .krabets-feature-list {
+    gap: 10px;
+  }
+
+  .krabets-feature-card {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+
+  .krabets-feature-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 14px;
+  }
+
+  .krabets-feature-text h3 {
+    font-size: 12px;
+  }
+
+  .krabets-feature-text p {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .krabets-bottom-strip {
+    gap: 10px;
+  }
+
+  .krabets-bottom-item {
+    min-height: 36px;
+    font-size: 10px;
+    padding: 0 10px;
+  }
+}

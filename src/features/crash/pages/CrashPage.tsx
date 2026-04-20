@@ -64,6 +64,9 @@ type RoundSnapshot = {
   multiplier: number;
   crashedAt: number | null;
   canPlaceBet: boolean;
+  nextRoundAt: string | null;
+  crashedUntil: string | null;
+  countdownMs: number;
   history: number[];
   activeBet: LocalBet | null;
 };
@@ -215,6 +218,7 @@ export function CrashPage() {
   const liveUnsubscribeRef = useRef<(() => void) | null>(null);
   const liveApiUnavailableRef = useRef(false);
   const liveErrorShownRef = useRef(false);
+  const lastLiveStatusRef = useRef<RoundStatus | null>(null);
 
   const [playMode, setPlayMode] = useState<PlayMode>("demo");
   const [roundStatus, setRoundStatus] = useState<RoundStatus>("waiting");
@@ -224,6 +228,7 @@ export function CrashPage() {
   const [roundHistory, setRoundHistory] = useState<number[]>([2.4, 1.39, 2.1, 1.03, 1.01, 4.12, 55.3]);
   const [networkStatus, setNetworkStatus] = useState("Demo ready");
   const [countdownMs, setCountdownMs] = useState(WAITING_MS);
+  const [waitingWindowMs, setWaitingWindowMs] = useState(WAITING_MS);
   const [betAmount, setBetAmount] = useState(10);
   const [displayBalance, setDisplayBalance] = useState(0);
   const [queuedBet, setQueuedBet] = useState<QueuedBet | null>(null);
@@ -472,6 +477,9 @@ export function CrashPage() {
         const liveMultiplier = Number(stateRes.data?.multiplier || 1);
         const liveCrashedAt = stateRes.data?.crashedAt ?? null;
         const canPlaceBet = Boolean(stateRes.data?.canPlaceBet);
+        const nextRoundAt = stateRes.data?.nextRoundAt ?? null;
+        const crashedUntil = stateRes.data?.crashedUntil ?? null;
+        const countdownMs = Number(stateRes.data?.countdownMs ?? 0);
         const history = Array.isArray(stateRes.data?.history)
           ? stateRes.data?.history.map((item) => Number(item)).filter((item) => Number.isFinite(item))
           : [];
@@ -482,6 +490,9 @@ export function CrashPage() {
           multiplier: liveMultiplier,
           crashedAt: liveCrashedAt,
           canPlaceBet,
+          nextRoundAt,
+          crashedUntil,
+          countdownMs,
           history,
           activeBet: currentBet,
         });
@@ -645,10 +656,18 @@ export function CrashPage() {
     const unsubscribe = subscribeLive({
       onRoundState: (snapshot) => {
         if (snapshot.history.length) {
-          setRoundHistory(snapshot.history.slice(0, ROUND_HISTORY_LIMIT));
+          const nextHistory = snapshot.history.slice(0, ROUND_HISTORY_LIMIT);
+          setRoundHistory((prev) => {
+            if (prev.length === nextHistory.length && prev.every((value, index) => value === nextHistory[index])) {
+              return prev;
+            }
+            return nextHistory;
+          });
         }
 
         setLiveCanPlaceBet(snapshot.canPlaceBet);
+        const statusChanged = lastLiveStatusRef.current !== snapshot.status;
+        lastLiveStatusRef.current = snapshot.status;
 
         if (queuedBet?.livePending && !snapshot.activeBet) {
           if (snapshot.status === "waiting" && snapshot.canPlaceBet && !pendingLivePlaceRef.current) {
@@ -658,62 +677,68 @@ export function CrashPage() {
           }
         }
 
-        // Keep live board idle until user joins with a bet (same feel as demo mode).
-        const hasLiveParticipation = Boolean(snapshot.activeBet || liveJoinedRound);
-        if (!hasLiveParticipation) {
-          setRoundStatus("waiting");
-          setMultiplier(1);
-          setCrashedAt(null);
-          setGraphPoints(makeInitialGraph());
-          roundStartedAtRef.current = null;
-          setNetworkStatus("Live connected - place bet to join round");
-          return;
+        setRoundStatus((prev) => (prev === snapshot.status ? prev : snapshot.status));
+
+        if (snapshot.status !== "running") {
+          setMultiplier(Number(snapshot.multiplier || 1));
         }
 
-        setRoundStatus(snapshot.status);
-        setMultiplier(Number(snapshot.multiplier || 1));
-
         if (snapshot.status === "waiting") {
-          if (!waitingEndsAtRef.current) {
-            waitingEndsAtRef.current = Date.now() + WAITING_MS;
+          if (statusChanged || !waitingEndsAtRef.current) {
+            const serverCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
+            const serverNextRoundAt = snapshot.nextRoundAt ? new Date(snapshot.nextRoundAt).getTime() : null;
+            const derivedCountdown = Number.isFinite(serverNextRoundAt) ? Math.max(0, Number(serverNextRoundAt) - Date.now()) : 0;
+            const resolvedCountdown = serverCountdown > 0 ? serverCountdown : (derivedCountdown > 0 ? derivedCountdown : WAITING_MS);
+
+            waitingEndsAtRef.current = Date.now() + resolvedCountdown;
+            setWaitingWindowMs(Math.max(1000, resolvedCountdown));
+            setCountdownMs(resolvedCountdown);
+            setCrashedAt(null);
+            setGraphPoints(makeInitialGraph());
+            roundStartedAtRef.current = null;
+            setLiveJoinedRound(false);
           }
-          setCountdownMs(Math.max(0, waitingEndsAtRef.current - Date.now()));
-          setCrashedAt(null);
-          setGraphPoints(makeInitialGraph());
-          roundStartedAtRef.current = null;
         }
 
         if (snapshot.status === "running") {
           waitingEndsAtRef.current = null;
           const now = Date.now();
-          if (!roundStartedAtRef.current) roundStartedAtRef.current = now;
+          if (statusChanged || !roundStartedAtRef.current) roundStartedAtRef.current = now;
           liveMultiplierRef.current = Number(snapshot.multiplier || 1);
-
-        }
-
-        if (snapshot.status === "crashed") {
-          waitingEndsAtRef.current = null;
-          const roundCrash = Number(snapshot.crashedAt || snapshot.multiplier || 1);
-          setCrashedAt(roundCrash);
-          setLastResult(formatMultiplier(roundCrash));
-
-          if (activeBet && !activeBet.cashedOut) {
-            addRecentRound({
-              mode: "live",
-              amount: activeBet.amount,
-              result: roundCrash,
-              payout: 0,
-              outcome: "lost",
-            });
-          }
-
-          setActiveBet(null);
-          setLiveJoinedRound(false);
-        } else {
-          setActiveBet(snapshot.activeBet);
           if (snapshot.activeBet) {
             setLiveJoinedRound(true);
           }
+        }
+
+        if (snapshot.status === "crashed") {
+          if (statusChanged) {
+            const serverCrashedUntil = snapshot.crashedUntil ? new Date(snapshot.crashedUntil).getTime() : null;
+            const crashHoldCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
+            const derivedCrashCountdown = Number.isFinite(serverCrashedUntil) ? Math.max(0, Number(serverCrashedUntil) - Date.now()) : 0;
+            const resolvedCrashCountdown = crashHoldCountdown > 0 ? crashHoldCountdown : (derivedCrashCountdown > 0 ? derivedCrashCountdown : WAITING_MS);
+
+            waitingEndsAtRef.current = Date.now() + resolvedCrashCountdown;
+            setWaitingWindowMs(Math.max(1000, resolvedCrashCountdown));
+
+            const roundCrash = Number(snapshot.crashedAt || snapshot.multiplier || 1);
+            setCrashedAt(roundCrash);
+            setLastResult(formatMultiplier(roundCrash));
+
+            if (activeBet && !activeBet.cashedOut) {
+              addRecentRound({
+                mode: "live",
+                amount: activeBet.amount,
+                result: roundCrash,
+                payout: 0,
+                outcome: "lost",
+              });
+            }
+
+            setActiveBet(null);
+            setLiveJoinedRound(false);
+          }
+        } else {
+          setActiveBet(snapshot.activeBet);
         }
 
         setNetworkStatus("Live connected");
@@ -765,6 +790,7 @@ export function CrashPage() {
       setLiveJoinedRound(false);
       waitingEndsAtRef.current = null;
       liveMultiplierRef.current = 1;
+      lastLiveStatusRef.current = null;
       setLiveCanPlaceBet(false);
       return;
     }
@@ -772,9 +798,11 @@ export function CrashPage() {
     roundStartedAtRef.current = null;
     waitingEndsAtRef.current = Date.now() + WAITING_MS;
     liveMultiplierRef.current = 1;
+    lastLiveStatusRef.current = null;
     setGraphPoints(makeInitialGraph());
     setMultiplier(1);
     setCrashedAt(null);
+    setWaitingWindowMs(WAITING_MS);
     setLiveCanPlaceBet(false);
   }, [playMode, resetVisualRound]);
 
@@ -795,11 +823,6 @@ export function CrashPage() {
 
       const remaining = Math.max(0, endsAt - Date.now());
       setCountdownMs(remaining);
-
-      if (remaining <= 0 && liveCanPlaceBet) {
-        waitingEndsAtRef.current = Date.now() + WAITING_MS;
-        setCountdownMs(WAITING_MS);
-      }
     }, 50);
 
     return () => {
@@ -860,7 +883,7 @@ export function CrashPage() {
   }, [activeBet, liveCanPlaceBet, playMode, queuedBet, roundStatus]);
 
   const queuedWagerValue = (queuedBet || activeBet)?.amount ?? 0;
-  const waitingProgress = clamp((WAITING_MS - countdownMs) / WAITING_MS, 0, 1);
+  const waitingProgress = clamp((waitingWindowMs - countdownMs) / waitingWindowMs, 0, 1);
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
@@ -917,20 +940,9 @@ export function CrashPage() {
                     </div>
 
                     <div className={`crash-round-badge ${roundStatus === "waiting" ? "idle" : roundStatus}`}>
-                      {roundStatus === "waiting" ? `Starting in ${(countdownMs / 1000).toFixed(1)}s` : roundStatus}
+                      {roundStatus === "waiting" ? "Waiting" : roundStatus}
                     </div>
                   </div>
-
-                  {roundStatus === "waiting" && (
-                    <div className="crash-waiting-progress" aria-label="Next round countdown">
-                      <div className="crash-waiting-progress-track">
-                        <div
-                          className="crash-waiting-progress-fill"
-                          style={{ width: `${Math.round(waitingProgress * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
 
                   <section className="crash-top-strip inside-display" aria-label="Recent crash multipliers">
                     {roundHistory.map((item, index) => (
@@ -977,6 +989,18 @@ export function CrashPage() {
                     <div className={`crash-multiplier-readout ${roundStatus === "crashed" ? "crashed" : ""}`}>
                       {roundStatus === "crashed" ? formatMultiplier(crashedAt || multiplier) : formatMultiplier(multiplier)}
                     </div>
+
+                    {roundStatus === "waiting" && (
+                      <div className="crash-center-countdown" aria-label="Round starts countdown">
+                        <div className="crash-center-countdown-chip">Starting in</div>
+                        <div className="crash-center-countdown-track">
+                          <div
+                            className="crash-center-countdown-fill"
+                            style={{ width: `${Math.round(waitingProgress * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div className="crash-axis-labels">
                       <span>0s</span>

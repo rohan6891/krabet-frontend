@@ -1,19 +1,100 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./DashboardPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
-import { HeroSection } from "@/features/dashboard/components/HeroSection";
-import { RecentWinsStrip } from "@/features/dashboard/components/RecentWinsStrip";
-import { GameCategoriesSection } from "@/features/dashboard/components/GameCategoriesSection";
-import { OriginalsSection } from "@/features/dashboard/components/OriginalsSection";
 import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 
 export function DashboardPage() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const gameCarouselRef = useRef<HTMLDivElement | null>(null);
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
-  const { loading, categories, originals, recentWins, walletBalance, profile } = useDashboardData();
+  const { walletBalance, profile } = useDashboardData();
+
+  const gameCarousel = [
+    {
+      name: "Crash",
+      tag: "Original",
+      image: "/crash2.png",
+    },
+    {
+      name: "Limbo",
+      tag: "Original",
+      image: "/limbo2.png",
+    },
+    {
+      name: "Mines",
+      tag: "Original",
+      image: "/mines2.png",
+    },
+    {
+      name: "Dice",
+      tag: "Original",
+      image: "/bigdice2.png",
+    },
+    {
+      name: "Plinko",
+      tag: "Original",
+      image: "/coinflip2.png",
+    },
+  ];
+
+  const sliderCards = useMemo(
+    () =>
+      gameCarousel.map((game, index) => ({
+        id: `${game.name}-${index}`,
+        title: game.name,
+        subtitle: `${game.tag} Spotlight`,
+        image: game.image,
+        href: "#",
+      })),
+    []
+  );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % sliderCards.length);
+    }, 3400);
+    return () => window.clearInterval(timer);
+  }, [sliderCards.length]);
+
+  const scrollGameRow = (direction: "left" | "right") => {
+    const node = gameCarouselRef.current;
+    if (!node) {
+      return;
+    }
+    const step = Math.max(220, Math.floor(node.clientWidth * 0.72));
+    node.scrollBy({
+      left: direction === "left" ? -step : step,
+      behavior: "smooth",
+    });
+  };
+
+  const categoryTiles = [
+    { title: "Casino", count: "1335 Games", icon: "fa-solid fa-dice" },
+    { title: "Sports", count: "1124 Matches", icon: "fa-solid fa-futbol" },
+    { title: "Live Casino", count: "382 Tables", icon: "fa-solid fa-tower-broadcast" },
+    { title: "Lottery", count: "1881 Draws", icon: "fa-solid fa-ticket" },
+    { title: "Racing", count: "2364 Events", icon: "fa-solid fa-flag-checkered" },
+    { title: "Poker", count: "1779 Rooms", icon: "fa-solid fa-chess" },
+  ];
+
+  const liveFeed = [
+    { user: "MJ Raw", game: "Limbo", payout: "$1,240" },
+    { user: "DiceLord", game: "Mines", payout: "$860" },
+    { user: "AvaWin", game: "Crash", payout: "$2,120" },
+    { user: "CryptoKing", game: "Dice", payout: "$640" },
+  ];
+
+  const statCards = [
+    { label: "Live Players", value: "24,860", icon: "fa-solid fa-users" },
+    { label: "Today Volume", value: "$1.8M", icon: "fa-solid fa-chart-line" },
+    { label: "Payout Ratio", value: "98.4%", icon: "fa-solid fa-percent" },
+    { label: "Active Games", value: "412", icon: "fa-solid fa-gamepad" },
+  ];
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
@@ -42,11 +123,140 @@ export function DashboardPage() {
             dateOfBirth={profile.dateOfBirth}
           />
 
-          <div className="krabet-content">
-            <HeroSection promoBanner="/promo-img.jpg" />
-            {!loading && recentWins.length > 0 ? <RecentWinsStrip wins={recentWins} /> : null}
-            <GameCategoriesSection games={categories} loading={loading} />
-            <OriginalsSection games={originals} loading={loading} />
+          <div className="krabet-content dfr-root">
+            <section className="dfr-hero">
+              <div className="dash-card dash-hero-card">
+                <div className="dash-hero-content">
+                  <span className="dash-pill-tag">WELCOME BONUS</span>
+                  <h2 className="dash-hero-title">GET UP TO 100% BONUS ON YOUR FIRST DEPOSIT</h2>
+                  <a href="/dashboard/wallet" className="dash-primary-btn">
+                    DEPOSIT NOW
+                  </a>
+                </div>
+                <img src="/tiger-hero.png" alt="Promo character" className="dash-hero-character" />
+              </div>
+            </section>
+
+            <div className="dfr-top-duo">
+              <section className="dfr-surface dfr-surface-carousel">
+                <div className="dfr-head">
+                  <h2>Popular Games</h2>
+                  <a href="#">Open Lobby</a>
+                </div>
+                <div className="dfr-slider-wrap">
+                  <div className="dfr-slider-viewport">
+                    <div className="dfr-slider-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>
+                      {sliderCards.map((slide) => (
+                        <a href={slide.href} className="dfr-slider-slide" key={slide.id}>
+                          <img src={slide.image} alt={slide.title} className="dfr-slider-image" />
+                          <div className="dfr-slider-overlay" />
+                          <div className="dfr-slider-text">
+                            <h4>{slide.title}</h4>
+                            <p>{slide.subtitle}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="dfr-slider-dots" aria-label="Slider dots">
+                    {sliderCards.map((slide, index) => (
+                      <button
+                        key={slide.id}
+                        type="button"
+                        className={`dfr-dot ${index === activeSlide ? "is-active" : ""}`}
+                        onClick={() => setActiveSlide(index)}
+                        aria-label={`Go to slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="dfr-game-row">
+                  <button
+                    type="button"
+                    className="dfr-game-nav dfr-game-nav-left"
+                    aria-label="Scroll games left"
+                    onClick={() => scrollGameRow("left")}
+                  >
+                    <i className="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                  </button>
+                  <div className="dfr-game-carousel" ref={gameCarouselRef}>
+                    {gameCarousel.slice(0, 4).map((game) => (
+                      <a href="#" className="dfr-game-card" key={`thumb-${game.name}`}>
+                        <img src={game.image} alt={game.name} />
+                        <div className="dfr-game-overlay">
+                          <span>{game.tag}</span>
+                          <strong>{game.name}</strong>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="dfr-game-nav dfr-game-nav-right"
+                    aria-label="Scroll games right"
+                    onClick={() => scrollGameRow("right")}
+                  >
+                    <i className="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </section>
+
+              <section className="dfr-surface">
+                <div className="dfr-head">
+                  <h2>Category Tiles</h2>
+                  <a href="#">All</a>
+                </div>
+                <div className="dfr-category-grid">
+                  {categoryTiles.map((item) => (
+                    <a href="#" className="dfr-category-card" key={item.title}>
+                      <i className={item.icon} aria-hidden="true"></i>
+                      <div>
+                        <strong>{item.title}</strong>
+                        <small>{item.count}</small>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div className="dfr-bottom-grid">
+              <section className="dfr-surface">
+                <div className="dfr-head">
+                  <h2>Live Feed</h2>
+                  <a href="#">Refresh</a>
+                </div>
+                <div className="dfr-feed-list">
+                  {liveFeed.map((row) => (
+                    <div className="dfr-feed-row" key={`${row.user}-${row.game}`}>
+                      <div>
+                        <strong>{row.user}</strong>
+                        <small>{row.game}</small>
+                      </div>
+                      <em>{row.payout}</em>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="dfr-surface">
+                <div className="dfr-head">
+                  <h2>Live Stats</h2>
+                  <a href="#">Today</a>
+                </div>
+                <div className="dfr-stats-grid">
+                  {statCards.map((item) => (
+                    <article className="dfr-stat-card" key={item.label}>
+                      <span>
+                        <i className={item.icon} aria-hidden="true"></i>
+                        {item.label}
+                      </span>
+                      <strong>{item.value}</strong>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </div>
           </div>
 
           <MobileBottomDock />
