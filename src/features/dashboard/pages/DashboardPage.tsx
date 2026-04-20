@@ -159,20 +159,20 @@ export function DashboardPage() {
               <section className="dfr-surface dfr-surface-carousel">
                 <div className="dfr-head">
                   <h2>Popular Games</h2>
-                  <a href="#">Open Lobby</a>
+                  <a href="/dashboard/search">Open Lobby</a>
                 </div>
                 <div className="dfr-slider-wrap">
                   <div className="dfr-slider-viewport">
                     <div className="dfr-slider-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>
                       {sliderCards.map((slide) => (
-                        <Link href={slide.href} className="dfr-slider-slide" key={slide.id}>
+                        <a href={slide.href} className="dfr-slider-slide" key={slide.id}>
                           <img src={slide.image} alt={slide.title} className="dfr-slider-image" />
                           <div className="dfr-slider-overlay" />
                           <div className="dfr-slider-text">
                             <h4>{slide.title}</h4>
                             <p>{slide.subtitle}</p>
                           </div>
-                        </Link>
+                        </a>
                       ))}
                     </div>
                   </div>
@@ -199,13 +199,13 @@ export function DashboardPage() {
                   </button>
                   <div className="dfr-game-carousel" ref={gameCarouselRef}>
                     {gameCarousel.slice(0, 4).map((game) => (
-                      <Link href={getDashboardGameHref(game)} className="dfr-game-card" key={`thumb-${game.name}`}>
+                      <a href={getDashboardGameHref(game)} className="dfr-game-card" key={`thumb-${game.name}`}>
                         <img src={game.image} alt={game.name} />
                         <div className="dfr-game-overlay">
                           <span>{game.tag}</span>
                           <strong>{game.name}</strong>
                         </div>
-                      </Link>
+                      </a>
                     ))}
                   </div>
                   <button
@@ -222,11 +222,11 @@ export function DashboardPage() {
               <section className="dfr-surface">
                 <div className="dfr-head">
                   <h2>Category Tiles</h2>
-                  <a href="#">All</a>
+                  <a href="/dashboard/search">All</a>
                 </div>
                 <div className="dfr-category-grid">
                   {categoryTiles.map((item) => (
-                    <a href="#" className="dfr-category-card" key={item.title}>
+                    <a href={`/dashboard/search?q=${item.title}`} className="dfr-category-card" key={item.title}>
                       <i className={item.icon} aria-hidden="true"></i>
                       <div>
                         <strong>{item.title}</strong>

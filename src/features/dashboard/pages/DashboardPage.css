@@ -604,6 +604,9 @@ img {
   position: relative;
   flex: 0 0 100%;
   aspect-ratio: 20 / 8;
+  display: block;
+  cursor: pointer;
+  z-index: 1;
 }
 
 .dfr-slider-image {
@@ -617,6 +620,7 @@ img {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.04) 72%);
+  pointer-events: none;
 }
 
 .dfr-slider-text {
@@ -625,6 +629,7 @@ img {
   right: 16px;
   bottom: 14px;
   z-index: 2;
+  pointer-events: none;
 }
 
 .dfr-slider-text h4 {
@@ -706,6 +711,8 @@ img {
   border-radius: 11px;
   overflow: hidden;
   border: 1px solid rgba(206, 136, 255, 0.2);
+  display: block;
+  cursor: pointer;
 }
 
 .dfr-game-card img {
@@ -721,6 +728,7 @@ img {
   bottom: 0;
   padding: 7px;
   background: linear-gradient(180deg, transparent, rgba(10, 2, 18, 0.9) 45%);
+  pointer-events: none;
 }
 
 .dfr-game-overlay span {
@@ -755,6 +763,7 @@ img {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
 }
 
 .dfr-category-card i {
