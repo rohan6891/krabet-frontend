@@ -31,6 +31,7 @@ import {
   submitMinesMove,
 } from "@/features/mines/api/mines.api";
 import { clamp, getTileState, normalizeMinesState } from "@/features/mines/utils/mines.utils";
+import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 import type { MineTileView, MinesHistoryEntry } from "@/features/mines/types/mines.types";
 import type { GameStatus } from "@/features/mines/constants/mines.constants";
 
@@ -81,6 +82,10 @@ export function MinesPage() {
   const shouldDeferWalletSync = isBusy || isRevealAnimating || isLossAnimating;
 
   const payoutNow = useMemo(() => Number((Number(betAmount) * Number(multiplier)).toFixed(2)), [betAmount, multiplier]);
+  const numericDisplayBalance = useMemo(() => {
+    const parsed = Number(displayWalletBalance);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }, [displayWalletBalance]);
 
   const statusText = useMemo(() => {
     if (gameStatus === GAME_STATUS.PLAYING) return "Playing";
@@ -282,20 +287,49 @@ export function MinesPage() {
       if (!Number.isFinite(amount) || amount <= 0) {
         throw new Error("Bet amount must be greater than 0.");
       }
+      
+      let data;
+      if (mode === "demo") {
+        data = await new Promise<any>((resolve) => {
+          setTimeout(() => {
+            const positions: number[] = [];
+            while (positions.length < minesCount) {
+              const r = Math.floor(Math.random() * (gridSize * gridSize));
+              if (!positions.includes(r)) positions.push(r);
+            }
+            const sessionId = "demo-" + Math.random().toString(36).substring(2, 9);
+            resolve({
+              sessionId,
+              status: GAME_STATUS.PLAYING,
+              mineCount: minesCount,
+              multiplier: 1.0,
+              revealedCells: [],
+              minePositions: positions,
+            });
+          }, 300);
+        });
+      } else {
+        if (amount > numericDisplayBalance) {
+          throw new Error(formatInsufficientFundsMessage(amount, numericDisplayBalance));
+        }
 
-      const data = await startMinesSession({
-        mode,
-        amount: amount.toFixed(2),
-        currency,
-        mine_count: minesCount,
-      });
+        data = await startMinesSession({
+          mode,
+          amount: amount.toFixed(2),
+          currency,
+          mine_count: minesCount,
+        });
+      }
 
       previousRevealedRef.current = [];
       previousStatusRef.current = GAME_STATUS.IDLE;
       setMinePositions([]);
       applyBackendState(data, { action: "start", recordHistory: false, clickedTileIndex: null });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to start game.");
+      setErrorMessage(resolveBetErrorMessage(error, "Unable to start game.", {
+        betAmount: Number(betAmount),
+        availableBalance: numericDisplayBalance,
+      }));
     } finally {
       setIsStarting(false);
     }
@@ -312,14 +346,47 @@ export function MinesPage() {
     setIsMoving(true);
 
     try {
-      const data = await submitMinesMove({
-        sessionId,
-        tileIndex,
-      });
+      let data;
+      if (mode === "demo") {
+        data = await new Promise<any>((resolve) => {
+          setTimeout(() => {
+            const hit = minePositions.includes(tileIndex);
+            const nextRevealed = [...revealedCells, tileIndex];
+            if (hit) {
+              resolve({
+                sessionId,
+                status: GAME_STATUS.LOST,
+                mineCount: minesCount,
+                multiplier: 0,
+                revealedCells: nextRevealed,
+                minePositions,
+              });
+            } else {
+              const safe = (gridSize * gridSize) - minesCount;
+              const safeRevealed = nextRevealed.length;
+              const willWin = safeRevealed === safe;
+              const multi = 1 + (safeRevealed * 0.15); // dummy demo multiplier
+              resolve({
+                sessionId,
+                status: willWin ? GAME_STATUS.WON : GAME_STATUS.PLAYING,
+                mineCount: minesCount,
+                multiplier: Number(multi.toFixed(2)),
+                revealedCells: nextRevealed,
+                minePositions: willWin ? minePositions : [],
+              });
+            }
+          }, 300);
+        });
+      } else {
+        data = await submitMinesMove({
+          sessionId,
+          tileIndex,
+        });
+      }
 
       applyBackendState(data, { action: "move", recordHistory: true, clickedTileIndex: tileIndex });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to process move.");
+      setErrorMessage(resolveBetErrorMessage(error, "Unable to process move."));
     } finally {
       setPendingTileIndex(null);
       setIsMoving(false);
@@ -333,10 +400,27 @@ export function MinesPage() {
     setIsCashingOut(true);
 
     try {
-      const data = await cashoutMinesSession({ sessionId });
+      let data;
+      if (mode === "demo") {
+        data = await new Promise<any>((resolve) => {
+          setTimeout(() => {
+            resolve({
+              sessionId,
+              status: GAME_STATUS.WON,
+              mineCount: minesCount,
+              multiplier,
+              revealedCells,
+              minePositions,
+            });
+          }, 300);
+        });
+      } else {
+        data = await cashoutMinesSession({ sessionId });
+      }
+
       applyBackendState(data, { action: "cashout", recordHistory: true, clickedTileIndex: null });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to cash out.");
+      setErrorMessage(resolveBetErrorMessage(error, "Unable to cash out."));
     } finally {
       setIsCashingOut(false);
     }

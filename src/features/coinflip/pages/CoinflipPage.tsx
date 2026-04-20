@@ -10,6 +10,7 @@ import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDo
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeCoinflipBet } from "@/features/coinflip/api/coinflip.api";
+import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 import type { CoinSide, CoinflipMode, CoinflipOutcome } from "@/features/coinflip/types/coinflip.types";
 
 declare global {
@@ -452,7 +453,7 @@ export function CoinflipPage() {
   const activeBalance = liveBalance;
 
   const potentialReturn = numericBet > 0 ? numericBet * 2 : 0;
-  const canPlay = !isFlipping && numericBet >= MIN_BET && numericBet <= activeBalance && Number.isFinite(numericBet);
+    const canPlay = !isFlipping && numericBet >= MIN_BET && (mode === "demo" || numericBet <= activeBalance) && Number.isFinite(numericBet);
 
   function clearBanner() {
     if (bannerTimeoutRef.current) window.clearTimeout(bannerTimeoutRef.current);
@@ -539,6 +540,11 @@ export function CoinflipPage() {
     if (!canPlay) return;
     clearBanner();
 
+    if (mode === "live" && numericBet > activeBalance) {
+      setPopupMessage(formatInsufficientFundsMessage(numericBet, activeBalance));
+      return;
+    }
+
     try {
       const response = await placeCoinflipBet({
         mode,
@@ -564,7 +570,10 @@ export function CoinflipPage() {
         balanceOverride: response.updatedBalance,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to play Coinflip.";
+      const message = resolveBetErrorMessage(error, "Unable to play Coinflip.", {
+        betAmount: numericBet,
+        availableBalance: activeBalance,
+      });
       setPopupMessage(message);
     }
   }
@@ -753,7 +762,7 @@ export function CoinflipPage() {
                             {amount}
                           </button>
                         ))}
-                        <button type="button" onClick={() => setQuickBet(activeBalance)} disabled={isFlipping || activeBalance <= 0}>
+                          <button type="button" onClick={() => setQuickBet(mode === "demo" ? 1000 : activeBalance)} disabled={isFlipping || (mode === "live" && activeBalance <= 0)}>
                           Max
                         </button>
                       </div>

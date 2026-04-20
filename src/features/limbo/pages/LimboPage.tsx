@@ -12,6 +12,7 @@ import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAu
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeLimboBet } from "@/features/limbo/api/limbo.api";
 import type { LimboRoundResult } from "@/features/limbo/types/limbo.types";
+import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 
 const RESULT_STATES = {
   IDLE: "idle",
@@ -90,6 +91,10 @@ export function LimboPage() {
 
   const numericBet = useMemo(() => toPositiveNumber(betAmount, 0), [betAmount]);
   const numericTarget = useMemo(() => Math.max(toPositiveNumber(targetMultiplier, 1.01), 1.01), [targetMultiplier]);
+  const numericBalance = useMemo(() => {
+    const parsed = Number(balance);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }, [balance]);
 
   const profitOnWin = useMemo(() => {
     const profit = numericBet * numericTarget - numericBet;
@@ -211,6 +216,11 @@ export function LimboPage() {
       return null;
     }
 
+    if (!isDemoMode && numericBet > numericBalance) {
+      triggerErrorPopup(formatInsufficientFundsMessage(numericBet, numericBalance));
+      return null;
+    }
+
     setResultState(RESULT_STATES.RUNNING);
     setShowBoom(false);
     setRolledMultiplier("...");
@@ -258,11 +268,14 @@ export function LimboPage() {
       setIsLoading(false);
       setIsAnimating(false);
 
-      const message = error instanceof Error ? error.message : "Unable to complete Limbo bet.";
+      const message = resolveBetErrorMessage(error, "Unable to complete Limbo bet.", {
+        betAmount: numericBet,
+        availableBalance: numericBalance,
+      });
       triggerErrorPopup(message);
       return null;
     }
-  }, [animateReveal, isBusy, isDemoMode, numericBet, numericTarget]);
+  }, [animateReveal, isBusy, isDemoMode, numericBalance, numericBet, numericTarget]);
 
   const handleBetAction = async () => {
     if (isBusy || isAutoRunning) return;

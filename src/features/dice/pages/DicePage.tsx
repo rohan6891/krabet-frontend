@@ -10,6 +10,7 @@ import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDo
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeDiceBet } from "@/features/dice/api/dice.api";
+import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 import type { DiceMode } from "@/features/dice/types/dice.types";
 
 const HOUSE_EDGE = 1;
@@ -669,6 +670,10 @@ export function DicePage() {
       setErrorMessage("Enter a valid bet amount before rolling.");
       return;
     }
+    if (wager > activeBalance) {
+      setErrorMessage(formatInsufficientFundsMessage(wager, activeBalance));
+      return;
+    }
 
     try {
       setIsRolling(true);
@@ -705,13 +710,17 @@ export function DicePage() {
           detail: { reason: "bet_settled", game: "dice", outcome: response.outcome },
         }),
       );
-    } catch {
+    } catch (error) {
       stopRollingNumbers(stageRollingValue);
-      setErrorMessage("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
+      setErrorMessage(resolveBetErrorMessage(error, "AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN", {
+        betAmount: wager,
+        availableBalance: activeBalance,
+      }));
     } finally {
       setIsRolling(false);
     }
   }, [
+    activeBalance,
     betAmount,
     isRollOver,
     pushHistory,

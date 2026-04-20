@@ -19,6 +19,7 @@ import {
 } from "@/features/crash/api/crash.api";
 import { HttpError } from "@/shared/api/http";
 import { env } from "@/shared/config/env";
+import { resolveBetErrorMessage, formatInsufficientFundsMessage } from "@/shared/utils/bettingErrors";
 import { getAccessTokenFromStorage } from "@/shared/utils/session";
 import type { CrashBetRecord } from "@/features/crash/types/crash.types";
 
@@ -28,6 +29,7 @@ const DEMO_CRASH_HOLD_MS = 1800;
 const GRAPH_WIDTH = 920;
 const GRAPH_HEIGHT = 430;
 const MAX_VISIBLE_POINTS = 240;
+const DEFAULT_MAX_ELAPSED_MS = 20000;
 const QUICK_BETS = [5, 10, 25, 50, 100];
 
 type Point = { x: number; y: number; m: number };
@@ -100,15 +102,6 @@ function formatMultiplier(value: number): string {
   return `${n.toFixed(2)}x`;
 }
 
-function createCrashPoint(multiplier: number, points: Point[]): Point {
-  const lastX = points.length ? points[points.length - 1].x : 30;
-  return {
-    x: Math.min(lastX + 46, GRAPH_WIDTH - 14),
-    y: GRAPH_HEIGHT - 16,
-    m: multiplier,
-  };
-}
-
 function buildSvgPath(points: Point[]): string {
   if (!points.length) return "";
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -125,10 +118,7 @@ function buildSvgPath(points: Point[]): string {
 }
 
 function makeInitialGraph(): Point[] {
-  return [
-    { x: 26, y: GRAPH_HEIGHT - 24, m: 1 },
-    { x: 52, y: GRAPH_HEIGHT - 24, m: 1 },
-  ];
+  return [{ x: 26, y: GRAPH_HEIGHT - 24, m: 1 }];
 }
 
 function multiplierFromElapsed(elapsedMs: number): number {
@@ -180,6 +170,18 @@ function withMonotonicX(points: Point[], nextPoint: Point): Point {
     ...nextPoint,
     x: Math.max(nextPoint.x, last.x + minDx),
   };
+}
+
+function appendGraphPoint(points: Point[], nextPoint: Point): Point[] {
+  return compressGraphPoints([...points, withMonotonicX(points, nextPoint)]);
+}
+
+function getExpandedElapsedWindow(currentWindowMs: number, elapsedMs: number): number {
+  const currentWindow = Math.max(currentWindowMs, 1000);
+  if (elapsedMs < currentWindow * 0.92) {
+    return currentWindow;
+  }
+  return Math.max(currentWindow * 1.25, elapsedMs + 1400);
 }
 
 function autoScaleGraphPoints(points: Point[]): Point[] {
@@ -380,8 +382,13 @@ export function CrashPage() {
       return;
     }
 
+    if (safeAmount > displayBalance) {
+      handleError(formatInsufficientFundsMessage(safeAmount, displayBalance));
+      return;
+    }
+
     setQueuedBet({ amount: safeAmount, livePending: true });
-  }, [betAmount, playMode]);
+  }, [betAmount, displayBalance, handleError, playMode]);
 
   const placeLiveQueuedBet = useCallback(async (amount: number) => {
     try {
@@ -403,16 +410,29 @@ export function CrashPage() {
       window.dispatchEvent(new CustomEvent("krabets:wallet-refresh", { detail: { reason: "crash_round_bet" } }));
     } catch (error) {
       if (error instanceof HttpError && error.status === 400) {
-        // Round window may have just closed; keep queued and retry on next open round.
+        const errorMessage = resolveBetErrorMessage(
+          error,
+          "Round window may have just closed. Retrying on next available round.",
+          { betAmount: amount, availableBalance: displayBalance },
+        );
+        const isWindowClosed = /closed|window|pending|round/i.test(String(errorMessage));
+        if (!isWindowClosed) {
+          handleError(errorMessage);
+          setQueuedBet(null);
+          setLiveJoinedRound(false);
+        }
       } else {
-        handleError("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
+        handleError(resolveBetErrorMessage(error, "AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN", {
+          betAmount: amount,
+          availableBalance: displayBalance,
+        }));
         setQueuedBet(null);
         setLiveJoinedRound(false);
       }
     } finally {
       pendingLivePlaceRef.current = false;
     }
-  }, [handleError]);
+  }, [displayBalance, handleError]);
 
   const cashoutLiveBet = useCallback(async () => {
     if (!activeBet?.id) {
@@ -590,9 +610,14 @@ export function CrashPage() {
         if (message.type === "round_created" && typeof message.payload?.starts_at === "number") {
           const startsAt = Number(message.payload.starts_at) - clockDeltaRef.current;
           const msRemaining = startsAt - Date.now();
-          if (msRemaining > 100) {
+          const needsRefresh = !waitingEndsAtRef.current || Math.abs(waitingEndsAtRef.current - startsAt) > 250;
+          if (msRemaining > 100 && needsRefresh) {
             waitingEndsAtRef.current = startsAt;
             totalWaitingMsRef.current = msRemaining;
+            setGraphPoints(makeInitialGraph());
+            setMultiplier(1);
+            setCrashedAt(null);
+            roundStartedAtRef.current = null;
           }
         }
 
@@ -671,7 +696,7 @@ export function CrashPage() {
 
           roundStartedAtRef.current = Date.now();
           setRoundStatus("running");
-          maxElapsedMsRef.current = 20000;
+          maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
           maxMultiplierRef.current = 4;
           setMultiplier(1);
           setGraphPoints(makeInitialGraph());
@@ -688,18 +713,18 @@ export function CrashPage() {
         const elapsed = now - (roundStartedAtRef.current ?? now);
         const nextMultiplier = multiplierFromElapsed(elapsed);
         const rounded = Number(nextMultiplier.toFixed(2));
-        maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+        maxElapsedMsRef.current = getExpandedElapsedWindow(maxElapsedMsRef.current, elapsed);
         maxMultiplierRef.current = Math.max(maxMultiplierRef.current, nextMultiplier * 1.15);
         const point = graphPointFromState(elapsed, nextMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
 
         setMultiplier(rounded);
-        setGraphPoints((prev) => compressGraphPoints([...prev, withMonotonicX(prev, point)]));
+        setGraphPoints((prev) => appendGraphPoint(prev, point));
 
         if (demoCrashTargetRef.current && rounded >= Number(demoCrashTargetRef.current)) {
           const crashTarget = Number(demoCrashTargetRef.current);
           setGraphPoints((prev) => {
             const crashPoint = graphPointFromState(elapsed, crashTarget, maxElapsedMsRef.current, maxMultiplierRef.current);
-            return compressGraphPoints([...prev, withMonotonicX(prev, crashPoint)]);
+            return appendGraphPoint(prev, crashPoint);
           });
           finishDemoCrash(crashTarget);
           demoCrashTargetRef.current = null;
@@ -747,7 +772,6 @@ export function CrashPage() {
         if (queuedBetRef.current?.livePending && !snapshot.activeBet) {
           if (snapshot.status === "waiting" && snapshot.canPlaceBet && !pendingLivePlaceRef.current) {
             void placeLiveQueuedBet(queuedBetRef.current.amount);
-          } else {
           }
         }
 
@@ -758,22 +782,27 @@ export function CrashPage() {
         }
 
         if (snapshot.status === "waiting") {
-          if (!waitingEndsAtRef.current) {
-            const startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
-              ? Number(snapshot.startsAt) - clockDeltaRef.current
-              : snapshot.nextRoundAt
-                ? new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current
-                : Date.now() + Math.max(1000, snapshot.countdownMs || 3000);
+          const startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
+            ? Number(snapshot.startsAt) - clockDeltaRef.current
+            : snapshot.nextRoundAt
+              ? new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current
+              : Date.now() + Math.max(1000, snapshot.countdownMs || 3000);
 
-            const msRemaining = startsAt - Date.now();
+          const msRemaining = startsAt - Date.now();
+          const needsRefresh =
+            !waitingEndsAtRef.current
+            || totalWaitingMsRef.current <= 0
+            || Math.abs(waitingEndsAtRef.current - startsAt) > 250;
 
-            if (msRemaining > 100) {
-              waitingEndsAtRef.current = startsAt;
-              totalWaitingMsRef.current = msRemaining;
-            }
+          if (msRemaining > 100 && needsRefresh) {
+            waitingEndsAtRef.current = startsAt;
+            totalWaitingMsRef.current = msRemaining;
+          } else if (msRemaining <= -300) {
+            waitingEndsAtRef.current = null;
+            totalWaitingMsRef.current = 0;
           }
 
-          if (statusChanged) {
+          if (statusChanged || roundStartedAtRef.current !== null) {
             setCrashedAt(null);
             setGraphPoints(makeInitialGraph());
             roundStartedAtRef.current = null;
@@ -784,15 +813,19 @@ export function CrashPage() {
         if (snapshot.status === "running") {
           waitingEndsAtRef.current = null;
           totalWaitingMsRef.current = 0;
-          maxElapsedMsRef.current = 20000;
+          maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
           maxMultiplierRef.current = 4;
           const now = Date.now();
-          if (statusChanged || !roundStartedAtRef.current) roundStartedAtRef.current = now;
-          liveMultiplierRef.current = Number(snapshot.multiplier || 1);
-          if (snapshot.activeBet) {
-            setLiveJoinedRound(true);
+            if (statusChanged || !roundStartedAtRef.current) {
+              const baseMultiplier = Number(snapshot.multiplier || 1);
+              const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.3) * 1000;
+              roundStartedAtRef.current = now - elapsedSoFar;
+            }
+            liveMultiplierRef.current = Number(snapshot.multiplier || 1);
+            if (snapshot.activeBet) {
+              setLiveJoinedRound(true);
+            }
           }
-        }
 
         if (snapshot.status === "crashed") {
           if (statusChanged) {
@@ -829,7 +862,7 @@ export function CrashPage() {
 
         const startTimeMs = roundStartedAtRef.current ?? Date.now();
         const elapsed = Math.max(0, Date.now() - startTimeMs);
-        maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+        maxElapsedMsRef.current = getExpandedElapsedWindow(maxElapsedMsRef.current, elapsed);
         maxMultiplierRef.current = Math.max(maxMultiplierRef.current, crashPoint * 1.15);
 
         liveMultiplierRef.current = Math.max(liveMultiplierRef.current, crashPoint);
@@ -842,7 +875,7 @@ export function CrashPage() {
             maxElapsedMsRef.current,
             maxMultiplierRef.current,
           );
-          return compressGraphPoints([...prev, withMonotonicX(prev, crashVisualPoint)]);
+          return appendGraphPoint(prev, crashVisualPoint);
         });
       },
       onApiMissing: () => {
@@ -888,7 +921,7 @@ export function CrashPage() {
       liveMultiplierRef.current = 1;
       lastLiveStatusRef.current = null;
       clockDeltaRef.current = 0;
-      maxElapsedMsRef.current = 20000;
+      maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
       maxMultiplierRef.current = 4;
       setLiveCanPlaceBet(false);
       return;
@@ -900,13 +933,23 @@ export function CrashPage() {
     liveMultiplierRef.current = 1;
     lastLiveStatusRef.current = null;
     clockDeltaRef.current = 0;
-    maxElapsedMsRef.current = 20000;
+    maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
     maxMultiplierRef.current = 4;
     setGraphPoints(makeInitialGraph());
     setMultiplier(1);
     setCrashedAt(null);
     setLiveCanPlaceBet(false);
   }, [playMode, resetVisualRound]);
+
+  useEffect(() => {
+    if (playMode !== "live") return;
+    if (!queuedBet?.livePending) return;
+    if (activeBet) return;
+    if (roundStatus !== "waiting" || !liveCanPlaceBet) return;
+    if (pendingLivePlaceRef.current) return;
+
+    void placeLiveQueuedBet(queuedBet.amount);
+  }, [activeBet, liveCanPlaceBet, placeLiveQueuedBet, playMode, queuedBet, roundStatus]);
 
   useEffect(() => {
     if (playMode !== "live" || roundStatus !== "waiting") {
@@ -938,10 +981,10 @@ export function CrashPage() {
       liveMultiplierRef.current = preciseMultiplier;
       setMultiplier(nextMultiplier);
 
-      maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+      maxElapsedMsRef.current = getExpandedElapsedWindow(maxElapsedMsRef.current, elapsed);
       maxMultiplierRef.current = Math.max(maxMultiplierRef.current, preciseMultiplier * 1.15);
       const point = graphPointFromState(elapsed, preciseMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
-      setGraphPoints((prev) => compressGraphPoints([...prev, withMonotonicX(prev, point)]));
+      setGraphPoints((prev) => appendGraphPoint(prev, point));
 
       rafId = window.requestAnimationFrame(tick);
     };
@@ -988,7 +1031,9 @@ export function CrashPage() {
     const endsAt = waitingEndsAtRef.current;
     const total = totalWaitingMsRef.current;
     if (!endsAt || !total) return 0;
-    const remaining = Math.max(0, endsAt - Date.now());
+    const remainingRaw = endsAt - Date.now();
+    if (remainingRaw <= -300) return 1;
+    const remaining = Math.max(0, remainingRaw);
     return clamp(1 - remaining / total, 0, 1);
   }, [playMode, roundStatus, renderTick]);
 
@@ -1277,3 +1322,4 @@ export function CrashPage() {
     </div>
   );
 }
+
