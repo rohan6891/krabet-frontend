@@ -3,6 +3,7 @@ import { Rajdhani, Poppins } from "next/font/google";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { ToastProvider } from "@/shared/ui/toast/ToastProvider";
+import { StartupPreloader } from "@/app/StartupPreloader";
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${rajdhani.variable} ${poppins.variable}`}>
+        <StartupPreloader />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

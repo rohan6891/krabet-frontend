@@ -100,12 +100,16 @@ export function DashboardHeader({
             </span>
           </a>
 
-          <a href="/dashboard/search" className="header-icon-btn" aria-label={t("aria.search", "Search")}>
+          <a
+            href="/dashboard/search"
+            className="header-icon-btn header-icon-search"
+            aria-label={t("aria.search", "Search")}
+          >
             <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           </a>
 
           <button
-            className="header-icon-btn"
+            className="header-icon-btn header-icon-alerts"
             aria-label={t("aria.notifications", "Notifications")}
             onClick={() => {
               handleNotifToggle();
@@ -119,7 +123,11 @@ export function DashboardHeader({
             )}
           </button>
 
-          <a href="/dashboard/settings" className="header-icon-btn" aria-label={t("aria.settings", "Settings")}>
+          <a
+            href="/dashboard/settings"
+            className="header-icon-btn header-icon-settings"
+            aria-label={t("aria.settings", "Settings")}
+          >
             <i className="fa-solid fa-gear" aria-hidden="true"></i>
           </a>
 
