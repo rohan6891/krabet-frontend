@@ -3,7 +3,9 @@ export type DashboardGame = {
   code: string;
   name: string;
   status: boolean;
+  image?: string;
   image_path?: string;
+  tag?: string;
   category?: string;
   subtitle?: string;
   config?: Record<string, unknown>;

@@ -28,7 +28,6 @@ const DEMO_CRASH_HOLD_MS = 1800;
 const GRAPH_WIDTH = 920;
 const GRAPH_HEIGHT = 430;
 const MAX_VISIBLE_POINTS = 240;
-const TOP_GRAPH_MULTIPLIER = 400;
 const QUICK_BETS = [5, 10, 25, 50, 100];
 
 type Point = { x: number; y: number; m: number };
@@ -65,6 +64,7 @@ type RoundSnapshot = {
   crashedAt: number | null;
   canPlaceBet: boolean;
   nextRoundAt: string | null;
+  startsAt: number | null;
   crashedUntil: string | null;
   countdownMs: number;
   history: number[];
@@ -94,7 +94,10 @@ function formatMoney(value: number): string {
 }
 
 function formatMultiplier(value: number): string {
-  return `${Number(value || 1).toFixed(2)}x`;
+  const n = Number(value || 1);
+  if (n >= 1000000) return `${(n / 1000000).toFixed(2)}Mx`;
+  if (n >= 1000) return `${(n / 1000).toFixed(2)}Kx`;
+  return `${n.toFixed(2)}x`;
 }
 
 function createCrashPoint(multiplier: number, points: Point[]): Point {
@@ -135,28 +138,32 @@ function multiplierFromElapsed(elapsedMs: number): number {
 
 function compressGraphPoints(points: Point[], maxPoints = MAX_VISIBLE_POINTS): Point[] {
   if (points.length <= maxPoints) return points;
-
   const first = points[0];
-  const remaining = points.slice(1);
-  const step = remaining.length / (maxPoints - 1);
+  const last = points[points.length - 1];
+  const middle = points.slice(1, -1);
+  const step = middle.length / (maxPoints - 2);
   const sampled = [first];
-
-  for (let i = 0; i < maxPoints - 2; i += 1) {
-    sampled.push(remaining[Math.floor(i * step)]);
+  for (let i = 0; i < maxPoints - 2; i++) {
+    sampled.push(middle[Math.floor(i * step)]);
   }
-
-  sampled.push(points[points.length - 1]);
+  sampled.push(last);
   return sampled;
 }
 
-function graphPointFromState(elapsedMs: number, multiplier: number): Point {
-  const t = clamp(elapsedMs / 20000, 0, 1);
+function graphPointFromState(
+  elapsedMs: number,
+  multiplier: number,
+  maxElapsedMs: number,
+  maxMultiplier: number,
+): Point {
+  const t = clamp(elapsedMs / Math.max(maxElapsedMs, 1000), 0, 1);
   const x = 26 + t * (GRAPH_WIDTH - 110);
   const floorY = GRAPH_HEIGHT - 22;
   const ceilingY = 74;
   const travel = floorY - ceilingY;
+  const safeMax = Math.max(maxMultiplier * 1.15, 2);
   const normalized = clamp(
-    Math.log(Math.max(multiplier, 1)) / Math.log(TOP_GRAPH_MULTIPLIER),
+    Math.log(Math.max(multiplier, 1)) / Math.log(safeMax),
     0,
     1,
   );
@@ -210,6 +217,10 @@ export function CrashPage() {
   const animationRef = useRef<number | null>(null);
   const roundStartedAtRef = useRef<number | null>(null);
   const waitingEndsAtRef = useRef<number | null>(null);
+  const totalWaitingMsRef = useRef<number>(0);
+  const clockDeltaRef = useRef<number>(0);
+  const maxElapsedMsRef = useRef<number>(20000);
+  const maxMultiplierRef = useRef<number>(4);
   const liveMultiplierRef = useRef(1);
   const waitStartedAtRef = useRef<number>(Date.now());
   const demoCrashTargetRef = useRef<number | null>(null);
@@ -228,8 +239,7 @@ export function CrashPage() {
   const [crashedAt, setCrashedAt] = useState<number | null>(null);
   const [graphPoints, setGraphPoints] = useState<Point[]>(makeInitialGraph());
   const [roundHistory, setRoundHistory] = useState<number[]>([2.4, 1.39, 2.1, 1.03, 1.01, 4.12, 55.3]);
-  const [countdownMs, setCountdownMs] = useState(DEMO_WAITING_MS);
-  const [waitingWindowMs, setWaitingWindowMs] = useState(DEMO_WAITING_MS);
+  const [renderTick, setRenderTick] = useState(0);
   const [betAmount, setBetAmount] = useState(10);
   const [displayBalance, setDisplayBalance] = useState(0);
   const [queuedBet, setQueuedBet] = useState<QueuedBet | null>(null);
@@ -281,8 +291,6 @@ export function CrashPage() {
     setCrashedAt(null);
     setGraphPoints(makeInitialGraph());
     waitStartedAtRef.current = Date.now();
-    setCountdownMs(DEMO_WAITING_MS);
-    setWaitingWindowMs(DEMO_WAITING_MS);
   }, []);
 
   const finishDemoCrash = useCallback((finalMultiplier: number) => {
@@ -342,14 +350,10 @@ export function CrashPage() {
 
         setQueuedBet({ amount: safeAmount, demoCrashPoint: demoResult.crashPoint });
         waitStartedAtRef.current = Date.now();
-        setCountdownMs(DEMO_WAITING_MS);
-        setWaitingWindowMs(DEMO_WAITING_MS);
       } catch {
         // If demo API fails, keep gameplay local and uninterrupted.
         setQueuedBet({ amount: safeAmount, demoCrashPoint: sampleDemoCrashPoint() });
         waitStartedAtRef.current = Date.now();
-        setCountdownMs(DEMO_WAITING_MS);
-        setWaitingWindowMs(DEMO_WAITING_MS);
       }
 
       return;
@@ -373,6 +377,7 @@ export function CrashPage() {
       });
       setLiveJoinedRound(true);
       waitingEndsAtRef.current = null;
+      totalWaitingMsRef.current = 0;
       setQueuedBet(null);
       window.dispatchEvent(new CustomEvent("krabets:wallet-refresh", { detail: { reason: "crash_round_bet" } }));
     } catch (error) {
@@ -478,6 +483,7 @@ export function CrashPage() {
         const liveCrashedAt = stateRes.data?.crashedAt ?? null;
         const canPlaceBet = Boolean(stateRes.data?.canPlaceBet);
         const nextRoundAt = stateRes.data?.nextRoundAt ?? null;
+        const startsAt = stateRes.data?.startsAt ?? null;
         const crashedUntil = stateRes.data?.crashedUntil ?? null;
         const countdownMs = Number(stateRes.data?.countdownMs ?? 0);
         const history = Array.isArray(stateRes.data?.history)
@@ -491,6 +497,7 @@ export function CrashPage() {
           crashedAt: liveCrashedAt,
           canPlaceBet,
           nextRoundAt,
+          startsAt,
           crashedUntil,
           countdownMs,
           history,
@@ -527,16 +534,45 @@ export function CrashPage() {
         if (!currentSocket) {
           return;
         }
+        currentSocket.send(JSON.stringify({ type: "ping", client_ts: Date.now() }));
         currentSocket.send(JSON.stringify({ action: "subscribe", channel: "game:crash" }));
       };
 
       socket.onmessage = (event) => {
         lastRealtimeSignalAt = Date.now();
-        let message: { type?: string; payload?: { crash_point?: number } };
+        let message: {
+          type?: string;
+          payload?: { crash_point?: number; starts_at?: number };
+          client_ts?: number;
+          server_ts?: number;
+        };
         try {
-          message = JSON.parse(String(event.data)) as { type?: string; payload?: { crash_point?: number } };
+          message = JSON.parse(String(event.data)) as {
+            type?: string;
+            payload?: { crash_point?: number; starts_at?: number };
+            client_ts?: number;
+            server_ts?: number;
+          };
         } catch {
           return;
+        }
+
+        if (message.type === "pong") {
+          const clientTs = Number(message.client_ts);
+          const serverTs = Number(message.server_ts);
+          if (Number.isFinite(clientTs) && Number.isFinite(serverTs)) {
+            clockDeltaRef.current = serverTs - clientTs;
+          }
+          return;
+        }
+
+        if (message.type === "round_created" && typeof message.payload?.starts_at === "number") {
+          const startsAt = Number(message.payload.starts_at) - clockDeltaRef.current;
+          const msRemaining = startsAt - Date.now();
+          if (msRemaining > 100) {
+            waitingEndsAtRef.current = startsAt;
+            totalWaitingMsRef.current = msRemaining;
+          }
         }
 
         if (message.type === "round_crashed" && typeof message.payload?.crash_point === "number") {
@@ -599,8 +635,7 @@ export function CrashPage() {
 
       if (roundStatus === "waiting") {
         const elapsedWaiting = now - waitStartedAtRef.current;
-        const remaining = Math.max(0, DEMO_WAITING_MS - elapsedWaiting);
-        setCountdownMs(remaining);
+        setRenderTick((tick) => tick + 1);
 
         if (elapsedWaiting >= DEMO_WAITING_MS) {
           const queued = queuedBet
@@ -613,6 +648,8 @@ export function CrashPage() {
 
           roundStartedAtRef.current = Date.now();
           setRoundStatus("running");
+          maxElapsedMsRef.current = 20000;
+          maxMultiplierRef.current = 4;
           setMultiplier(1);
           setGraphPoints(makeInitialGraph());
           setActiveBet(queued);
@@ -628,7 +665,9 @@ export function CrashPage() {
         const elapsed = now - (roundStartedAtRef.current ?? now);
         const nextMultiplier = multiplierFromElapsed(elapsed);
         const rounded = Number(nextMultiplier.toFixed(2));
-        const point = graphPointFromState(elapsed, rounded);
+        maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+        maxMultiplierRef.current = Math.max(maxMultiplierRef.current, rounded * 1.15);
+        const point = graphPointFromState(elapsed, rounded, maxElapsedMsRef.current, maxMultiplierRef.current);
 
         setMultiplier(rounded);
         setGraphPoints((prev) => compressGraphPoints([...prev, point]));
@@ -636,7 +675,7 @@ export function CrashPage() {
         if (demoCrashTargetRef.current && rounded >= Number(demoCrashTargetRef.current)) {
           const crashTarget = Number(demoCrashTargetRef.current);
           setGraphPoints((prev) => {
-            const crashPoint = graphPointFromState(elapsed, crashTarget);
+            const crashPoint = graphPointFromState(elapsed, crashTarget, maxElapsedMsRef.current, maxMultiplierRef.current);
             return compressGraphPoints([...prev, crashPoint]);
           });
           finishDemoCrash(crashTarget);
@@ -696,20 +735,19 @@ export function CrashPage() {
         }
 
         if (snapshot.status === "waiting") {
-          const serverCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
-          const serverNextRoundAt = snapshot.nextRoundAt ? new Date(snapshot.nextRoundAt).getTime() : null;
-          const serverDeadline = serverNextRoundAt ?? (serverCountdown > 0 ? Date.now() + serverCountdown : null);
+          if (!waitingEndsAtRef.current) {
+            const startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
+              ? Number(snapshot.startsAt) - clockDeltaRef.current
+              : snapshot.nextRoundAt
+                ? new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current
+                : Date.now() + Math.max(1000, snapshot.countdownMs || 3000);
 
-          const existingDeadline = waitingEndsAtRef.current;
-          const isNewRound = !existingDeadline || (serverDeadline !== null && serverDeadline < existingDeadline - 500);
+            const msRemaining = startsAt - Date.now();
 
-          if (isNewRound && serverDeadline) {
-            waitingEndsAtRef.current = serverDeadline;
-            const ms = Math.max(0, serverDeadline - Date.now());
-            const window = Math.max(1000, ms);
-            // Set both together so progress starts at 0, not 1
-            setWaitingWindowMs(window);
-            setCountdownMs(window); // start full remaining, let the interval tick it down
+            if (msRemaining > 100) {
+              waitingEndsAtRef.current = startsAt;
+              totalWaitingMsRef.current = msRemaining;
+            }
           }
 
           if (statusChanged) {
@@ -722,6 +760,9 @@ export function CrashPage() {
 
         if (snapshot.status === "running") {
           waitingEndsAtRef.current = null;
+          totalWaitingMsRef.current = 0;
+          maxElapsedMsRef.current = 20000;
+          maxMultiplierRef.current = 4;
           const now = Date.now();
           if (statusChanged || !roundStartedAtRef.current) roundStartedAtRef.current = now;
           liveMultiplierRef.current = Number(snapshot.multiplier || 1);
@@ -732,15 +773,8 @@ export function CrashPage() {
 
         if (snapshot.status === "crashed") {
           if (statusChanged) {
-            const serverCrashedUntil = snapshot.crashedUntil ? new Date(snapshot.crashedUntil).getTime() : null;
-            const crashHoldCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
-            const derivedCrashCountdown = Number.isFinite(serverCrashedUntil) ? Math.max(0, Number(serverCrashedUntil) - Date.now()) : 0;
-            const resolvedCrashCountdown = crashHoldCountdown > 0
-              ? crashHoldCountdown
-              : (derivedCrashCountdown > 0 ? derivedCrashCountdown : Math.max(1000, waitingWindowMs));
-
-            waitingEndsAtRef.current = Date.now() + resolvedCrashCountdown;
-            setWaitingWindowMs(Math.max(1000, resolvedCrashCountdown));
+            waitingEndsAtRef.current = null;
+            totalWaitingMsRef.current = 0;
 
             const roundCrash = Number(snapshot.crashedAt || snapshot.multiplier || 1);
             setCrashedAt(roundCrash);
@@ -765,9 +799,15 @@ export function CrashPage() {
 
       },
       onRoundResult: (result) => {
-        pushRoundHistory(result.crashedAt);
-        setLastResult(formatMultiplier(result.crashedAt));
+        const crashPoint = result.crashedAt;
+        pushRoundHistory(crashPoint);
+        setLastResult(formatMultiplier(crashPoint));
         pendingLiveCashoutRef.current = false;
+
+        if (liveMultiplierRef.current < crashPoint) {
+          liveMultiplierRef.current = crashPoint;
+          setMultiplier(crashPoint);
+        }
       },
       onApiMissing: () => {
         liveApiUnavailableRef.current = true;
@@ -808,21 +848,27 @@ export function CrashPage() {
       setActiveBet(null);
       setLiveJoinedRound(false);
       waitingEndsAtRef.current = null;
+      totalWaitingMsRef.current = 0;
       liveMultiplierRef.current = 1;
       lastLiveStatusRef.current = null;
+      clockDeltaRef.current = 0;
+      maxElapsedMsRef.current = 20000;
+      maxMultiplierRef.current = 4;
       setLiveCanPlaceBet(false);
       return;
     }
 
     roundStartedAtRef.current = null;
     waitingEndsAtRef.current = null;
+    totalWaitingMsRef.current = 0;
     liveMultiplierRef.current = 1;
     lastLiveStatusRef.current = null;
+    clockDeltaRef.current = 0;
+    maxElapsedMsRef.current = 20000;
+    maxMultiplierRef.current = 4;
     setGraphPoints(makeInitialGraph());
     setMultiplier(1);
     setCrashedAt(null);
-    setWaitingWindowMs(DEMO_WAITING_MS);
-    setCountdownMs(0);
     setLiveCanPlaceBet(false);
   }, [playMode, resetVisualRound]);
 
@@ -832,19 +878,13 @@ export function CrashPage() {
     }
 
     const intervalId = window.setInterval(() => {
-      const endsAt = waitingEndsAtRef.current;
-      if (!endsAt) {
-        return;
-      }
-
-      const remaining = Math.max(0, endsAt - Date.now());
-      setCountdownMs(remaining);
+      setRenderTick((tick) => tick + 1);
     }, 50);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [liveCanPlaceBet, playMode, roundStatus]);
+  }, [playMode, roundStatus]);
 
   useEffect(() => {
     if (playMode !== "live" || roundStatus !== "running") {
@@ -861,7 +901,9 @@ export function CrashPage() {
       liveMultiplierRef.current = nextMultiplier;
       setMultiplier(nextMultiplier);
 
-      const point = graphPointFromState(elapsed, nextMultiplier);
+      maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+      maxMultiplierRef.current = Math.max(maxMultiplierRef.current, nextMultiplier * 1.15);
+      const point = graphPointFromState(elapsed, nextMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
       setGraphPoints((prev) => compressGraphPoints([...prev, point]));
 
       rafId = window.requestAnimationFrame(tick);
@@ -899,7 +941,19 @@ export function CrashPage() {
   }, [activeBet, liveCanPlaceBet, playMode, queuedBet, roundStatus]);
 
   const queuedWagerValue = (queuedBet || activeBet)?.amount ?? 0;
-  const waitingProgress = clamp((waitingWindowMs - countdownMs) / waitingWindowMs, 0, 1);
+  const waitingProgress = useMemo(() => {
+    if (playMode === "demo") {
+      if (roundStatus !== "waiting") return 0;
+      const elapsed = Date.now() - waitStartedAtRef.current;
+      return clamp(elapsed / DEMO_WAITING_MS, 0, 1);
+    }
+
+    const endsAt = waitingEndsAtRef.current;
+    const total = totalWaitingMsRef.current;
+    if (!endsAt || !total) return 0;
+    const remaining = Math.max(0, endsAt - Date.now());
+    return clamp(1 - remaining / total, 0, 1);
+  }, [playMode, roundStatus, renderTick]);
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;

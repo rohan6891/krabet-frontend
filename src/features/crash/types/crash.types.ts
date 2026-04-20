@@ -32,6 +32,7 @@ export type CrashLiveStateResponse = {
     crashedAt: number | null;
     canPlaceBet?: boolean;
     nextRoundAt?: string | null;
+    startsAt?: number | null;
     crashedUntil?: string | null;
     countdownMs?: number;
     history: number[];
