@@ -36,6 +36,7 @@ export type CrashLiveStateResponse = {
     crashedUntil?: string | null;
     countdownMs?: number;
     history: number[];
+    growthRate?: number;
   };
 };
 

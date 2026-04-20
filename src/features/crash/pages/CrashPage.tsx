@@ -71,6 +71,7 @@ type RoundSnapshot = {
   countdownMs: number;
   history: number[];
   activeBet: LocalBet | null;
+  growthRate?: number;
 };
 
 function clamp(value: number, min: number, max: number): number {
@@ -121,9 +122,11 @@ function makeInitialGraph(): Point[] {
   return [{ x: 26, y: GRAPH_HEIGHT - 24, m: 1 }];
 }
 
-function multiplierFromElapsed(elapsedMs: number): number {
+const DEFAULT_GROWTH_RATE_PER_SEC = 0.06;
+
+function multiplierFromElapsed(elapsedMs: number, growthRatePerSec: number = DEFAULT_GROWTH_RATE_PER_SEC): number {
   const t = elapsedMs / 1000;
-  return Math.exp(0.06 * t);
+  return Math.exp(growthRatePerSec * t);
 }
 
 function compressGraphPoints(points: Point[], maxPoints = MAX_VISIBLE_POINTS): Point[] {
@@ -251,6 +254,7 @@ export function CrashPage() {
   const liveApiUnavailableRef = useRef(false);
   const liveErrorShownRef = useRef(false);
   const lastLiveStatusRef = useRef<RoundStatus | null>(null);
+  const growthRatePerSecRef = useRef<number>(DEFAULT_GROWTH_RATE_PER_SEC);
   const queuedBetRef = useRef<QueuedBet | null>(null);
   const activeBetRef = useRef<LocalBet | null>(null);
   const liveCrashHoldUntilRef = useRef<number>(0);
@@ -401,8 +405,6 @@ export function CrashPage() {
         payout: null,
       });
       setLiveJoinedRound(true);
-      waitingEndsAtRef.current = null;
-      totalWaitingMsRef.current = 0;
       setQueuedBet(null);
       window.dispatchEvent(new CustomEvent("krabets:wallet-refresh", { detail: { reason: "crash_round_bet" } }));
     } catch (error) {
@@ -527,6 +529,7 @@ export function CrashPage() {
         const history = Array.isArray(stateRes.data?.history)
           ? stateRes.data?.history.map((item) => Number(item)).filter((item) => Number.isFinite(item))
           : [];
+        const growthRate = stateRes.data?.growthRate ? Number(stateRes.data.growthRate) : undefined;
         const currentBet = mapBetRecord(betRes.data?.bet);
 
         handlers.onRoundState({
@@ -540,6 +543,7 @@ export function CrashPage() {
           countdownMs,
           history,
           activeBet: currentBet,
+          growthRate,
         });
 
         if (status === "crashed" && typeof liveCrashedAt === "number") {
@@ -716,7 +720,7 @@ export function CrashPage() {
 
       if (roundStatus === "running") {
         const elapsed = now - (roundStartedAtRef.current ?? now);
-        const nextMultiplier = multiplierFromElapsed(elapsed);
+        const nextMultiplier = multiplierFromElapsed(elapsed, growthRatePerSecRef.current);
         const rounded = Number(nextMultiplier.toFixed(2));
         maxElapsedMsRef.current = getExpandedElapsedWindow(maxElapsedMsRef.current, elapsed);
         maxMultiplierRef.current = Math.max(maxMultiplierRef.current, nextMultiplier * 1.15);
@@ -770,6 +774,13 @@ export function CrashPage() {
           });
         }
 
+        if (snapshot.growthRate && snapshot.growthRate > 0) {
+          const perSec = snapshot.growthRate < 0.01
+            ? snapshot.growthRate * 1000
+            : snapshot.growthRate;
+          growthRatePerSecRef.current = perSec;
+        }
+
         let resolvedStatus = snapshot.status;
         if (resolvedStatus === "waiting" && liveCrashHoldUntilRef.current > Date.now()) {
           resolvedStatus = "crashed";
@@ -792,35 +803,33 @@ export function CrashPage() {
         }
 
         if (resolvedStatus === "waiting") {
-          let startsAt: number | null = null;
-          if (snapshot.countdownMs != null && snapshot.countdownMs > 0) {
-            startsAt = Date.now() + snapshot.countdownMs;
-          } else if (snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)) {
-            startsAt = Number(snapshot.startsAt) - clockDeltaRef.current;
-          } else if (snapshot.nextRoundAt) {
-            startsAt = new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current;
-          }
+          const alreadyTracking = !statusChanged && waitingEndsAtRef.current && totalWaitingMsRef.current > 0;
 
-          if (startsAt === null || startsAt <= Date.now() + 100) {
-            if (waitingEndsAtRef.current && !statusChanged) {
-              startsAt = waitingEndsAtRef.current;
-            } else {
+          if (!alreadyTracking) {
+            let startsAt: number | null = null;
+            if (snapshot.countdownMs != null && snapshot.countdownMs > 0) {
+              startsAt = Date.now() + snapshot.countdownMs;
+            } else if (snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)) {
+              startsAt = Number(snapshot.startsAt) - clockDeltaRef.current;
+            } else if (snapshot.nextRoundAt) {
+              startsAt = new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current;
+            }
+
+            if (startsAt === null || startsAt <= Date.now() + 100) {
               startsAt = Date.now() + 5000;
             }
-          }
 
-          const msRemaining = startsAt - Date.now();
-          const needsRefresh =
-            !waitingEndsAtRef.current
-            || totalWaitingMsRef.current <= 0
-            || Math.abs(waitingEndsAtRef.current - startsAt) > 250;
-
-          if (msRemaining > 100 && needsRefresh) {
-            waitingEndsAtRef.current = startsAt;
-            totalWaitingMsRef.current = Math.max(5000, msRemaining);
-          } else if (msRemaining <= -300) {
-            waitingEndsAtRef.current = null;
-            totalWaitingMsRef.current = 0;
+            const msRemaining = startsAt - Date.now();
+            if (msRemaining > 100) {
+              waitingEndsAtRef.current = startsAt;
+              totalWaitingMsRef.current = Math.max(5000, msRemaining);
+            }
+          } else {
+            const msRemaining = waitingEndsAtRef.current! - Date.now();
+            if (msRemaining <= -300) {
+              waitingEndsAtRef.current = null;
+              totalWaitingMsRef.current = 0;
+            }
           }
 
           if (statusChanged || roundStartedAtRef.current !== null) {
@@ -837,7 +846,8 @@ export function CrashPage() {
           const now = Date.now();
           if (statusChanged || !roundStartedAtRef.current) {
             const baseMultiplier = Number(snapshot.multiplier || 1);
-            const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.06) * 1000;
+            const gr = growthRatePerSecRef.current || DEFAULT_GROWTH_RATE_PER_SEC;
+            const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / gr) * 1000;
             roundStartedAtRef.current = now - elapsedSoFar;
 
             if (elapsedSoFar > 100) {
@@ -847,7 +857,7 @@ export function CrashPage() {
               const stepMs = Math.max(50, elapsedSoFar / 40);
               
               for (let t = stepMs; t <= elapsedSoFar; t += stepMs) {
-                const m = multiplierFromElapsed(t);
+                const m = multiplierFromElapsed(t, growthRatePerSecRef.current);
                 tempMaxElapsed = getExpandedElapsedWindow(tempMaxElapsed, t);
                 tempMaxMultiplier = Math.max(tempMaxMultiplier, m * 1.15);
                 const p = graphPointFromState(t, m, tempMaxElapsed, tempMaxMultiplier);
@@ -1033,7 +1043,7 @@ export function CrashPage() {
     const tick = () => {
       const startTimeMs = roundStartedAtRef.current ?? Date.now();
       const elapsed = Math.max(0, Date.now() - startTimeMs);
-      const calculated = Math.max(1, multiplierFromElapsed(elapsed));
+      const calculated = Math.max(1, multiplierFromElapsed(elapsed, growthRatePerSecRef.current));
       const preciseMultiplier = Math.max(liveMultiplierRef.current, calculated);
       const nextMultiplier = Number(preciseMultiplier.toFixed(2));
 
