@@ -253,6 +253,7 @@ export function CrashPage() {
   const lastLiveStatusRef = useRef<RoundStatus | null>(null);
   const queuedBetRef = useRef<QueuedBet | null>(null);
   const activeBetRef = useRef<LocalBet | null>(null);
+  const liveCrashHoldUntilRef = useRef<number>(0);
 
   const [playMode, setPlayMode] = useState<PlayMode>("demo");
   const [roundStatus, setRoundStatus] = useState<RoundStatus>("waiting");
@@ -290,9 +291,7 @@ export function CrashPage() {
   }, []);
 
   const scaledGraphPoints = useMemo(() => autoScaleGraphPoints(graphPoints), [graphPoints]);
-  const activeDot = clampDotToViewport(
-    scaledGraphPoints[scaledGraphPoints.length - 1] || { x: 48, y: GRAPH_HEIGHT - 22, m: 1 },
-  );
+  const activeDot = scaledGraphPoints[scaledGraphPoints.length - 1] || { x: 48, y: GRAPH_HEIGHT - 22, m: 1 };
   const displayPath = useMemo(() => buildSvgPath(scaledGraphPoints), [scaledGraphPoints]);
 
   const handleError = useCallback((message: string) => {
@@ -372,11 +371,9 @@ export function CrashPage() {
         });
 
         setQueuedBet({ amount: safeAmount, demoCrashPoint: demoResult.crashPoint });
-        waitStartedAtRef.current = Date.now();
       } catch {
         // If demo API fails, keep gameplay local and uninterrupted.
         setQueuedBet({ amount: safeAmount, demoCrashPoint: sampleDemoCrashPoint() });
-        waitStartedAtRef.current = Date.now();
       }
 
       return;
@@ -653,6 +650,13 @@ export function CrashPage() {
     connect();
     lastRealtimeSignalAt = Date.now();
     void pollState();
+
+    const pingIntervalId = window.setInterval(() => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: "ping", client_ts: Date.now() }));
+      }
+    }, 2500);
+
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       const realtimeStale = now - lastRealtimeSignalAt > 4000;
@@ -666,6 +670,7 @@ export function CrashPage() {
       if (reconnectTimer) {
         window.clearTimeout(reconnectTimer);
       }
+      window.clearInterval(pingIntervalId);
       window.clearInterval(intervalId);
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
@@ -765,28 +770,41 @@ export function CrashPage() {
           });
         }
 
+        let resolvedStatus = snapshot.status;
+        if (resolvedStatus === "waiting" && liveCrashHoldUntilRef.current > Date.now()) {
+          resolvedStatus = "crashed";
+        }
+
         setLiveCanPlaceBet(snapshot.canPlaceBet);
-        const statusChanged = lastLiveStatusRef.current !== snapshot.status;
-        lastLiveStatusRef.current = snapshot.status;
+        const statusChanged = lastLiveStatusRef.current !== resolvedStatus;
+        lastLiveStatusRef.current = resolvedStatus;
 
         if (queuedBetRef.current?.livePending && !snapshot.activeBet) {
-          if (snapshot.status === "waiting" && snapshot.canPlaceBet && !pendingLivePlaceRef.current) {
+          if (resolvedStatus === "waiting" && snapshot.canPlaceBet && !pendingLivePlaceRef.current) {
             void placeLiveQueuedBet(queuedBetRef.current.amount);
           }
         }
 
-        setRoundStatus((prev) => (prev === snapshot.status ? prev : snapshot.status));
+        setRoundStatus((prev) => (prev === resolvedStatus ? prev : resolvedStatus));
 
-        if (snapshot.status !== "running") {
+        if (resolvedStatus !== "running") {
           setMultiplier(Number(snapshot.multiplier || 1));
         }
 
-        if (snapshot.status === "waiting") {
-          const startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
+        if (resolvedStatus === "waiting") {
+          let startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
             ? Number(snapshot.startsAt) - clockDeltaRef.current
             : snapshot.nextRoundAt
               ? new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current
-              : Date.now() + Math.max(1000, snapshot.countdownMs || 3000);
+              : null;
+
+          if (startsAt === null) {
+            if (waitingEndsAtRef.current && !statusChanged) {
+              startsAt = waitingEndsAtRef.current;
+            } else {
+              startsAt = Date.now() + Math.max(1000, snapshot.countdownMs || 5000);
+            }
+          }
 
           const msRemaining = startsAt - Date.now();
           const needsRefresh =
@@ -796,7 +814,7 @@ export function CrashPage() {
 
           if (msRemaining > 100 && needsRefresh) {
             waitingEndsAtRef.current = startsAt;
-            totalWaitingMsRef.current = msRemaining;
+            totalWaitingMsRef.current = Math.max(5000, msRemaining);
           } else if (msRemaining <= -300) {
             waitingEndsAtRef.current = null;
             totalWaitingMsRef.current = 0;
@@ -810,24 +828,45 @@ export function CrashPage() {
           }
         }
 
-        if (snapshot.status === "running") {
+        if (resolvedStatus === "running") {
           waitingEndsAtRef.current = null;
           totalWaitingMsRef.current = 0;
-          maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
-          maxMultiplierRef.current = 4;
           const now = Date.now();
-            if (statusChanged || !roundStartedAtRef.current) {
-              const baseMultiplier = Number(snapshot.multiplier || 1);
-              const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.3) * 1000;
-              roundStartedAtRef.current = now - elapsedSoFar;
-            }
-            liveMultiplierRef.current = Number(snapshot.multiplier || 1);
-            if (snapshot.activeBet) {
-              setLiveJoinedRound(true);
+          if (statusChanged || !roundStartedAtRef.current) {
+            const baseMultiplier = Number(snapshot.multiplier || 1);
+            const elapsedSoFar = (Math.log(Math.max(1, baseMultiplier)) / 0.3) * 1000;
+            roundStartedAtRef.current = now - elapsedSoFar;
+
+            if (elapsedSoFar > 100) {
+              const historyPoints = makeInitialGraph();
+              let tempMaxElapsed = DEFAULT_MAX_ELAPSED_MS;
+              let tempMaxMultiplier = 4;
+              const stepMs = Math.max(50, elapsedSoFar / 40);
+              
+              for (let t = stepMs; t <= elapsedSoFar; t += stepMs) {
+                const m = multiplierFromElapsed(t);
+                tempMaxElapsed = getExpandedElapsedWindow(tempMaxElapsed, t);
+                tempMaxMultiplier = Math.max(tempMaxMultiplier, m * 1.15);
+                const p = graphPointFromState(t, m, tempMaxElapsed, tempMaxMultiplier);
+                historyPoints.push(withMonotonicX(historyPoints, p));
+              }
+              
+              maxElapsedMsRef.current = tempMaxElapsed;
+              maxMultiplierRef.current = tempMaxMultiplier;
+              setGraphPoints(compressGraphPoints(historyPoints));
+            } else {
+              maxElapsedMsRef.current = DEFAULT_MAX_ELAPSED_MS;
+              maxMultiplierRef.current = 4;
+              setGraphPoints(makeInitialGraph());
             }
           }
+          liveMultiplierRef.current = Number(snapshot.multiplier || 1);
+          if (snapshot.activeBet) {
+            setLiveJoinedRound(true);
+          }
+        }
 
-        if (snapshot.status === "crashed") {
+        if (resolvedStatus === "crashed") {
           if (statusChanged) {
             waitingEndsAtRef.current = null;
             totalWaitingMsRef.current = 0;
@@ -859,6 +898,23 @@ export function CrashPage() {
         pushRoundHistory(crashPoint);
         setLastResult(formatMultiplier(crashPoint));
         pendingLiveCashoutRef.current = false;
+
+        liveCrashHoldUntilRef.current = Date.now() + 2500;
+        setRoundStatus("crashed");
+        setCrashedAt(crashPoint);
+        lastLiveStatusRef.current = "crashed";
+
+        if (activeBetRef.current && !activeBetRef.current.cashedOut) {
+          addRecentRound({
+            mode: "live",
+            amount: activeBetRef.current.amount,
+            result: crashPoint,
+            payout: 0,
+            outcome: "lost",
+          });
+        }
+        setActiveBet(null);
+        setLiveJoinedRound(false);
 
         const startTimeMs = roundStartedAtRef.current ?? Date.now();
         const elapsed = Math.max(0, Date.now() - startTimeMs);
