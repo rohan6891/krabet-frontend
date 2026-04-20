@@ -2,7 +2,14 @@
 
 import { useI18n } from "@/shared/i18n/useI18n";
 
-export const sidebarTopLinks = [
+type SidebarLinkItem = {
+  key: string;
+  label: string;
+  href: string;
+  icon: string;
+};
+
+export const sidebarTopLinks: SidebarLinkItem[] = [
   { key: "nav.casino", label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
   { key: "nav.mines", label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
   { key: "nav.limbo", label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
@@ -13,13 +20,13 @@ export const sidebarTopLinks = [
   { key: "nav.wallet", label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
 ];
 
-export const sidebarBottomLinks = [
-  { key: "nav.promotions", label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
-  { key: "nav.vipClub", label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
-  { key: "nav.bonus", label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },
-  { key: "nav.referral", label: "Referral", href: "/dashboard", icon: "fa-solid fa-user-plus" },
-  { key: "nav.form", label: "Form", href: "/dashboard/settings", icon: "fa-regular fa-file-lines" },
-  { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "/dashboard/settings", icon: "fa-solid fa-shield-halved" },
+export const sidebarBottomLinks: SidebarLinkItem[] = [
+  // { key: "nav.promotions", label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
+  // { key: "nav.vipClub", label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
+  // { key: "nav.bonus", label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },
+  // { key: "nav.referral", label: "Referral", href: "/dashboard", icon: "fa-solid fa-user-plus" },
+  // { key: "nav.form", label: "Form", href: "/dashboard/settings", icon: "fa-regular fa-file-lines" },
+  // { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "/dashboard/settings", icon: "fa-solid fa-shield-halved" },
 ];
 
 type DashboardSidebarProps = {
@@ -46,16 +53,18 @@ export function DashboardSidebar({ logoSrc }: DashboardSidebarProps) {
         ))}
       </div>
 
-      <div className="sidebar-panel sidebar-panel-bottom">
-        {sidebarBottomLinks.map((item) => (
-          <a href={item.href} className="sidebar-link" key={item.label}>
-            <span className="sidebar-link-icon">
-              <i className={item.icon} aria-hidden="true"></i>
-            </span>
-            <span className="sidebar-link-text">{t(item.key, item.label)}</span>
-          </a>
-        ))}
-      </div>
+      {sidebarBottomLinks.length > 0 ? (
+        <div className="sidebar-panel sidebar-panel-bottom">
+          {sidebarBottomLinks.map((item) => (
+            <a href={item.href} className="sidebar-link" key={item.label}>
+              <span className="sidebar-link-icon">
+                <i className={item.icon} aria-hidden="true"></i>
+              </span>
+              <span className="sidebar-link-text">{t(item.key, item.label)}</span>
+            </a>
+          ))}
+        </div>
+      ) : null}
     </aside>
   );
 }

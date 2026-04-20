@@ -15,7 +15,6 @@ type MinesControlsProps = {
   isPlaying: boolean;
   isStarting: boolean;
   isCashingOut: boolean;
-  errorMessage: string;
   multiplier: number;
   payoutNow: number;
   sessionId: string;
@@ -45,7 +44,6 @@ export function MinesControls({
   isPlaying,
   isStarting,
   isCashingOut,
-  errorMessage,
   multiplier,
   payoutNow,
   sessionId,
@@ -197,13 +195,6 @@ export function MinesControls({
         pulseMultiplier={pulseMultiplier}
         pulsePayout={pulsePayout}
       />
-
-      {errorMessage ? (
-        <div className="error-box">
-          <i className="fa-solid fa-triangle-exclamation"></i>
-          <span>{errorMessage}</span>
-        </div>
-      ) : null}
     </aside>
   );
 }

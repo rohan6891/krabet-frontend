@@ -54,6 +54,7 @@ export function MinesPage() {
   const [gameStatus, setGameStatus] = useState<GameStatus>(GAME_STATUS.IDLE);
   const [revealedCells, setRevealedCells] = useState<number[]>([]);
   const [minePositions, setMinePositions] = useState<number[]>([]);
+  const [demoMinePositions, setDemoMinePositions] = useState<number[]>([]);
   const [multiplier, setMultiplier] = useState(1);
 
   const [isStarting, setIsStarting] = useState(false);
@@ -276,6 +277,16 @@ export function MinesPage() {
     previousStatusRef.current = normalized.status;
   }
 
+  function dispatchLiveWalletRefresh(reason: string) {
+    if (mode !== "live") return;
+
+    window.dispatchEvent(
+      new CustomEvent("krabets:wallet-refresh", {
+        detail: { reason, game: "mines" },
+      }),
+    );
+  }
+
   async function handleStartGame() {
     if (isBusy || isPlaying) return;
 
@@ -290,13 +301,15 @@ export function MinesPage() {
       
       let data;
       if (mode === "demo") {
+        const positions: number[] = [];
+        while (positions.length < minesCount) {
+          const r = Math.floor(Math.random() * (gridSize * gridSize));
+          if (!positions.includes(r)) positions.push(r);
+        }
+
+        setDemoMinePositions(positions);
         data = await new Promise<any>((resolve) => {
           setTimeout(() => {
-            const positions: number[] = [];
-            while (positions.length < minesCount) {
-              const r = Math.floor(Math.random() * (gridSize * gridSize));
-              if (!positions.includes(r)) positions.push(r);
-            }
             const sessionId = "demo-" + Math.random().toString(36).substring(2, 9);
             resolve({
               sessionId,
@@ -304,7 +317,7 @@ export function MinesPage() {
               mineCount: minesCount,
               multiplier: 1.0,
               revealedCells: [],
-              minePositions: positions,
+              minePositions: [],
             });
           }, 300);
         });
@@ -319,12 +332,18 @@ export function MinesPage() {
           currency,
           mine_count: minesCount,
         });
+
+        setDemoMinePositions([]);
       }
 
       previousRevealedRef.current = [];
       previousStatusRef.current = GAME_STATUS.IDLE;
       setMinePositions([]);
       applyBackendState(data, { action: "start", recordHistory: false, clickedTileIndex: null });
+
+      if (mode === "live") {
+        dispatchLiveWalletRefresh("mines_session_start");
+      }
     } catch (error) {
       setErrorMessage(resolveBetErrorMessage(error, "Unable to start game.", {
         betAmount: Number(betAmount),
@@ -350,7 +369,7 @@ export function MinesPage() {
       if (mode === "demo") {
         data = await new Promise<any>((resolve) => {
           setTimeout(() => {
-            const hit = minePositions.includes(tileIndex);
+            const hit = demoMinePositions.includes(tileIndex);
             const nextRevealed = [...revealedCells, tileIndex];
             if (hit) {
               resolve({
@@ -359,7 +378,7 @@ export function MinesPage() {
                 mineCount: minesCount,
                 multiplier: 0,
                 revealedCells: nextRevealed,
-                minePositions,
+                minePositions: demoMinePositions,
               });
             } else {
               const safe = (gridSize * gridSize) - minesCount;
@@ -372,7 +391,7 @@ export function MinesPage() {
                 mineCount: minesCount,
                 multiplier: Number(multi.toFixed(2)),
                 revealedCells: nextRevealed,
-                minePositions: willWin ? minePositions : [],
+                minePositions: willWin ? demoMinePositions : [],
               });
             }
           }, 300);
@@ -385,6 +404,13 @@ export function MinesPage() {
       }
 
       applyBackendState(data, { action: "move", recordHistory: true, clickedTileIndex: tileIndex });
+
+      if (mode === "live") {
+        const nextState = normalizeMinesState(data);
+        if (nextState.status !== GAME_STATUS.PLAYING) {
+          dispatchLiveWalletRefresh("mines_session_settled");
+        }
+      }
     } catch (error) {
       setErrorMessage(resolveBetErrorMessage(error, "Unable to process move."));
     } finally {
@@ -410,7 +436,7 @@ export function MinesPage() {
               mineCount: minesCount,
               multiplier,
               revealedCells,
-              minePositions,
+              minePositions: demoMinePositions,
             });
           }, 300);
         });
@@ -419,6 +445,10 @@ export function MinesPage() {
       }
 
       applyBackendState(data, { action: "cashout", recordHistory: true, clickedTileIndex: null });
+
+      if (mode === "live") {
+        dispatchLiveWalletRefresh("mines_cashout");
+      }
     } catch (error) {
       setErrorMessage(resolveBetErrorMessage(error, "Unable to cash out."));
     } finally {
@@ -431,6 +461,7 @@ export function MinesPage() {
     setGameStatus(GAME_STATUS.IDLE);
     setRevealedCells([]);
     setMinePositions([]);
+    setDemoMinePositions([]);
     setMultiplier(1);
     setFlashByIndex({});
     setPendingTileIndex(null);
@@ -503,6 +534,27 @@ export function MinesPage() {
           <div className="krabet-content">
             <div className="mines-shell">
               <div className={`mines-widget ${isLossAnimating ? "loss-flash" : ""}`}>
+                {errorMessage ? (
+                  <div className="mines-modal-backdrop" onClick={() => setErrorMessage("")}>
+                    <div
+                      className="mines-modal"
+                      onClick={(event) => event.stopPropagation()}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label="Error message"
+                    >
+                      <h3>{errorMessage}</h3>
+                      <button
+                        type="button"
+                        className="mines-modal__button"
+                        onClick={() => setErrorMessage("")}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="mines-header">
                   <div>
                     <p className="mines-breadcrumb">Casino / Originals / Mines</p>
@@ -546,7 +598,6 @@ export function MinesPage() {
                     isPlaying={isPlaying}
                     isStarting={isStarting}
                     isCashingOut={isCashingOut}
-                    errorMessage={errorMessage}
                     multiplier={multiplier}
                     payoutNow={payoutNow}
                     sessionId={sessionId}

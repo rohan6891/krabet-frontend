@@ -1307,9 +1307,8 @@ export function CrashPage() {
               {isErrorOpen && (
                 <div className="crash-error-modal" role="dialog" aria-modal="true" aria-label="Crash game error">
                   <div className="crash-error-card">
-                    <h4>Connection Error</h4>
-                    <p>{errorText}</p>
-                    <button type="button" onClick={() => setIsErrorOpen(false)}>Close</button>
+                    <h3>{errorText}</h3>
+                    <button type="button" className="crash-error-card__button" onClick={() => setIsErrorOpen(false)}>Close</button>
                   </div>
                 </div>
               )}

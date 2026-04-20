@@ -98,6 +98,7 @@
 .dice-grid-history {
   grid-area: history;
 }
+
 .dice-grid-guide {
   grid-area: guide;
 }
@@ -394,40 +395,40 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(5, 0, 12, 0.72);
-  backdrop-filter: blur(5px);
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 15px;
+  background: rgba(8, 2, 17, 0.72);
 }
 
 .dice-error-modal {
-  width: min(420px, 100%);
-  padding: 22px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(52, 6, 92, 0.98), rgba(22, 1, 40, 0.98));
-  border: 1px solid rgba(255, 133, 133, 0.35);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  width: min(100%, 440px);
+  padding: 19px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(42, 8, 72, 0.98) 0%, rgba(23, 4, 42, 0.98) 100%);
+  border: 1px solid rgba(214, 144, 255, 0.2);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  text-align: center;
 }
 
-.dice-error-title {
-  font-size: 1.1rem;
+.dice-error-modal h3 {
+  margin: 0;
+  color: #fff2ff;
+  font-size: 1.05rem;
+  line-height: 1.55;
   font-weight: 900;
-  margin-bottom: 8px;
 }
 
-.dice-error-modal p {
-  margin: 0 0 16px;
-  color: #f5d9ef;
-  line-height: 1.5;
-}
-
-.dice-error-modal button {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--button);
-  font-weight: 800;
+.dice-error-modal__button {
+  margin-top: 18px;
+  min-height: 48px;
+  min-width: 130px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #cb77ff 0%, #9f4ced 100%);
+  color: #fff;
+  font-weight: 900;
 }
 
 @media (max-width: 980px) {

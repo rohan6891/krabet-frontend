@@ -175,6 +175,7 @@ export function ProfilePanel({
   phoneCountryCode,
   preferredLanguage,
   dateOfBirth,
+  onLogout,
 }: ProfilePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [imageError, setImageError] = useState(false);
@@ -315,6 +316,17 @@ export function ProfilePanel({
               <i className="fa-solid fa-gear" aria-hidden="true" />
               Account Settings
             </a>
+            <button
+              type="button"
+              className="user-panel-btn danger"
+              onClick={() => {
+                onClose();
+                onLogout?.();
+              }}
+            >
+              <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
+              {t("profile.logout", "Logout")}
+            </button>
           </div>
         </div>
       </div>

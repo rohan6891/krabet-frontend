@@ -453,7 +453,7 @@ export function CoinflipPage() {
   const activeBalance = liveBalance;
 
   const potentialReturn = numericBet > 0 ? numericBet * 2 : 0;
-    const canPlay = !isFlipping && numericBet >= MIN_BET && (mode === "demo" || numericBet <= activeBalance) && Number.isFinite(numericBet);
+  const canPlay = !isFlipping && numericBet >= MIN_BET && Number.isFinite(numericBet);
 
   function clearBanner() {
     if (bannerTimeoutRef.current) window.clearTimeout(bannerTimeoutRef.current);
@@ -803,10 +803,15 @@ export function CoinflipPage() {
 
               {popupMessage && (
                 <div className="cf-popup-overlay" onClick={() => setPopupMessage("")}>
-                  <div className="cf-popup-card" onClick={(event) => event.stopPropagation()}>
-                    <div className="cf-popup-title">Notice</div>
-                    <p>{popupMessage}</p>
-                    <button type="button" onClick={() => setPopupMessage("")}>Close</button>
+                  <div
+                    className="cf-popup-card"
+                    onClick={(event) => event.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Error message"
+                  >
+                    <h3>{popupMessage}</h3>
+                    <button type="button" className="cf-popup-button" onClick={() => setPopupMessage("")}>Close</button>
                   </div>
                 </div>
               )}

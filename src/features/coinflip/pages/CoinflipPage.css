@@ -591,45 +591,43 @@
 .cf-popup-overlay {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: rgba(9, 2, 15, 0.72);
+  padding: 15px;
+  background: rgba(8, 2, 17, 0.72);
 }
 
 .cf-popup-card {
-  width: min(420px, 100%);
-  padding: 22px;
-  border-radius: 20px;
-  border: 1px solid rgba(215, 133, 255, 0.24);
-  background: linear-gradient(180deg, rgba(49, 10, 86, 0.98), rgba(20, 4, 39, 0.98));
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.44);
+  width: min(100%, 440px);
+  padding: 19px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(42, 8, 72, 0.98) 0%, rgba(23, 4, 42, 0.98) 100%);
+  border: 1px solid rgba(214, 144, 255, 0.2);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  text-align: center;
 }
 
-.cf-popup-title {
-  margin-bottom: 10px;
-  font-size: 20px;
-  font-weight: 900;
-}
-
-.cf-popup-card p {
-  margin: 0 0 16px;
-  color: var(--cf-soft);
+.cf-popup-card h3 {
+  margin: 0;
+  color: #fff2ff;
+  font-size: 1.05rem;
   line-height: 1.55;
-  font-weight: 600;
+  font-weight: 900;
 }
 
-.cf-popup-card button {
-  min-width: 120px;
-  min-height: 46px;
+.cf-popup-button {
+  margin-top: 18px;
+  min-height: 48px;
+  min-width: 130px;
+  padding: 0 15px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
-  color: var(--cf-text);
+  color: #fff;
   font-weight: 900;
-  background: linear-gradient(180deg, #d47aff 0%, #a455ff 100%);
+  background: linear-gradient(180deg, #cb77ff 0%, #9f4ced 100%);
 }
 
 @keyframes cf-banner-inout {

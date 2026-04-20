@@ -359,6 +359,17 @@
   cursor: pointer;
 }
 
+.user-panel-btn.danger {
+  grid-column: 1 / -1;
+  background: rgba(255, 92, 92, 0.14);
+  color: #ffd4d4;
+  border: 1px solid rgba(255, 92, 92, 0.3);
+}
+
+.user-panel-btn.danger:hover {
+  background: rgba(255, 92, 92, 0.2);
+}
+
 .user-panel-btn.primary {
   background: linear-gradient(180deg, #7b43db, #5c2db0);
   color: white;

@@ -263,11 +263,10 @@ function ErrorPopup({ message, onClose }: { message: string; onClose: () => void
   if (!message) return null;
 
   return (
-    <div className="dice-error-backdrop" role="dialog" aria-modal="true">
+    <div className="dice-error-backdrop" role="dialog" aria-modal="true" aria-label="Error message">
       <div className="dice-error-modal">
-        <div className="dice-error-title">Connection Error</div>
-        <p>{message}</p>
-        <button type="button" onClick={onClose}>
+        <h3>{message}</h3>
+        <button type="button" className="dice-error-modal__button" onClick={onClose}>
           Close
         </button>
       </div>
