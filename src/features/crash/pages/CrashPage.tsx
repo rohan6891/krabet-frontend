@@ -23,8 +23,8 @@ import { getAccessTokenFromStorage } from "@/shared/utils/session";
 import type { CrashBetRecord } from "@/features/crash/types/crash.types";
 
 const ROUND_HISTORY_LIMIT = 12;
-const WAITING_MS = 3200;
-const CRASH_HOLD_MS = 1800;
+const DEMO_WAITING_MS = 3200;
+const DEMO_CRASH_HOLD_MS = 1800;
 const GRAPH_WIDTH = 920;
 const GRAPH_HEIGHT = 430;
 const MAX_VISIBLE_POINTS = 240;
@@ -219,6 +219,8 @@ export function CrashPage() {
   const liveApiUnavailableRef = useRef(false);
   const liveErrorShownRef = useRef(false);
   const lastLiveStatusRef = useRef<RoundStatus | null>(null);
+  const queuedBetRef = useRef<QueuedBet | null>(null);
+  const activeBetRef = useRef<LocalBet | null>(null);
 
   const [playMode, setPlayMode] = useState<PlayMode>("demo");
   const [roundStatus, setRoundStatus] = useState<RoundStatus>("waiting");
@@ -226,9 +228,8 @@ export function CrashPage() {
   const [crashedAt, setCrashedAt] = useState<number | null>(null);
   const [graphPoints, setGraphPoints] = useState<Point[]>(makeInitialGraph());
   const [roundHistory, setRoundHistory] = useState<number[]>([2.4, 1.39, 2.1, 1.03, 1.01, 4.12, 55.3]);
-  const [networkStatus, setNetworkStatus] = useState("Demo ready");
-  const [countdownMs, setCountdownMs] = useState(WAITING_MS);
-  const [waitingWindowMs, setWaitingWindowMs] = useState(WAITING_MS);
+  const [countdownMs, setCountdownMs] = useState(DEMO_WAITING_MS);
+  const [waitingWindowMs, setWaitingWindowMs] = useState(DEMO_WAITING_MS);
   const [betAmount, setBetAmount] = useState(10);
   const [displayBalance, setDisplayBalance] = useState(0);
   const [queuedBet, setQueuedBet] = useState<QueuedBet | null>(null);
@@ -246,6 +247,8 @@ export function CrashPage() {
       setDisplayBalance(parsed);
     }
   }, [walletBalance]);
+  useEffect(() => { queuedBetRef.current = queuedBet; }, [queuedBet]);
+  useEffect(() => { activeBetRef.current = activeBet; }, [activeBet]);
 
   useEffect(() => {
     return () => {
@@ -262,7 +265,6 @@ export function CrashPage() {
   const handleError = useCallback((message: string) => {
     setErrorText(message || "AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
     setIsErrorOpen(true);
-    setNetworkStatus("Integration error");
   }, []);
 
   const pushRoundHistory = useCallback((value: number) => {
@@ -279,7 +281,8 @@ export function CrashPage() {
     setCrashedAt(null);
     setGraphPoints(makeInitialGraph());
     waitStartedAtRef.current = Date.now();
-    setCountdownMs(WAITING_MS);
+    setCountdownMs(DEMO_WAITING_MS);
+    setWaitingWindowMs(DEMO_WAITING_MS);
   }, []);
 
   const finishDemoCrash = useCallback((finalMultiplier: number) => {
@@ -304,7 +307,7 @@ export function CrashPage() {
 
     window.setTimeout(() => {
       resetVisualRound();
-    }, CRASH_HOLD_MS);
+    }, DEMO_CRASH_HOLD_MS);
   }, [activeBet, addRecentRound, pushRoundHistory, resetVisualRound]);
 
   const cashoutDemoBet = useCallback(() => {
@@ -332,7 +335,6 @@ export function CrashPage() {
 
     if (playMode === "demo") {
       try {
-        setNetworkStatus("Fetching demo round...");
         const demoResult = await placeCrashDemoBet({
           amount: safeAmount.toFixed(8),
           cashoutAt: 1.01,
@@ -340,21 +342,20 @@ export function CrashPage() {
 
         setQueuedBet({ amount: safeAmount, demoCrashPoint: demoResult.crashPoint });
         waitStartedAtRef.current = Date.now();
-        setCountdownMs(WAITING_MS);
-        setNetworkStatus("Demo round queued");
+        setCountdownMs(DEMO_WAITING_MS);
+        setWaitingWindowMs(DEMO_WAITING_MS);
       } catch {
         // If demo API fails, keep gameplay local and uninterrupted.
         setQueuedBet({ amount: safeAmount, demoCrashPoint: sampleDemoCrashPoint() });
         waitStartedAtRef.current = Date.now();
-        setCountdownMs(WAITING_MS);
-        setNetworkStatus("Demo round queued");
+        setCountdownMs(DEMO_WAITING_MS);
+        setWaitingWindowMs(DEMO_WAITING_MS);
       }
 
       return;
     }
 
     setQueuedBet({ amount: safeAmount, livePending: true });
-    setNetworkStatus("Bet queued");
   }, [betAmount, playMode]);
 
   const placeLiveQueuedBet = useCallback(async (amount: number) => {
@@ -373,12 +374,10 @@ export function CrashPage() {
       setLiveJoinedRound(true);
       waitingEndsAtRef.current = null;
       setQueuedBet(null);
-      setNetworkStatus("Live bet active");
       window.dispatchEvent(new CustomEvent("krabets:wallet-refresh", { detail: { reason: "crash_round_bet" } }));
     } catch (error) {
       if (error instanceof HttpError && error.status === 400) {
         // Round window may have just closed; keep queued and retry on next open round.
-        setNetworkStatus(error.message || "Waiting for next round to place bet");
       } else {
         handleError("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
         setQueuedBet(null);
@@ -417,7 +416,6 @@ export function CrashPage() {
         payout,
         outcome: payout > 0 ? "won" : "lost",
       });
-      setNetworkStatus("Cash out requested");
       window.dispatchEvent(new CustomEvent("krabets:wallet-refresh", { detail: { reason: "crash_cashout" } }));
     } catch {
       handleError("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
@@ -464,6 +462,8 @@ export function CrashPage() {
     let closed = false;
     let lastCrashPublishedAt: number | null = null;
     let stateApiMissing = false;
+    let isSocketOpen = false;
+    let lastRealtimeSignalAt = 0;
 
     const pollState = async () => {
       if (stateApiMissing || closed) {
@@ -517,6 +517,8 @@ export function CrashPage() {
       socket = new WebSocket(`${wsBase}/ws?token=${encodeURIComponent(token)}`);
 
       socket.onopen = () => {
+        isSocketOpen = true;
+        lastRealtimeSignalAt = Date.now();
         if (closed) {
           socket?.close();
           return;
@@ -529,6 +531,7 @@ export function CrashPage() {
       };
 
       socket.onmessage = (event) => {
+        lastRealtimeSignalAt = Date.now();
         let message: { type?: string; payload?: { crash_point?: number } };
         try {
           message = JSON.parse(String(event.data)) as { type?: string; payload?: { crash_point?: number } };
@@ -540,12 +543,18 @@ export function CrashPage() {
           handlers.onRoundResult({ crashedAt: Number(message.payload.crash_point) });
         }
 
-        if (message.type === "round_started" || message.type === "round_locked" || message.type === "round_crashed") {
+        if (
+          message.type === "round_created"
+          || message.type === "round_started"
+          || message.type === "round_locked"
+          || message.type === "round_crashed"
+        ) {
           void pollState();
         }
       };
 
       socket.onclose = () => {
+        isSocketOpen = false;
         if (closed) return;
         if (!stateApiMissing) {
           reconnectTimer = window.setTimeout(connect, 2000);
@@ -558,10 +567,15 @@ export function CrashPage() {
     };
 
     connect();
+    lastRealtimeSignalAt = Date.now();
     void pollState();
     const intervalId = window.setInterval(() => {
-      void pollState();
-    }, 450);
+      const now = Date.now();
+      const realtimeStale = now - lastRealtimeSignalAt > 4000;
+      if (!isSocketOpen || realtimeStale) {
+        void pollState();
+      }
+    }, 1200);
 
     return () => {
       closed = true;
@@ -585,16 +599,16 @@ export function CrashPage() {
 
       if (roundStatus === "waiting") {
         const elapsedWaiting = now - waitStartedAtRef.current;
-        const remaining = Math.max(0, WAITING_MS - elapsedWaiting);
+        const remaining = Math.max(0, DEMO_WAITING_MS - elapsedWaiting);
         setCountdownMs(remaining);
 
-        if (elapsedWaiting >= WAITING_MS) {
+        if (elapsedWaiting >= DEMO_WAITING_MS) {
           const queued = queuedBet
             ? {
-                amount: queuedBet.amount,
-                cashedOut: false,
-                payout: null,
-              }
+              amount: queuedBet.amount,
+              cashedOut: false,
+              payout: null,
+            }
             : null;
 
           roundStartedAtRef.current = Date.now();
@@ -649,7 +663,6 @@ export function CrashPage() {
   useEffect(() => {
     if (playMode !== "live") return undefined;
 
-    setNetworkStatus("Connecting...");
     liveApiUnavailableRef.current = false;
     liveErrorShownRef.current = false;
 
@@ -669,11 +682,10 @@ export function CrashPage() {
         const statusChanged = lastLiveStatusRef.current !== snapshot.status;
         lastLiveStatusRef.current = snapshot.status;
 
-        if (queuedBet?.livePending && !snapshot.activeBet) {
+        if (queuedBetRef.current?.livePending && !snapshot.activeBet) {
           if (snapshot.status === "waiting" && snapshot.canPlaceBet && !pendingLivePlaceRef.current) {
-            void placeLiveQueuedBet(queuedBet.amount);
+            void placeLiveQueuedBet(queuedBetRef.current.amount);
           } else {
-            setNetworkStatus("Waiting for next round to place bet");
           }
         }
 
@@ -684,15 +696,23 @@ export function CrashPage() {
         }
 
         if (snapshot.status === "waiting") {
-          if (statusChanged || !waitingEndsAtRef.current) {
-            const serverCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
-            const serverNextRoundAt = snapshot.nextRoundAt ? new Date(snapshot.nextRoundAt).getTime() : null;
-            const derivedCountdown = Number.isFinite(serverNextRoundAt) ? Math.max(0, Number(serverNextRoundAt) - Date.now()) : 0;
-            const resolvedCountdown = serverCountdown > 0 ? serverCountdown : (derivedCountdown > 0 ? derivedCountdown : WAITING_MS);
+          const serverCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
+          const serverNextRoundAt = snapshot.nextRoundAt ? new Date(snapshot.nextRoundAt).getTime() : null;
+          const serverDeadline = serverNextRoundAt ?? (serverCountdown > 0 ? Date.now() + serverCountdown : null);
 
-            waitingEndsAtRef.current = Date.now() + resolvedCountdown;
-            setWaitingWindowMs(Math.max(1000, resolvedCountdown));
-            setCountdownMs(resolvedCountdown);
+          const existingDeadline = waitingEndsAtRef.current;
+          const isNewRound = !existingDeadline || (serverDeadline !== null && serverDeadline < existingDeadline - 500);
+
+          if (isNewRound && serverDeadline) {
+            waitingEndsAtRef.current = serverDeadline;
+            const ms = Math.max(0, serverDeadline - Date.now());
+            const window = Math.max(1000, ms);
+            // Set both together so progress starts at 0, not 1
+            setWaitingWindowMs(window);
+            setCountdownMs(window); // start full remaining, let the interval tick it down
+          }
+
+          if (statusChanged) {
             setCrashedAt(null);
             setGraphPoints(makeInitialGraph());
             roundStartedAtRef.current = null;
@@ -715,7 +735,9 @@ export function CrashPage() {
             const serverCrashedUntil = snapshot.crashedUntil ? new Date(snapshot.crashedUntil).getTime() : null;
             const crashHoldCountdown = Number.isFinite(snapshot.countdownMs) ? Math.max(0, snapshot.countdownMs) : 0;
             const derivedCrashCountdown = Number.isFinite(serverCrashedUntil) ? Math.max(0, Number(serverCrashedUntil) - Date.now()) : 0;
-            const resolvedCrashCountdown = crashHoldCountdown > 0 ? crashHoldCountdown : (derivedCrashCountdown > 0 ? derivedCrashCountdown : WAITING_MS);
+            const resolvedCrashCountdown = crashHoldCountdown > 0
+              ? crashHoldCountdown
+              : (derivedCrashCountdown > 0 ? derivedCrashCountdown : Math.max(1000, waitingWindowMs));
 
             waitingEndsAtRef.current = Date.now() + resolvedCrashCountdown;
             setWaitingWindowMs(Math.max(1000, resolvedCrashCountdown));
@@ -724,10 +746,10 @@ export function CrashPage() {
             setCrashedAt(roundCrash);
             setLastResult(formatMultiplier(roundCrash));
 
-            if (activeBet && !activeBet.cashedOut) {
+            if (activeBetRef.current && !activeBetRef.current.cashedOut) {
               addRecentRound({
                 mode: "live",
-                amount: activeBet.amount,
+                amount: activeBetRef.current.amount,
                 result: roundCrash,
                 payout: 0,
                 outcome: "lost",
@@ -741,7 +763,6 @@ export function CrashPage() {
           setActiveBet(snapshot.activeBet);
         }
 
-        setNetworkStatus("Live connected");
       },
       onRoundResult: (result) => {
         pushRoundHistory(result.crashedAt);
@@ -750,7 +771,6 @@ export function CrashPage() {
       },
       onApiMissing: () => {
         liveApiUnavailableRef.current = true;
-        setNetworkStatus("Live API unavailable (backend route missing)");
         if (!liveErrorShownRef.current) {
           liveErrorShownRef.current = true;
           handleError("LIVE MODE IS UNAVAILABLE: /api/v1/games/crash/state AND /my-bet RETURNED 404. RESTART/UPDATE BACKEND.");
@@ -775,7 +795,7 @@ export function CrashPage() {
       }
       liveUnsubscribeRef.current = null;
     };
-  }, [activeBet, addRecentRound, handleError, placeLiveQueuedBet, playMode, pushRoundHistory, queuedBet, subscribeLive]);
+  }, [addRecentRound, handleError, placeLiveQueuedBet, playMode, pushRoundHistory, subscribeLive]);
 
   useEffect(() => {
     if (playMode !== "live") {
@@ -784,7 +804,6 @@ export function CrashPage() {
       }
       liveUnsubscribeRef.current = null;
       resetVisualRound();
-      setNetworkStatus("Demo ready");
       setQueuedBet(null);
       setActiveBet(null);
       setLiveJoinedRound(false);
@@ -796,23 +815,20 @@ export function CrashPage() {
     }
 
     roundStartedAtRef.current = null;
-    waitingEndsAtRef.current = Date.now() + WAITING_MS;
+    waitingEndsAtRef.current = null;
     liveMultiplierRef.current = 1;
     lastLiveStatusRef.current = null;
     setGraphPoints(makeInitialGraph());
     setMultiplier(1);
     setCrashedAt(null);
-    setWaitingWindowMs(WAITING_MS);
+    setWaitingWindowMs(DEMO_WAITING_MS);
+    setCountdownMs(0);
     setLiveCanPlaceBet(false);
   }, [playMode, resetVisualRound]);
 
   useEffect(() => {
     if (playMode !== "live" || roundStatus !== "waiting") {
       return undefined;
-    }
-
-    if (!waitingEndsAtRef.current) {
-      waitingEndsAtRef.current = Date.now() + WAITING_MS;
     }
 
     const intervalId = window.setInterval(() => {
@@ -1009,8 +1025,6 @@ export function CrashPage() {
                       <span>15s</span>
                       <span>20s</span>
                     </div>
-
-                    <div className="crash-network-status">Network Status: {networkStatus}</div>
                   </div>
 
                   <div className="crash-display-stats">
