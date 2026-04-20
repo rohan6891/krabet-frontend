@@ -4,6 +4,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { ToastProvider } from "@/shared/ui/toast/ToastProvider";
 import { StartupPreloader } from "@/app/StartupPreloader";
+import { ScrollToTopButton } from "@/shared/ui/ScrollToTopButton";
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
@@ -36,7 +37,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${rajdhani.variable} ${poppins.variable}`}>
         <StartupPreloader />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <ScrollToTopButton />
+        </ToastProvider>
       </body>
     </html>
   );

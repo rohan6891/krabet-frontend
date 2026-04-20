@@ -407,28 +407,119 @@
 /* ==========================================================================
    RESPONSIVE
 ========================================================================== */
-@media (max-width: 760px) {
+@media (max-width: 790px) {
   .header-popup-overlay {
+    z-index: 2900;
     justify-content: center;
-    padding: 68px 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 60px 10px calc(74px + env(safe-area-inset-bottom));
   }
 
   .header-popup {
-    max-height: calc(100dvh - 84px - env(safe-area-inset-bottom));
-    width: auto;
+    width: 100%;
+    max-height: calc(100svh - (60px + 74px + env(safe-area-inset-bottom)));
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-popup-top {
+    padding: 12px 14px;
+    flex: 0 0 auto;
+  }
+
+  .header-popup-title-icon,
+  .header-popup-close {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-popup-body {
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .user-panel {
+    width: 100%;
+    max-width: none;
   }
 
   .user-card-hero {
-    flex-direction: column;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+    text-align: left;
+    align-items: center;
+  }
+
+  .user-card-avatar-wrap {
+    width: 56px;
+    height: 56px;
+    padding: 3px;
+  }
+
+  .user-card-name {
+    font-size: 0.96rem;
+    line-height: 1.1;
+  }
+
+  .user-card-username {
+    margin: 1px 0 6px;
+    font-size: 0.72rem;
+  }
+
+  .user-badge {
+    padding: 4px 7px;
+    font-size: 0.62rem;
+  }
+
+  .user-balance-card,
+  .user-info-item {
+    padding: 9px;
+  }
+
+  .user-balance-label {
+    font-size: 0.7rem;
+    margin-bottom: 4px;
+  }
+
+  .user-balance-value {
+    font-size: 1.16rem;
+    line-height: 1.08;
   }
 
   .user-info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .user-info-item {
+    gap: 4px;
+  }
+
+  .user-info-label {
+    font-size: 0.58rem;
+    gap: 5px;
+  }
+
+  .user-info-value {
+    font-size: 0.82rem;
+    line-height: 1.1;
   }
 
   .user-panel-actions {
     grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .user-panel-btn {
+    height: 40px;
+    border-radius: 9px;
+    font-size: 0.78rem;
+    gap: 6px;
   }
 }
 
