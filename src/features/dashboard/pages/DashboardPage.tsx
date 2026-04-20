@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./DashboardPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
@@ -17,7 +16,7 @@ export function DashboardPage() {
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile } = useDashboardData();
 
-  const gameCarousel: DashboardGame[] = [
+  const sliderGames: DashboardGame[] = [
     {
       id: "dash-crash",
       code: "crash",
@@ -60,16 +59,59 @@ export function DashboardPage() {
     },
   ];
 
+  const carouselGames: DashboardGame[] = [
+    {
+      id: "dash-carousel-limbo",
+      code: "limbo",
+      name: "Limbo",
+      status: true,
+      tag: "Original",
+      image: "/limbo.png",
+    },
+    {
+      id: "dash-carousel-dice",
+      code: "dice",
+      name: "Big Dice",
+      status: true,
+      tag: "Original",
+      image: "/bigdice.png",
+    },
+    {
+      id: "dash-carousel-mines",
+      code: "mines",
+      name: "Mines",
+      status: true,
+      tag: "Original",
+      image: "/mines.png",
+    },
+    {
+      id: "dash-carousel-coinflip",
+      code: "coinflip",
+      name: "Coin Flip",
+      status: true,
+      tag: "Original",
+      image: "/coinflip.png",
+    },
+    {
+      id: "dash-carousel-crash",
+      code: "crash",
+      name: "Crash",
+      status: true,
+      tag: "Original",
+      image: "/crash.png",
+    },
+  ];
+
   const sliderCards = useMemo(
     () =>
-      gameCarousel.map((game, index) => ({
+      sliderGames.map((game, index) => ({
         id: `${game.name}-${index}`,
         title: game.name,
         subtitle: `${game.tag} Spotlight`,
         image: game.image,
         href: getDashboardGameHref(game),
       })),
-    []
+    [sliderGames]
   );
 
   useEffect(() => {
@@ -100,11 +142,32 @@ export function DashboardPage() {
     { title: "Poker", count: "1779 Rooms", icon: "fa-solid fa-chess" },
   ];
 
-  const liveFeed = [
-    { user: "MJ Raw", game: "Limbo", payout: "$1,240" },
-    { user: "DiceLord", game: "Mines", payout: "$860" },
-    { user: "AvaWin", game: "Crash", payout: "$2,120" },
-    { user: "CryptoKing", game: "Dice", payout: "$640" },
+  const liveChatMessages = [
+    {
+      user: "AceNova",
+      avatar: "https://i.pravatar.cc/40?img=12",
+      message: "Anybody else cooking on Limbo tonight or is Crash the move?",
+    },
+    {
+      user: "LunaBet",
+      avatar: "https://i.pravatar.cc/40?img=5",
+      message: "Big Dice just went crazy, that roll was actually insane.",
+    },
+    {
+      user: "SpinGhost",
+      avatar: "https://i.pravatar.cc/40?img=22",
+      message: "Yo the new lobby looks clean, who is running Mines right now?",
+    },
+    {
+      user: "KingParlay",
+      avatar: "https://i.pravatar.cc/40?img=33",
+      message: "Sports slip almost landed, one more goal would have changed everything.",
+    },
+    {
+      user: "NeonChip",
+      avatar: "https://i.pravatar.cc/40?img=41",
+      message: "Public chat is active tonight, drop your best hit before reset.",
+    },
   ];
 
   const statCards = [
@@ -158,8 +221,8 @@ export function DashboardPage() {
             <div className="dfr-top-duo">
               <section className="dfr-surface dfr-surface-carousel">
                 <div className="dfr-head">
-                  <h2>Popular Games</h2>
-                  <a href="/dashboard/search">Open Lobby</a>
+                  <h2>Game Carousel</h2>
+                  <a href="#">Open Lobby</a>
                 </div>
                 <div className="dfr-slider-wrap">
                   <div className="dfr-slider-viewport">
@@ -189,6 +252,8 @@ export function DashboardPage() {
                   </div>
                 </div>
                 <div className="dfr-game-row">
+                  <h2 className="carousel-head">Popular Games</h2>
+
                   <button
                     type="button"
                     className="dfr-game-nav dfr-game-nav-left"
@@ -197,17 +262,7 @@ export function DashboardPage() {
                   >
                     <i className="fa-solid fa-chevron-left" aria-hidden="true"></i>
                   </button>
-                  <div className="dfr-game-carousel" ref={gameCarouselRef}>
-                    {gameCarousel.slice(0, 4).map((game) => (
-                      <a href={getDashboardGameHref(game)} className="dfr-game-card" key={`thumb-${game.name}`}>
-                        <img src={game.image} alt={game.name} />
-                        <div className="dfr-game-overlay">
-                          <span>{game.tag}</span>
-                          <strong>{game.name}</strong>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
+
                   <button
                     type="button"
                     className="dfr-game-nav dfr-game-nav-right"
@@ -216,17 +271,29 @@ export function DashboardPage() {
                   >
                     <i className="fa-solid fa-chevron-right" aria-hidden="true"></i>
                   </button>
+
+                  <div className="dfr-game-carousel" ref={gameCarouselRef}>
+                    {carouselGames.map((game, index) => (
+                      <a href={getDashboardGameHref(game)} className="dfr-game-card" key={`${game.name}-${index}`}>
+                        <img src={game.image} alt={game.name} />
+                        <div className="dfr-game-overlay">
+                          <span>{game.tag}</span>
+                          <strong>{game.name}</strong>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </section>
 
               <section className="dfr-surface">
                 <div className="dfr-head">
                   <h2>Category Tiles</h2>
-                  <a href="/dashboard/search">All</a>
+                  <a href="#">All</a>
                 </div>
                 <div className="dfr-category-grid">
                   {categoryTiles.map((item) => (
-                    <a href={`/dashboard/search?q=${item.title}`} className="dfr-category-card" key={item.title}>
+                    <a href="#" className="dfr-category-card" key={item.title}>
                       <i className={item.icon} aria-hidden="true"></i>
                       <div>
                         <strong>{item.title}</strong>
@@ -241,20 +308,31 @@ export function DashboardPage() {
             <div className="dfr-bottom-grid">
               <section className="dfr-surface">
                 <div className="dfr-head">
-                  <h2>Live Feed</h2>
-                  <a href="#">Refresh</a>
+                  <h2>Public Chat</h2>
+                  <a href="#">View All</a>
                 </div>
-                <div className="dfr-feed-list">
-                  {liveFeed.map((row) => (
-                    <div className="dfr-feed-row" key={`${row.user}-${row.game}`}>
-                      <div>
-                        <strong>{row.user}</strong>
-                        <small>{row.game}</small>
+
+                <div className="dfr-chat-list">
+                  {liveChatMessages.map((row) => (
+                    <div className="dfr-chat-row" key={`${row.user}-${row.message}`}>
+                      <div className="dfr-chat-user">
+                        <span className="dfr-chat-avatar">
+                          <img src={row.avatar} alt={row.user} />
+                        </span>
+
+                        <div className="dfr-chat-copy">
+                          <strong>{row.user}</strong>
+                          <p title={row.message}>{row.message}</p>
+                        </div>
                       </div>
-                      <em>{row.payout}</em>
                     </div>
                   ))}
                 </div>
+
+                <a href="/livechat" className="dfr-chat-cta">
+                  <i className="fa-solid fa-comments" aria-hidden="true"></i>
+                  <span>Join Chat</span>
+                </a>
               </section>
 
               <section className="dfr-surface">

@@ -603,10 +603,8 @@ img {
 .dfr-slider-slide {
   position: relative;
   flex: 0 0 100%;
-  aspect-ratio: 20 / 8;
-  display: block;
-  cursor: pointer;
-  z-index: 1;
+  aspect-ratio: 20 / 6;
+  text-decoration: none;
 }
 
 .dfr-slider-image {
@@ -666,15 +664,22 @@ img {
 }
 
 .dfr-game-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 8px;
+  display: block;
+  width: 100%;
+}
+
+.carousel-head {
+  display: inline-flex;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .dfr-game-carousel {
   display: flex;
-  gap: 10px;
+  width: 100%;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 3px;
   -ms-overflow-style: none;
@@ -686,17 +691,19 @@ img {
 }
 
 .dfr-game-nav {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid rgba(214, 148, 255, 0.28);
-  background: linear-gradient(180deg, rgba(104, 44, 172, 0.9), rgba(44, 15, 74, 0.92));
-  color: #f6e8ff;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(214, 148, 255, 0.18);
+  background: linear-gradient(180deg, rgba(56, 14, 92, 0.72), rgba(26, 7, 45, 0.85));
+  color: #eedeff;
   display: inline-flex;
+  margin-right: 10px;
+  margin-bottom: 10px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.28);
+  box-shadow: none;
 }
 
 .dfr-game-nav:hover {
@@ -705,14 +712,12 @@ img {
 
 .dfr-game-card {
   position: relative;
-  flex: 0 0 clamp(240px, 26vw, 360px);
+  flex: 0 0 clamp(112px, 9.2vw, 148px);
   min-height: 0;
-  aspect-ratio: 16 / 9;
-  border-radius: 11px;
+  aspect-ratio: 10 / 16;
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(206, 136, 255, 0.2);
-  display: block;
-  cursor: pointer;
 }
 
 .dfr-game-card img {
@@ -798,41 +803,90 @@ img {
   gap: 14px;
 }
 
-.dfr-feed-list {
+.dfr-chat-list {
   display: grid;
   gap: 7px;
+  margin-bottom: 10px;
 }
 
-.dfr-feed-row {
+.dfr-chat-row {
   min-height: 44px;
   border-radius: 10px;
   border: 1px solid rgba(203, 131, 255, 0.16);
   background: rgba(255, 255, 255, 0.03);
   padding: 7px 9px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
 
-.dfr-feed-row strong {
+.dfr-chat-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  width: 100%;
+}
+
+.dfr-chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  flex: 0 0 32px;
+  overflow: hidden;
+  border: 1px solid rgba(214, 147, 255, 0.25);
+}
+
+.dfr-chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dfr-chat-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.dfr-chat-copy strong {
   display: block;
   color: #fff;
   font-size: 11px;
+  line-height: 1.1;
+  margin-bottom: 3px;
 }
 
-.dfr-feed-row small {
-  display: block;
-  margin-top: 2px;
+.dfr-chat-copy p {
+  margin: 0;
   color: #c8addf;
   font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dfr-feed-row em {
-  font-style: normal;
-  color: #80f2b3;
+.dfr-chat-cta {
+  width: fit-content;
+  min-width: 120px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #12051f;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
+  background: linear-gradient(180deg, #d9a5ff, #a65eff);
+  box-shadow: 0 8px 18px rgba(10, 2, 18, 0.28);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.dfr-chat-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .dfr-stats-grid {
@@ -1198,7 +1252,7 @@ img {
   }
 
   .dfr-slider-slide {
-    aspect-ratio: 16 / 8;
+    aspect-ratio: 16 / 9;
   }
 
   .dfr-slider-text {
@@ -1221,10 +1275,6 @@ img {
     height: 7px;
   }
 
-  .dfr-game-row {
-    grid-template-columns: 1fr;
-  }
-
   .dfr-game-carousel {
     gap: 7px;
   }
@@ -1234,8 +1284,16 @@ img {
   }
 
   .dfr-game-card {
-    flex-basis: 174px;
+    flex: 0 0 calc((100% - 21px) / 4);
+    min-width: calc((100% - 21px) / 4);
+    aspect-ratio: 10 / 16;
     border-radius: 9px;
+  }
+
+  .dfr-game-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .dfr-game-overlay {
@@ -1261,6 +1319,8 @@ img {
     border-radius: 9px;
     padding: 7px;
     gap: 7px;
+    border: 1px solid rgba(206, 136, 255, 0.28);
+    background: rgba(255, 255, 255, 0.03);
   }
 
   .dfr-category-card i {
@@ -1283,19 +1343,43 @@ img {
     gap: 10px;
   }
 
-  .dfr-feed-row {
+  .dfr-chat-list {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .dfr-chat-row {
     min-height: 40px;
     border-radius: 8px;
     padding: 6px 7px;
   }
 
-  .dfr-feed-row strong {
-    font-size: 9px;
+  .dfr-chat-user {
+    gap: 7px;
   }
 
-  .dfr-feed-row small,
-  .dfr-feed-row em {
+  .dfr-chat-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    flex: 0 0 26px;
+  }
+
+  .dfr-chat-copy strong {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .dfr-chat-copy p {
     font-size: 8px;
+  }
+
+  .dfr-chat-cta {
+    min-width: 104px;
+    height: 30px;
+    padding: 0 12px;
+    gap: 6px;
+    font-size: 9px;
   }
 
   .dfr-stats-grid {

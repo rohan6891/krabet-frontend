@@ -11,22 +11,18 @@ type SidebarLinkItem = {
 
 export const sidebarTopLinks: SidebarLinkItem[] = [
   { key: "nav.casino", label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
-  { key: "nav.mines", label: "Mines", href: "/dashboard/mines", icon: "fa-solid fa-bomb" },
-  { key: "nav.limbo", label: "Limbo", href: "/dashboard/limbo", icon: "fa-solid fa-rocket" },
-  { key: "nav.crash", label: "Crash", href: "/dashboard/crash", icon: "fa-solid fa-chart-line" },
-  { key: "nav.dice", label: "Dice", href: "/dashboard/dice", icon: "fa-solid fa-dice" },
-  { key: "nav.coinflip", label: "Coinflip", href: "/dashboard/coinflip", icon: "fa-solid fa-coins" },
-  { key: "nav.search", label: "Search", href: "/dashboard/search", icon: "fa-solid fa-magnifying-glass" },
-  { key: "nav.wallet", label: "Wallet", href: "/dashboard/wallet", icon: "fa-solid fa-wallet" },
+  { key: "nav.sports", label: "Sports", href: "#", icon: "fa-solid fa-futbol" },
+  { key: "nav.lottery", label: "Lottery", href: "#", icon: "fa-solid fa-ticket" },
+  { key: "nav.cryptoFutures", label: "Crypto Futures", href: "#", icon: "fa-solid fa-bitcoin-sign" },
 ];
 
 export const sidebarBottomLinks: SidebarLinkItem[] = [
-  // { key: "nav.promotions", label: "Promotions", href: "/dashboard", icon: "fa-solid fa-gift" },
-  // { key: "nav.vipClub", label: "VIP Club", href: "/dashboard", icon: "fa-solid fa-crown" },
-  // { key: "nav.bonus", label: "Bonus", href: "/dashboard", icon: "fa-solid fa-coins" },
-  // { key: "nav.referral", label: "Referral", href: "/dashboard", icon: "fa-solid fa-user-plus" },
-  // { key: "nav.form", label: "Form", href: "/dashboard/settings", icon: "fa-regular fa-file-lines" },
-  // { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "/dashboard/settings", icon: "fa-solid fa-shield-halved" },
+  { key: "nav.promotions", label: "Promotions", href: "#", icon: "fa-solid fa-gift" },
+  { key: "nav.vipClub", label: "VIP Club", href: "#", icon: "fa-solid fa-crown" },
+  { key: "nav.bonus", label: "Bonus", href: "#", icon: "fa-solid fa-coins" },
+  { key: "nav.referral", label: "Referral", href: "#", icon: "fa-solid fa-user-plus" },
+  { key: "nav.form", label: "Form", href: "#", icon: "fa-regular fa-file-lines" },
+  { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "#", icon: "fa-solid fa-shield-halved" },
 ];
 
 type DashboardSidebarProps = {
