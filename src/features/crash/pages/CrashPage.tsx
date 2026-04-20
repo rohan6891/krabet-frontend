@@ -792,17 +792,20 @@ export function CrashPage() {
         }
 
         if (resolvedStatus === "waiting") {
-          let startsAt = snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)
-            ? Number(snapshot.startsAt) - clockDeltaRef.current
-            : snapshot.nextRoundAt
-              ? new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current
-              : null;
+          let startsAt: number | null = null;
+          if (snapshot.countdownMs != null && snapshot.countdownMs > 0) {
+            startsAt = Date.now() + snapshot.countdownMs;
+          } else if (snapshot.startsAt !== null && Number.isFinite(snapshot.startsAt)) {
+            startsAt = Number(snapshot.startsAt) - clockDeltaRef.current;
+          } else if (snapshot.nextRoundAt) {
+            startsAt = new Date(snapshot.nextRoundAt).getTime() - clockDeltaRef.current;
+          }
 
-          if (startsAt === null) {
+          if (startsAt === null || startsAt <= Date.now() + 100) {
             if (waitingEndsAtRef.current && !statusChanged) {
               startsAt = waitingEndsAtRef.current;
             } else {
-              startsAt = Date.now() + Math.max(1000, snapshot.countdownMs || 5000);
+              startsAt = Date.now() + 5000;
             }
           }
 
