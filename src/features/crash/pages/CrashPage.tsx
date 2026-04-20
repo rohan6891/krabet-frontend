@@ -1074,7 +1074,7 @@ export function CrashPage() {
     if (roundStatus === "running" && activeBet && !activeBet.cashedOut) {
       return `Cash Out @ ${formatMultiplier(multiplier)}`;
     }
-    if (queuedBet) return "Bet Queued";
+    if (queuedBet || (roundStatus === "waiting" && activeBet)) return "Bet Queued";
     if (playMode === "live" && roundStatus === "running" && !activeBet) {
       return liveCanPlaceBet ? "Bet Now" : "Betting Closed";
     }
@@ -1085,7 +1085,7 @@ export function CrashPage() {
   const canPressPrimary = useMemo(() => {
     if (roundStatus === "running" && activeBet && !activeBet.cashedOut) return true;
     if (playMode === "live" && roundStatus === "running" && !activeBet && !queuedBet && liveCanPlaceBet) return true;
-    if (roundStatus === "waiting" && !queuedBet) return true;
+    if (roundStatus === "waiting" && !queuedBet && !activeBet) return true;
     return false;
   }, [activeBet, liveCanPlaceBet, playMode, queuedBet, roundStatus]);
 
