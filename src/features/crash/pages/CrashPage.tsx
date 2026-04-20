@@ -172,6 +172,16 @@ function graphPointFromState(
   return { x, y, m: multiplier };
 }
 
+function withMonotonicX(points: Point[], nextPoint: Point): Point {
+  const last = points[points.length - 1];
+  if (!last) return nextPoint;
+  const minDx = 0.65;
+  return {
+    ...nextPoint,
+    x: Math.max(nextPoint.x, last.x + minDx),
+  };
+}
+
 function autoScaleGraphPoints(points: Point[]): Point[] {
   if (points.length < 2) return points;
 
@@ -183,13 +193,22 @@ function autoScaleGraphPoints(points: Point[]): Point[] {
   }
 
   const span = maxVisibleX - leftX;
-  const overflow = Math.max(0, lastX - maxVisibleX);
-  const overflowRatio = overflow / Math.max(1, span);
-  const scale = 1 / (1 + overflowRatio * 0.68);
+  const currentWidth = Math.max(1, lastX - leftX);
+  const scale = span / currentWidth;
   return points.map((point) => ({
     ...point,
     x: leftX + (point.x - leftX) * scale,
   }));
+}
+
+function clampDotToViewport(point: Point): Point {
+  const padX = 12;
+  const padY = 12;
+  return {
+    ...point,
+    x: clamp(point.x, 26 + padX, GRAPH_WIDTH - 46 - padX),
+    y: clamp(point.y, 74 + padY, GRAPH_HEIGHT - 22 - padY),
+  };
 }
 
 function sampleDemoCrashPoint(): number {
@@ -269,7 +288,9 @@ export function CrashPage() {
   }, []);
 
   const scaledGraphPoints = useMemo(() => autoScaleGraphPoints(graphPoints), [graphPoints]);
-  const activeDot = scaledGraphPoints[scaledGraphPoints.length - 1] || { x: 48, y: GRAPH_HEIGHT - 22, m: 1 };
+  const activeDot = clampDotToViewport(
+    scaledGraphPoints[scaledGraphPoints.length - 1] || { x: 48, y: GRAPH_HEIGHT - 22, m: 1 },
+  );
   const displayPath = useMemo(() => buildSvgPath(scaledGraphPoints), [scaledGraphPoints]);
 
   const handleError = useCallback((message: string) => {
@@ -576,7 +597,9 @@ export function CrashPage() {
         }
 
         if (message.type === "round_crashed" && typeof message.payload?.crash_point === "number") {
-          handlers.onRoundResult({ crashedAt: Number(message.payload.crash_point) });
+          const crashPoint = Number(message.payload.crash_point);
+          lastCrashPublishedAt = crashPoint;
+          handlers.onRoundResult({ crashedAt: crashPoint });
         }
 
         if (
@@ -666,17 +689,17 @@ export function CrashPage() {
         const nextMultiplier = multiplierFromElapsed(elapsed);
         const rounded = Number(nextMultiplier.toFixed(2));
         maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
-        maxMultiplierRef.current = Math.max(maxMultiplierRef.current, rounded * 1.15);
-        const point = graphPointFromState(elapsed, rounded, maxElapsedMsRef.current, maxMultiplierRef.current);
+        maxMultiplierRef.current = Math.max(maxMultiplierRef.current, nextMultiplier * 1.15);
+        const point = graphPointFromState(elapsed, nextMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
 
         setMultiplier(rounded);
-        setGraphPoints((prev) => compressGraphPoints([...prev, point]));
+        setGraphPoints((prev) => compressGraphPoints([...prev, withMonotonicX(prev, point)]));
 
         if (demoCrashTargetRef.current && rounded >= Number(demoCrashTargetRef.current)) {
           const crashTarget = Number(demoCrashTargetRef.current);
           setGraphPoints((prev) => {
             const crashPoint = graphPointFromState(elapsed, crashTarget, maxElapsedMsRef.current, maxMultiplierRef.current);
-            return compressGraphPoints([...prev, crashPoint]);
+            return compressGraphPoints([...prev, withMonotonicX(prev, crashPoint)]);
           });
           finishDemoCrash(crashTarget);
           demoCrashTargetRef.current = null;
@@ -804,10 +827,23 @@ export function CrashPage() {
         setLastResult(formatMultiplier(crashPoint));
         pendingLiveCashoutRef.current = false;
 
-        if (liveMultiplierRef.current < crashPoint) {
-          liveMultiplierRef.current = crashPoint;
-          setMultiplier(crashPoint);
-        }
+        const startTimeMs = roundStartedAtRef.current ?? Date.now();
+        const elapsed = Math.max(0, Date.now() - startTimeMs);
+        maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
+        maxMultiplierRef.current = Math.max(maxMultiplierRef.current, crashPoint * 1.15);
+
+        liveMultiplierRef.current = Math.max(liveMultiplierRef.current, crashPoint);
+        setMultiplier(crashPoint);
+
+        setGraphPoints((prev) => {
+          const crashVisualPoint = graphPointFromState(
+            elapsed,
+            crashPoint,
+            maxElapsedMsRef.current,
+            maxMultiplierRef.current,
+          );
+          return compressGraphPoints([...prev, withMonotonicX(prev, crashVisualPoint)]);
+        });
       },
       onApiMissing: () => {
         liveApiUnavailableRef.current = true;
@@ -896,15 +932,16 @@ export function CrashPage() {
       const startTimeMs = roundStartedAtRef.current ?? Date.now();
       const elapsed = Math.max(0, Date.now() - startTimeMs);
       const calculated = Math.max(1, multiplierFromElapsed(elapsed));
-      const nextMultiplier = Number(Math.max(liveMultiplierRef.current, calculated).toFixed(2));
+      const preciseMultiplier = Math.max(liveMultiplierRef.current, calculated);
+      const nextMultiplier = Number(preciseMultiplier.toFixed(2));
 
-      liveMultiplierRef.current = nextMultiplier;
+      liveMultiplierRef.current = preciseMultiplier;
       setMultiplier(nextMultiplier);
 
       maxElapsedMsRef.current = Math.max(maxElapsedMsRef.current, elapsed);
-      maxMultiplierRef.current = Math.max(maxMultiplierRef.current, nextMultiplier * 1.15);
-      const point = graphPointFromState(elapsed, nextMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
-      setGraphPoints((prev) => compressGraphPoints([...prev, point]));
+      maxMultiplierRef.current = Math.max(maxMultiplierRef.current, preciseMultiplier * 1.15);
+      const point = graphPointFromState(elapsed, preciseMultiplier, maxElapsedMsRef.current, maxMultiplierRef.current);
+      setGraphPoints((prev) => compressGraphPoints([...prev, withMonotonicX(prev, point)]));
 
       rafId = window.requestAnimationFrame(tick);
     };
