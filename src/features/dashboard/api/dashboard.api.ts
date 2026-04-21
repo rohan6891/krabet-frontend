@@ -1,6 +1,8 @@
 import { apiRequest } from "@/shared/api/http";
 import { env } from "@/shared/config/env";
 import type {
+  DashboardCategoryGamesResponse,
+  DashboardGameCategoriesResponse,
   DashboardGamesResponse,
   DashboardWinsResponse,
   MeResponse,
@@ -19,6 +21,17 @@ function authHeaders(token: string) {
 
 export function fetchDashboardGames(): Promise<DashboardGamesResponse> {
   return apiRequest<DashboardGamesResponse>(env.apiBaseUrl, `${GAMES_PREFIX}`);
+}
+
+export function fetchDashboardGameCategories(): Promise<DashboardGameCategoriesResponse> {
+  return apiRequest<DashboardGameCategoriesResponse>(env.apiBaseUrl, `${GAMES_PREFIX}/categories`);
+}
+
+export function fetchDashboardGamesByCategory(category: string): Promise<DashboardCategoryGamesResponse> {
+  return apiRequest<DashboardCategoryGamesResponse>(
+    env.apiBaseUrl,
+    `${GAMES_PREFIX}/category/${encodeURIComponent(category)}`,
+  );
 }
 
 export function fetchRecentWins(): Promise<DashboardWinsResponse> {

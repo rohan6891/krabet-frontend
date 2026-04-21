@@ -681,7 +681,13 @@ img {
   width: 100%;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 3px;
+  padding-top: 12px;
+  padding-bottom: 30px;
+  padding-right: 24px;
+  padding-left: 12px;
+  margin-top: -12px;
+  margin-bottom: -27px;
+  margin-left: -12px;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -712,7 +718,9 @@ img {
 
 .dfr-game-card {
   position: relative;
-  flex: 0 0 clamp(112px, 9.2vw, 148px);
+  flex: 0 0 calc(20% - 9.6px);
+  min-width: 112px;
+  max-width: 156px;
   min-height: 0;
   aspect-ratio: 10 / 16;
   border-radius: 12px;

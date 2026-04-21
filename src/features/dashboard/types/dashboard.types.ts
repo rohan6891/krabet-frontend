@@ -29,6 +29,29 @@ export type DashboardGamesResponse = {
   };
 };
 
+export type DashboardGameCategorySummary = {
+  key: "casino" | "sports" | "live" | "lottery";
+  label: string;
+  total: number;
+};
+
+export type DashboardGameCategoriesResponse = {
+  success: boolean;
+  data: {
+    categories: DashboardGameCategorySummary[];
+  };
+};
+
+export type DashboardCategoryGamesResponse = {
+  success: boolean;
+  data: {
+    category: "casino" | "sports" | "live" | "lottery";
+    label: string;
+    total: number;
+    games: DashboardGame[];
+  };
+};
+
 export type DashboardWinsResponse = {
   success: boolean;
   data: {
