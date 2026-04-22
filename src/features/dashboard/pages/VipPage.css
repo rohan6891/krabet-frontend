@@ -113,6 +113,17 @@
   color: var(--vip-text-faint);
 }
 
+.vip-user-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vip-user-progress-pct {
+  font-weight: 900;
+  color: var(--gold) !important;
+}
+
 .vip-progress-bar {
   width: 100%;
   height: 6px;
@@ -493,5 +504,301 @@
     gap: 8px;
     font-size: 0.76rem;
     line-height: 1.4;
+  }
+}
+
+/* VIP Status Modal */
+.vip-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 40px 20px;
+  z-index: 2000;
+}
+@keyframes vipFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.vip-status-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: auto;
+  padding: 32px;
+  border-radius: 32px;
+  border: 1px solid var(--vip-border-strong);
+  background: linear-gradient(180deg, #1d002a 0%, #0c0012 100%);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+  animation: vipSlideUp 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes vipSlideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.vip-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--vip-text-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 200ms ease;
+}
+
+.vip-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.vip-card-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.vip-card-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--vip-border);
+}
+
+.vip-card-badge.bronze { color: var(--bronze); border-color: rgba(205, 127, 50, 0.3); }
+.vip-card-badge.silver { color: var(--silver); border-color: rgba(192, 192, 192, 0.3); }
+.vip-card-badge.gold { color: var(--gold); border-color: rgba(244, 197, 66, 0.3); }
+.vip-card-badge.platinum { color: var(--platinum); border-color: rgba(124, 226, 255, 0.3); }
+.vip-card-badge.diamond { color: var(--diamond); border-color: rgba(127, 216, 255, 0.3); }
+
+.vip-card-title h3 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.vip-card-title p {
+  margin: 0;
+  color: var(--vip-text-faint);
+  font-size: 0.9rem;
+}
+
+.vip-card-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.vip-stat-item {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vip-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--vip-text-faint);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vip-stat-value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.vip-card-progress-section {
+  margin-bottom: 32px;
+}
+
+.vip-progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.vip-progress-pct {
+  color: var(--gold);
+}
+
+.vip-progress-bar-large {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.vip-progress-fill-large {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b977ff, #7ce2ff);
+}
+
+.vip-progress-fill-large.bronze { background: var(--bronze); }
+.vip-progress-fill-large.silver { background: var(--silver); }
+.vip-progress-fill-large.gold { background: var(--gold); }
+.vip-progress-fill-large.platinum { background: var(--platinum); }
+.vip-progress-fill-large.diamond { background: var(--diamond); }
+
+.vip-card-conditions h4,
+.vip-card-contributions h4 {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vip-condition-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vip-condition-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 200ms ease;
+}
+
+.vip-condition-list li.met {
+  background: rgba(0, 255, 127, 0.05);
+}
+
+.condition-check {
+  font-size: 1rem;
+}
+
+.met .condition-check { color: #00ff7f; }
+.pending .condition-check { color: var(--vip-text-faint); opacity: 0.5; }
+
+.vip-condition-list li span {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--vip-text-soft);
+}
+
+.met span { color: #fff; }
+
+.contribution-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.contribution-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(185, 119, 255, 0.1);
+  border: 1px solid rgba(185, 119, 255, 0.2);
+}
+
+.game-name {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  color: #d59fff;
+}
+
+.game-weight {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.contribution-note {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--vip-text-faint);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .vip-status-card {
+    padding: 20px;
+    border-radius: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .vip-card-header {
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .vip-card-badge {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .vip-card-title h3 {
+    font-size: 1.2rem;
+  }
+
+  .vip-card-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .vip-stat-item {
+    padding: 12px;
+  }
+  
+  .vip-stat-value {
+    font-size: 1rem;
+  }
+
+  .contribution-pill {
+    padding: 4px 10px;
+  }
+
+  .game-name, .game-weight {
+    font-size: 0.7rem;
   }
 }

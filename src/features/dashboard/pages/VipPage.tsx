@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import "@/features/dashboard/pages/DashboardPage.css";
 import "./VipPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
@@ -114,6 +116,7 @@ export function VipPage() {
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile } = useDashboardData();
   const { snapshot, normalizedLevelName } = useVipData();
+  const [showStatusCard, setShowStatusCard] = useState(false);
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
@@ -128,6 +131,78 @@ export function VipPage() {
   const progressToText = snapshot.nextLevelName
     ? `Progress to ${snapshot.nextLevelName}`
     : "Top tier reached";
+
+  const nextTierIndex = VIP_TIERS.findIndex((t) => t.id === normalizedLevelName) + 1;
+  const nextTier = VIP_TIERS[nextTierIndex];
+
+  const getConditionDetails = (perk: string) => {
+    const text = perk.toLowerCase();
+    let current = 0;
+    let required = 1;
+    let isDone = false;
+
+    if (text.includes("wager")) {
+      required =
+        nextTier?.id === "bronze"
+          ? 500
+          : nextTier?.id === "silver"
+            ? 2500
+            : nextTier?.id === "gold"
+              ? 10000
+              : nextTier?.id === "platinum"
+                ? 30000
+                : 75000;
+      current = Number(snapshot.totalWager);
+      isDone = current >= required;
+    } else if (text.includes("fund") || text.includes("deposit")) {
+      required =
+        nextTier?.id === "bronze"
+          ? 100
+          : nextTier?.id === "silver"
+            ? 500
+            : nextTier?.id === "gold"
+              ? 1500
+              : nextTier?.id === "platinum"
+                ? 5000
+                : 10000;
+      current = Number(snapshot.totalDeposits);
+      isDone = current >= required;
+    } else if (text.includes("session")) {
+      required =
+        nextTier?.id === "bronze"
+          ? 3
+          : nextTier?.id === "silver"
+            ? 10
+            : nextTier?.id === "gold"
+              ? 25
+              : nextTier?.id === "platinum"
+                ? 60
+                : 120;
+      current = snapshot.totalSessions;
+      isDone = current >= required;
+    } else if (text.includes("activity") || text.includes("engagement")) {
+      required =
+        nextTier?.id === "bronze" ? 1 : nextTier?.id === "silver" ? 7 : nextTier?.id === "gold" ? 14 : nextTier?.id === "platinum" ? 30 : 60;
+      current = snapshot.daysActive || 0;
+      isDone = current >= required;
+    } else if (text.includes("verify")) {
+      required = 1;
+      current = snapshot.isVerified ? 1 : 0;
+      isDone = snapshot.isVerified;
+    }
+
+    return {
+      isDone,
+      percent: Math.min(1, current / required),
+    };
+  };
+
+  const perks = nextTier?.perks || [];
+  const perkDetails = perks.map(getConditionDetails);
+  const totalPerks = perks.length || 1;
+  const compositeProgress = Math.floor(
+    (perkDetails.reduce((acc, curr) => acc + curr.percent, 0) / totalPerks) * 100
+  );
 
   return (
     <div className="krabet-page">
@@ -147,7 +222,6 @@ export function VipPage() {
             preferredLanguage={profile.preferredLanguage}
             dateOfBirth={profile.dateOfBirth}
             walletHref="/dashboard/wallet"
-            vipTier={snapshot.levelName}
           />
 
           <div className="krabet-wallet-content">
@@ -166,7 +240,11 @@ export function VipPage() {
                   </p>
                 </section>
 
-                <section className="vip-user-bar">
+                <section
+                  className="vip-user-bar"
+                  onClick={() => setShowStatusCard(true)}
+                  style={{ cursor: "pointer" }}
+                >
                   <div className="vip-user-left">
                     <img src={avatarSrc} alt="user" className="vip-user-avatar" />
 
@@ -180,16 +258,30 @@ export function VipPage() {
                   </div>
 
                   <div className="vip-user-progress">
-                    <span>{progressToText}</span>
+                    <div className="vip-user-progress-info">
+                      <span>{progressToText}</span>
+                      <span className="vip-user-progress-pct">{compositeProgress}%</span>
+                    </div>
                     <div className="vip-progress-bar">
-                      <div className="vip-progress-fill" style={{ width: `${snapshot.progressPercent}%` }}></div>
+                      <div className="vip-progress-fill" style={{ width: `${compositeProgress}%` }}></div>
                     </div>
                     <span>
-                      Total wagered: ${formatCurrency(snapshot.totalWager)}
+                      VIP Points: {formatCurrency(snapshot.totalWager)}
                       {snapshot.nextLevelRequiredWager ? ` / ${formatCurrency(snapshot.nextLevelRequiredWager)}` : ""}
                     </span>
                   </div>
                 </section>
+
+                {showStatusCard && (
+                  <VipStatusCard
+                    snapshot={snapshot}
+                    onClose={() => setShowStatusCard(false)}
+                    currentTier={VIP_TIERS.find((t) => t.id === normalizedLevelName)}
+                    nextTier={nextTier}
+                    compositeProgress={compositeProgress}
+                    getConditionDetails={getConditionDetails}
+                  />
+                )}
 
                 <section className="vip-tier-grid">
                   {VIP_TIERS.map((tier) => (
@@ -236,6 +328,114 @@ export function VipPage() {
 
           <MobileBottomDock />
         </main>
+      </div>
+    </div>
+  );
+}
+function VipStatusCard({
+  snapshot,
+  onClose,
+  currentTier,
+  nextTier,
+  compositeProgress,
+  getConditionDetails,
+}: {
+  snapshot: any;
+  onClose: () => void;
+  currentTier?: VipTierDefinition;
+  nextTier?: VipTierDefinition;
+  compositeProgress: number;
+  getConditionDetails: (perk: string) => { isDone: boolean; percent: number };
+}) {
+  const currentTierClass = toTierStyle(snapshot.levelName);
+  const nextTierClass = nextTier ? toTierStyle(nextTier.name) : currentTierClass;
+
+  return (
+    <div className="vip-modal-overlay" onClick={onClose}>
+      <div className="vip-status-card" onClick={(e) => e.stopPropagation()}>
+        <button className="vip-modal-close" onClick={onClose}>
+          <i className="fa-solid fa-xmark"></i>
+        </button>
+
+        <div className="vip-card-header">
+          <div className={`vip-card-badge ${currentTierClass}`}>
+            <i className={currentTier?.icon || "fa-solid fa-crown"}></i>
+          </div>
+          <div className="vip-card-title">
+            <h3>{snapshot.levelName} Tier</h3>
+            <p>Current Membership Status</p>
+          </div>
+        </div>
+
+        <div className="vip-card-stats-grid">
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">Raw Wagered</span>
+            <span className="vip-stat-value">${formatCurrency(snapshot.totalWagerRaw)}</span>
+          </div>
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">VIP Points</span>
+            <span className="vip-stat-value">${formatCurrency(snapshot.totalWager)}</span>
+          </div>
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">Total Deposits</span>
+            <span className="vip-stat-value">${formatCurrency(snapshot.totalDeposits)}</span>
+          </div>
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">Sessions</span>
+            <span className="vip-stat-value">{snapshot.totalSessions}</span>
+          </div>
+        </div>
+
+        <div className="vip-card-progress-section">
+          <div className="vip-progress-header">
+            <span>Progress to {nextTier?.name || "Max Level"}</span>
+            <span className="vip-progress-pct">{compositeProgress}%</span>
+          </div>
+          <div className="vip-progress-bar-large">
+            <div
+              className={`vip-progress-fill-large ${nextTierClass}`}
+              style={{ width: `${compositeProgress}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {nextTier && (
+          <div className="vip-card-conditions">
+            <h4>Next Level Requirements</h4>
+            <ul className="vip-condition-list">
+              {nextTier.perks.map((perk) => {
+                const { isDone } = getConditionDetails(perk);
+                return (
+                  <li key={perk} className={isDone ? "met" : "pending"}>
+                    <div className="condition-check">
+                      {isDone ? (
+                        <i className="fa-solid fa-circle-check"></i>
+                      ) : (
+                        <i className="fa-regular fa-circle"></i>
+                      )}
+                    </div>
+                    <span>{perk}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        <div className="vip-card-contributions">
+          <h4>Game Contribution Rates</h4>
+          <div className="contribution-pills">
+            {Object.entries(snapshot.gameContributions).map(([game, weight]: [string, any]) => (
+              <div key={game} className="contribution-pill">
+                <span className="game-name">{game}</span>
+                <span className="game-weight">{(weight * 100).toFixed(0)}%</span>
+              </div>
+            ))}
+          </div>
+          <p className="contribution-note">
+            Contribution rates affect how much of your raw wager counts towards VIP progress.
+          </p>
+        </div>
       </div>
     </div>
   );

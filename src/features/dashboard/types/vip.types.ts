@@ -14,6 +14,12 @@ export type VipProfileResponse = {
       next_level_name: string | null;
       next_level_required_wager: string | null;
       progress_percent: number;
+      total_wager_raw: string;
+      total_deposits: string;
+      total_sessions: number;
+      days_active: number;
+      is_verified: boolean;
+      game_contributions: Record<string, number>;
     };
   };
 };

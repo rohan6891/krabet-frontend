@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchVipLevels, fetchVipMe } from "@/features/dashboard/api/vip.api";
 import { getAccessTokenFromStorage } from "@/shared/utils/session";
 
@@ -10,6 +10,12 @@ type VipSnapshot = {
   nextLevelName: string | null;
   nextLevelRequiredWager: string | null;
   progressPercent: number;
+  totalWagerRaw: string;
+  totalDeposits: string;
+  totalSessions: number;
+  isVerified: boolean;
+  daysActive: number;
+  gameContributions: Record<string, number>;
 };
 
 type VipLevelCard = {
@@ -37,66 +43,71 @@ export function useVipData() {
     nextLevelName: "Platinum",
     nextLevelRequiredWager: null,
     progressPercent: 55,
+    totalWagerRaw: "0",
+    totalDeposits: "0",
+    totalSessions: 0,
+    daysActive: 0,
+    isVerified: false,
+    gameContributions: {},
   });
   const [levels, setLevels] = useState<VipLevelCard[]>([]);
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadVipData() {
-      const token = getAccessTokenFromStorage();
-      if (!token) {
-        if (mounted) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      try {
-        const [profileRes, levelsRes] = await Promise.all([fetchVipMe(token), fetchVipLevels()]);
-
-        if (!mounted) {
-          return;
-        }
-
-        const profile = profileRes.data.profile;
-        setSnapshot({
-          levelName: profile.level_name,
-          totalWager: profile.total_wager,
-          nextLevelName: profile.next_level_name,
-          nextLevelRequiredWager: profile.next_level_required_wager,
-          progressPercent: normalizePercent(profile.progress_percent),
-        });
-
-        setLevels(
-          (levelsRes.data.levels || []).map((level) => ({
-            id: level.id,
-            name: level.name,
-            requiredWager: level.required_wager,
-            rakebackPercent: level.rakeback_percent,
-            cashbackPercent: level.cashback_percent,
-            bonusMultiplier: level.bonus_multiplier,
-          })),
-        );
-      } catch {
-        if (!mounted) {
-          return;
-        }
-
-        setLevels([]);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
+  const loadVipData = useCallback(async () => {
+    const token = getAccessTokenFromStorage();
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    void loadVipData();
+    try {
+      const [profileRes, levelsRes] = await Promise.all([fetchVipMe(token), fetchVipLevels()]);
+      const profile = profileRes.data.profile;
+      setSnapshot({
+        levelName: profile.level_name,
+        totalWager: profile.total_wager,
+        nextLevelName: profile.next_level_name,
+        nextLevelRequiredWager: profile.next_level_required_wager,
+        progressPercent: normalizePercent(profile.progress_percent),
+        totalWagerRaw: profile.total_wager_raw,
+        totalDeposits: profile.total_deposits,
+        totalSessions: profile.total_sessions,
+        daysActive: profile.days_active || 0,
+        isVerified: profile.is_verified,
+        gameContributions: profile.game_contributions || {},
+      });
 
-    return () => {
-      mounted = false;
-    };
+      setLevels(
+        (levelsRes.data.levels || []).map((level) => ({
+          id: level.id,
+          name: level.name,
+          requiredWager: level.required_wager,
+          rakebackPercent: level.rakeback_percent,
+          cashbackPercent: level.cashback_percent,
+          bonusMultiplier: level.bonus_multiplier,
+        })),
+      );
+    } catch {
+      setLevels([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadVipData();
+  }, [loadVipData]);
+
+  useEffect(() => {
+    const handler = () => {
+      void loadVipData();
+    };
+    window.addEventListener("krabets:vip-refresh", handler);
+    window.addEventListener("krabets:wallet-refresh", handler);
+    return () => {
+      window.removeEventListener("krabets:vip-refresh", handler);
+      window.removeEventListener("krabets:wallet-refresh", handler);
+    };
+  }, [loadVipData]);
 
   const normalizedLevelName = useMemo(() => snapshot.levelName.trim().toLowerCase(), [snapshot.levelName]);
 
@@ -105,5 +116,6 @@ export function useVipData() {
     snapshot,
     levels,
     normalizedLevelName,
+    reload: loadVipData,
   };
 }

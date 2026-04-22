@@ -6,6 +6,7 @@ import { NotificationPanel, ProfilePanel } from "@/features/dashboard/components
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { useI18n } from "@/shared/i18n/useI18n";
 import { useSession } from "@/shared/hooks/useSession";
+import { useVipData } from "@/features/dashboard/hooks/useVipData";
 
 const topNavLinks = [
   { key: "nav.casino", label: "Casino", href: "/dashboard", active: true },
@@ -41,10 +42,11 @@ export function DashboardHeader({
   phoneCountryCode = "",
   preferredLanguage = "",
   dateOfBirth = "",
-  vipTier = "Gold",
   walletHref = "/dashboard/wallet",
   onAlertsClick,
 }: DashboardHeaderProps) {
+  const { snapshot } = useVipData();
+  const vipTier = snapshot.levelName;
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { notifications, unreadCount, loading, reload, markRead, markAllRead } =

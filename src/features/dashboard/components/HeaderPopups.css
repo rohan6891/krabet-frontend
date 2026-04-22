@@ -261,18 +261,22 @@
 }
 
 .user-badge {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .vip-badge {
-  background: rgba(255,211,105,0.15);
+  background: rgba(255, 211, 105, 0.15);
   color: #ffd86f;
+  min-width: 100px;
+  justify-content: center;
 }
 
 .vip-badge.vip-badge-bronze {
