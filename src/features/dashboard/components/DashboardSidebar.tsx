@@ -18,7 +18,7 @@ export const sidebarTopLinks: SidebarLinkItem[] = [
 
 export const sidebarBottomLinks: SidebarLinkItem[] = [
   { key: "nav.promotions", label: "Promotions", href: "#", icon: "fa-solid fa-gift" },
-  { key: "nav.vipClub", label: "VIP Club", href: "#", icon: "fa-solid fa-crown" },
+  { key: "nav.vipClub", label: "VIP Club", href: "/dashboard/vip", icon: "fa-solid fa-crown" },
   { key: "nav.bonus", label: "Bonus", href: "#", icon: "fa-solid fa-coins" },
   { key: "nav.referral", label: "Referral", href: "#", icon: "fa-solid fa-user-plus" },
   { key: "nav.form", label: "Form", href: "#", icon: "fa-regular fa-file-lines" },

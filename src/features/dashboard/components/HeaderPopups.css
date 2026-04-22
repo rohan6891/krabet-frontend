@@ -275,6 +275,31 @@
   color: #ffd86f;
 }
 
+.vip-badge.vip-badge-bronze {
+  background: rgba(205, 127, 50, 0.2);
+  color: #e0a56f;
+}
+
+.vip-badge.vip-badge-silver {
+  background: rgba(192, 192, 192, 0.2);
+  color: #f2f2f2;
+}
+
+.vip-badge.vip-badge-gold {
+  background: rgba(255, 211, 105, 0.15);
+  color: #ffd86f;
+}
+
+.vip-badge.vip-badge-platinum {
+  background: rgba(124, 226, 255, 0.2);
+  color: #b8f0ff;
+}
+
+.vip-badge.vip-badge-diamond {
+  background: rgba(127, 216, 255, 0.2);
+  color: #c4f2ff;
+}
+
 .verified-badge {
   background: rgba(188,151,255,0.12);
   color: #d4b8ff;

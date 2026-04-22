@@ -25,6 +25,7 @@ type DashboardHeaderProps = {
   phoneCountryCode?: string;
   preferredLanguage?: string;
   dateOfBirth?: string;
+  vipTier?: string;
   walletHref?: string;
   onAlertsClick?: () => void;
 };
@@ -40,6 +41,7 @@ export function DashboardHeader({
   phoneCountryCode = "",
   preferredLanguage = "",
   dateOfBirth = "",
+  vipTier = "Gold",
   walletHref = "/dashboard/wallet",
   onAlertsClick,
 }: DashboardHeaderProps) {
@@ -160,6 +162,7 @@ export function DashboardHeader({
         phoneCountryCode={phoneCountryCode}
         preferredLanguage={preferredLanguage}
         dateOfBirth={dateOfBirth}
+        vipTier={vipTier}
         onLogout={logout}
       />
     </>

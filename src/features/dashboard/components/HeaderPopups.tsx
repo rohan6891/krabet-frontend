@@ -154,12 +154,23 @@ type ProfilePanelProps = {
   phoneCountryCode?: string;
   preferredLanguage?: string;
   dateOfBirth?: string;
+  vipTier?: string;
   onLogout?: () => void;
 };
 
 function profileValue(value?: string | null, fallback = "N/A"): string {
   const normalized = value?.trim();
   return normalized ? normalized : fallback;
+}
+
+function vipTierClass(value?: string): string {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === "bronze") return "vip-badge-bronze";
+  if (normalized === "silver") return "vip-badge-silver";
+  if (normalized === "gold") return "vip-badge-gold";
+  if (normalized === "platinum") return "vip-badge-platinum";
+  if (normalized === "diamond") return "vip-badge-diamond";
+  return "vip-badge-gold";
 }
 
 export function ProfilePanel({
@@ -175,16 +186,13 @@ export function ProfilePanel({
   phoneCountryCode,
   preferredLanguage,
   dateOfBirth,
+  vipTier = "Gold",
   onLogout,
 }: ProfilePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [imageError, setImageError] = useState(false);
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState<string | null>(null);
   const { t } = useI18n();
   const avatarSrc = resolveAssetUrl(avatarUrl);
-
-  useEffect(() => {
-    setImageError(false);
-  }, [avatarUrl]);
 
   useEffect(() => {
     if (!open) return;
@@ -201,6 +209,7 @@ export function ProfilePanel({
 
   const initial = (username || "U")[0].toUpperCase();
   const fullPhone = [phoneCountryCode, phoneNumber].filter(Boolean).join(" ").trim();
+  const showAvatarImage = Boolean(avatarSrc) && avatarSrc !== failedAvatarSrc;
 
   return (
     <div className="header-popup-overlay" onClick={onClose}>
@@ -231,8 +240,13 @@ export function ProfilePanel({
           {/* Avatar + Name */}
           <div className="user-card-hero">
             <div className="user-card-avatar-wrap">
-              {avatarSrc && !imageError ? (
-                <img src={avatarSrc} alt={username} className="user-card-avatar" onError={() => setImageError(true)} />
+              {showAvatarImage ? (
+                <img
+                  src={avatarSrc!}
+                  alt={username}
+                  className="user-card-avatar"
+                  onError={() => setFailedAvatarSrc(avatarSrc!)}
+                />
               ) : (
                 <div className="user-card-avatar user-card-avatar--initial">
                   {initial}
@@ -245,9 +259,9 @@ export function ProfilePanel({
               <p className="user-card-username">@{username.toLowerCase()}</p>
 
               <div className="user-card-badges">
-                <span className="user-badge vip-badge">
+                <span className={`user-badge vip-badge ${vipTierClass(vipTier)}`}>
                   <i className="fa-solid fa-crown" aria-hidden="true" />
-                  VIP Gold
+                  VIP {profileValue(vipTier, "Gold")}
                 </span>
                 <span className="user-badge verified-badge">
                   <i className="fa-solid fa-circle-check" aria-hidden="true" />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { resolveAssetUrl } from "@/shared/utils/assetUrl";
 
 type ProfileAvatarProps = {
@@ -15,20 +15,16 @@ function firstLetter(value: string): string {
 }
 
 export function ProfileAvatar({ username, avatarUrl }: ProfileAvatarProps) {
-  const [hasImageError, setHasImageError] = useState(false);
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState<string | null>(null);
   const avatarSrc = resolveAssetUrl(avatarUrl);
 
-  useEffect(() => {
-    setHasImageError(false);
-  }, [avatarUrl]);
-
-  if (avatarSrc && !hasImageError) {
+  if (avatarSrc && avatarSrc !== failedAvatarSrc) {
     return (
       <img
         src={avatarSrc}
         alt="Profile"
         className="profile-image"
-        onError={() => setHasImageError(true)}
+        onError={() => setFailedAvatarSrc(avatarSrc)}
       />
     );
   }
