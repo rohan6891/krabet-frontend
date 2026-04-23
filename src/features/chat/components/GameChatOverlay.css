@@ -67,26 +67,26 @@
   right: 0;
   width: 380px;
   height: 100vh;
-  background: rgba(12, 2, 20, 0.92);
+  background: rgba(12, 2, 20, 0.96);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border-left: 1px solid rgba(160, 100, 255, 0.08);
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+  border-left: 1px solid rgba(160, 100, 255, 0.15);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.6);
   pointer-events: auto;
-  z-index: 1001;
+  z-index: 3000;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 .game-chat-drawer.open {
   transform: translateX(0);
 }
 
-/* ChatWidget inside the drawer inherits full height */
+/* ChatWidget inside the drawer */
 .game-chat-drawer .wa-chat-shell {
   background: transparent;
+  height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -96,7 +96,7 @@
     top: 0;
     border-left: none;
   }
-  
+
   .game-chat-toggle-btn {
     bottom: 80px;
     right: 16px;

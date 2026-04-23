@@ -22,11 +22,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: rgba(22, 4, 38, 0.92);
-  border-bottom: 1px solid rgba(180, 120, 255, 0.1);
+  padding: 0 16px;
+  height: 60px;
+  min-height: 60px;
+  background: #1a052e;
+  border-bottom: 1px solid rgba(180, 120, 255, 0.2);
   flex-shrink: 0;
-  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
 }
 
 .wa-topbar-left {
@@ -61,21 +66,54 @@
   font-size: 0.72rem;
   color: rgba(210, 180, 255, 0.55);
   line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wa-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  display: inline-block;
+  animation: wa-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes wa-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.wa-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .wa-topbar-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(180, 120, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: #c8a8f0;
+  border: 1px solid rgba(180, 120, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition: all 0.2s ease;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
 }
 
 .wa-topbar-btn:hover {
-  background: rgba(160, 100, 255, 0.12);
+  background: rgba(160, 100, 255, 0.3);
+  transform: scale(1.05);
+  border-color: rgba(180, 120, 255, 0.5);
+}
+
+.wa-topbar-close:hover {
+  background: rgba(255, 60, 60, 0.4);
+  border-color: rgba(255, 60, 60, 0.5);
 }
 
 /* ── Feed ── */
@@ -112,6 +150,20 @@
   display: flex;
   gap: 8px;
   align-items: flex-start;
+  border-radius: 8px;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  transition: background 0.4s ease;
+}
+
+.wa-msg-highlight {
+  animation: wa-highlight-flash 2s ease;
+}
+
+@keyframes wa-highlight-flash {
+  0% { background: rgba(160, 100, 255, 0.25); }
+  50% { background: rgba(160, 100, 255, 0.12); }
+  100% { background: transparent; }
 }
 
 .wa-msg-avatar {
@@ -213,16 +265,22 @@
 
 .wa-reply-ref {
   margin-bottom: 5px;
-  padding: 5px 7px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border-left: 3px solid rgba(180, 120, 255, 0.5);
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(120, 60, 200, 0.1);
+  border-left: 3px solid #a855f7;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.wa-reply-ref:hover {
+  background: rgba(120, 60, 200, 0.18);
 }
 
 .wa-reply-ref span {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #d4b0ff;
+  color: #c580ff;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -232,6 +290,10 @@
   font-size: 0.72rem;
   color: rgba(210, 190, 240, 0.6);
   margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
 }
 
 /* ── Reactions ── */
@@ -447,45 +509,74 @@
   color: rgba(200, 180, 230, 0.45);
 }
 
-/* ── Reply strip ── */
+/* ── Reply strip – WhatsApp style ── */
 .wa-reply-strip {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  border-bottom: 1px solid rgba(160, 100, 255, 0.08);
-  border-left: 3px solid rgba(180, 120, 255, 0.5);
-  background: rgba(40, 12, 65, 0.6);
+  align-items: stretch;
+  padding: 0;
+  margin: 0 10px 0;
+  border-radius: 10px;
+  background: rgba(120, 60, 200, 0.12);
+  overflow: hidden;
+  animation: wa-reply-slide 0.2s ease;
 }
 
-.wa-reply-strip span {
-  font-size: 0.72rem;
+@keyframes wa-reply-slide {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wa-reply-strip-accent {
+  width: 4px;
+  background: #a855f7;
+  flex-shrink: 0;
+}
+
+.wa-reply-strip-content {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.wa-reply-strip-user {
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #d4b0ff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: #c580ff;
+  display: block;
+  margin-bottom: 1px;
 }
 
-.wa-reply-strip p {
-  margin: 2px 0 0;
-  font-size: 0.76rem;
+.wa-reply-strip-text {
+  margin: 0;
+  font-size: 0.78rem;
   color: rgba(210, 190, 240, 0.55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 260px;
+  max-width: 300px;
 }
 
-.wa-reply-strip button {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
+.wa-reply-strip-text i {
+  margin-right: 4px;
+  font-size: 0.7rem;
+}
+
+.wa-reply-strip-close {
+  width: 34px;
+  display: grid;
+  place-items: center;
   border: none;
-  background: rgba(255, 255, 255, 0.05);
-  color: #c8a8f0;
+  background: transparent;
+  color: rgba(200, 180, 230, 0.5);
   cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.15s;
   flex-shrink: 0;
+}
+
+.wa-reply-strip-close:hover {
+  color: #ff8a8a;
+  background: rgba(255, 80, 80, 0.08);
 }
 
 /* ═══════════════════════════════════════════════
@@ -712,6 +803,156 @@
   .wa-media-grid { grid-template-columns: repeat(5, 1fr); }
 }
 
+/* ── Search Overlay – WhatsApp Style ── */
+.wa-search-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  background: rgba(10, 2, 18, 0.98);
+  display: flex;
+  flex-direction: column;
+  animation: wa-overlay-fade 0.25s ease;
+}
+
+@keyframes wa-overlay-fade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wa-search-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wa-search-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(22, 4, 38, 0.95);
+  border-bottom: 1px solid rgba(180, 120, 255, 0.1);
+}
+
+.wa-search-back {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #c8a8f0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  transition: 0.2s;
+}
+
+.wa-search-back:hover {
+  background: rgba(160, 100, 255, 0.12);
+  color: #fff;
+}
+
+.wa-search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  padding: 0 12px;
+  height: 40px;
+  border: 1px solid rgba(160, 100, 255, 0.08);
+}
+
+.wa-search-input-wrap input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.wa-search-clear {
+  border: none;
+  background: transparent;
+  color: rgba(200, 180, 230, 0.4);
+  cursor: pointer;
+}
+
+.wa-search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.wa-search-label {
+  padding: 0 16px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #c580ff;
+  letter-spacing: 0.05em;
+}
+
+.wa-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.wa-search-row:hover {
+  background: rgba(160, 100, 255, 0.08);
+}
+
+.wa-search-row img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(180, 120, 255, 0.12);
+}
+
+.wa-search-row-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-search-row-info strong {
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.wa-search-row-info span {
+  font-size: 0.75rem;
+  color: rgba(200, 180, 230, 0.45);
+}
+
+.wa-search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: rgba(200, 180, 230, 0.35);
+  text-align: center;
+}
+
+.wa-search-empty i {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.wa-search-empty p {
+  font-size: 0.88rem;
+  margin: 0;
+}
+
 /* ═══════════════════════════════════════════════
    Sticker Preview Overlay (WhatsApp Style)
    ═══════════════════════════════════════════════ */
@@ -817,19 +1058,19 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #25D366; /* WhatsApp Green */
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
   border: none;
   color: #fff;
   font-size: 1.1rem;
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(120, 50, 220, 0.4);
   transition: 0.15s;
   flex-shrink: 0;
 }
 
 .wa-preview-send:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 6px 16px rgba(120, 50, 220, 0.55);
 }

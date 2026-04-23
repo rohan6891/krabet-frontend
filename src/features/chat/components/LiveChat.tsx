@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./LiveChat.css";
 // @ts-ignore side-effect stylesheet import is handled by Next.js runtime
 import "@/features/dashboard/pages/DashboardPage.css";
@@ -30,7 +30,12 @@ function getBadgeIcon(badge: string) {
 }
 
 /* ─────────────────────── ChatWidget ─────────────────────── */
-export function ChatWidget({ roomCode }: { roomCode: string }) {
+interface ChatWidgetProps {
+  roomCode: string;
+  onClose?: () => void;
+}
+
+export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
   const { messages: liveMessages, loading, sendMessage: apiSendMessage } = useChat(roomCode);
 
   const mappedMessages: any[] = useMemo(() => {
@@ -45,7 +50,7 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
       type: msg.metadata?.klipy_url ? "sticker" : "text",
       text: msg.message,
       sticker: msg.metadata?.klipy_url,
-      replyTo: null,
+      replyTo: msg.replyTo || null,
       reactions: {},
     }));
   }, [liveMessages]);
@@ -60,10 +65,11 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
   const [klipyResults, setKlipyResults] = useState<any[]>([]);
   const [klipyLoading, setKlipyLoading] = useState(false);
   const [klipyError, setKlipyError] = useState("");
-  const [showMentionsPanel, setShowMentionsPanel] = useState(false);
-  const [mentionsQuery, setMentionsQuery] = useState("");
+  const [showSearchPanel, setShowSearchPanel] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [stickerPreview, setStickerPreview] = useState<any>(null);
   const [emojis, setEmojis] = useState<string[]>(EMOJIS);
+  const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -90,10 +96,21 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
 
   const feedRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const msgRefsMap = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
   }, [mappedMessages]);
+
+  /* ── scroll to a message by ID ── */
+  const scrollToMessage = useCallback((msgId: string) => {
+    const el = msgRefsMap.current.get(msgId);
+    if (el && feedRef.current) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightedMsgId(msgId);
+      setTimeout(() => setHighlightedMsgId(null), 2000);
+    }
+  }, []);
 
   /* ── Klipy fetch (GIF or Sticker) ── */
   const fetchKlipy = async (query: string, type: "gif" | "sticker") => {
@@ -131,9 +148,15 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
     if (tab !== "emoji") { setKlipyQuery(""); fetchKlipy("trending", tab); }
   };
 
+  const toggleSearch = () => {
+    setShowSearchPanel((p) => !p);
+    setSearchQuery("");
+    setPickerOpen(false);
+  };
+
   const togglePicker = () => {
     setPickerOpen((p) => !p);
-    setShowMentionsPanel(false);
+    setShowSearchPanel(false);
   };
 
   const appendEmoji = (e: string) => { setMessageText((p) => p + e); inputRef.current?.focus(); };
@@ -179,28 +202,32 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
     setMessageText(v);
     const last = v.split(" ").pop();
     if (last && last.startsWith("@")) {
-      setShowMentionsPanel(true);
-      setMentionsQuery(last.slice(1).toLowerCase());
+      setShowSearchPanel(true);
+      setSearchQuery(last.slice(1).toLowerCase());
       setPickerOpen(false);
     } else {
-      setShowMentionsPanel(false);
+      // Don't auto-close if the user manually opened it via the search button
+      // But if it was auto-opened via '@', we can handle that logic if needed
     }
   };
 
   const insertMention = (handle: string) => {
     const words = messageText.split(" ");
-    words.pop();
+    const lastWord = words[words.length - 1];
+    if (lastWord.startsWith("@")) {
+      words.pop();
+    }
     setMessageText(words.length ? words.join(" ") + ` ${handle} ` : `${handle} `);
-    setShowMentionsPanel(false);
+    setShowSearchPanel(false);
     inputRef.current?.focus();
   };
 
-  const filteredMentions = useMemo(() => {
-    if (!mentionsQuery) return activeUsers;
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery) return activeUsers;
     return activeUsers.filter((u: any) =>
-      u.user.toLowerCase().includes(mentionsQuery) || u.handle.toLowerCase().includes(mentionsQuery)
+      u.user.toLowerCase().includes(searchQuery) || u.handle.toLowerCase().includes(searchQuery)
     );
-  }, [activeUsers, mentionsQuery]);
+  }, [activeUsers, searchQuery]);
 
   /* ── render ── */
   return (
@@ -211,13 +238,63 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
           <div className="wa-topbar-icon"><i className="fa-solid fa-comments"></i></div>
           <div className="wa-topbar-info">
             <h1>{roomCode === "global" ? "Public Chat" : `${roomCode.charAt(0).toUpperCase() + roomCode.slice(1)} Chat`}</h1>
-            <p>{activeUsers.length} online</p>
+            <p><span className="wa-live-dot"></span>{activeUsers.length} online</p>
           </div>
         </div>
-        <button className="wa-topbar-btn" onClick={() => { setShowMentionsPanel(!showMentionsPanel); setPickerOpen(false); }}>
-          <i className="fa-solid fa-magnifying-glass"></i>
-        </button>
+        <div className="wa-topbar-actions">
+          <button className="wa-topbar-btn" onClick={toggleSearch} title="Search users">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
+          {onClose && (
+            <button className="wa-topbar-btn wa-topbar-close" onClick={onClose} title="Close chat">
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          )}
+        </div>
       </header>
+
+      {/* User Search Overlay – Full view popup style */}
+      {showSearchPanel && (
+        <div className="wa-search-overlay">
+          <div className="wa-search-panel">
+            <div className="wa-search-hdr">
+              <button className="wa-search-back" onClick={() => setShowSearchPanel(false)}>
+                <i className="fa-solid fa-arrow-left"></i>
+              </button>
+              <div className="wa-search-input-wrap">
+                <input 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  placeholder="Search users..." 
+                  autoFocus 
+                />
+                {searchQuery && (
+                  <button className="wa-search-clear" onClick={() => setSearchQuery("")}>
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="wa-search-results">
+              <div className="wa-search-label">ACTIVE USERS</div>
+              {filteredUsers.length > 0 ? filteredUsers.map((u: any) => (
+                <div key={u.user} className="wa-search-row" onClick={() => insertMention(u.handle)}>
+                  <img src={u.avatar} alt={u.user} />
+                  <div className="wa-search-row-info">
+                    <strong>{u.user}</strong>
+                    <span>{u.handle}</span>
+                  </div>
+                </div>
+              )) : (
+                <div className="wa-search-empty">
+                  <i className="fa-solid fa-user-slash"></i>
+                  <p>No users found matching "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Feed */}
       <div className="wa-feed" ref={feedRef}>
@@ -228,7 +305,12 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
           <div className="wa-empty"><p>Loading…</p></div>
         )}
         {mappedMessages.map((msg) => (
-          <article className="wa-msg" key={msg.id}>
+          <article
+            className={`wa-msg ${highlightedMsgId === msg.id ? "wa-msg-highlight" : ""}`}
+            key={msg.id}
+            id={`msg-${msg.id}`}
+            ref={(el) => { if (el) msgRefsMap.current.set(msg.id, el); }}
+          >
             <img className="wa-msg-avatar" src={msg.avatar} alt={msg.user} />
             <div className="wa-msg-body">
               <div className="wa-msg-head">
@@ -240,7 +322,12 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
 
               <div className={`wa-bubble ${msg.type === "sticker" ? "sticker" : ""}`}>
                 {msg.replyTo && (
-                  <div className="wa-reply-ref">
+                  <div
+                    className="wa-reply-ref"
+                    onClick={() => scrollToMessage(msg.replyTo.id)}
+                    role="button"
+                    tabIndex={0}
+                  >
                     <span><i className="fa-solid fa-reply"></i> {msg.replyTo.user}</span>
                     <p>{msg.replyTo.text}</p>
                   </div>
@@ -286,33 +373,23 @@ export function ChatWidget({ roomCode }: { roomCode: string }) {
 
       {/* Composer area */}
       <div className="wa-composer-zone">
-        {/* Mentions popup */}
-        {showMentionsPanel && (
-          <div className="wa-overlay-panel">
-            <div className="wa-panel-hdr">
-              <span><i className="fa-solid fa-at"></i> Mention</span>
-              <button onClick={() => setShowMentionsPanel(false)}><i className="fa-solid fa-xmark"></i></button>
-            </div>
-            <div className="wa-panel-search">
-              <i className="fa-solid fa-magnifying-glass"></i>
-              <input value={mentionsQuery} onChange={(e) => setMentionsQuery(e.target.value)} placeholder="Search users…" autoFocus />
-            </div>
-            <div className="wa-panel-scroll">
-              {filteredMentions.length > 0 ? filteredMentions.map((u: any) => (
-                <div key={u.user} className="wa-mention-row" onClick={() => insertMention(u.handle)}>
-                  <img src={u.avatar} alt={u.user} />
-                  <div><strong>{u.user}</strong><span>{u.handle}</span></div>
-                </div>
-              )) : <div className="wa-panel-empty">No users found</div>}
-            </div>
-          </div>
-        )}
-
-        {/* Reply bar */}
+        {/* Reply bar – WhatsApp style */}
         {replyingTo && (
           <div className="wa-reply-strip">
-            <div><span><i className="fa-solid fa-reply"></i> {replyingTo.user}</span><p>{replyingTo.type === "sticker" ? "[Sticker]" : replyingTo.text}</p></div>
-            <button onClick={cancelReply}><i className="fa-solid fa-xmark"></i></button>
+            <div className="wa-reply-strip-accent"></div>
+            <div className="wa-reply-strip-content">
+              <span className="wa-reply-strip-user">{replyingTo.user}</span>
+              <p className="wa-reply-strip-text">
+                {replyingTo.type === "sticker" ? (
+                  <><i className="fa-solid fa-note-sticky"></i> Sticker</>
+                ) : (
+                  replyingTo.text
+                )}
+              </p>
+            </div>
+            <button className="wa-reply-strip-close" onClick={cancelReply}>
+              <i className="fa-solid fa-xmark"></i>
+            </button>
           </div>
         )}
 

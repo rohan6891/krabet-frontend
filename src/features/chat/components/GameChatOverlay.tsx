@@ -20,25 +20,24 @@ export function GameChatOverlay({ roomCode }: { roomCode: string }) {
 
   return (
     <div className="game-chat-overlay-wrapper">
-      <button 
-        className="game-chat-toggle-btn" 
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Game Chat"
-      >
-        {isOpen ? (
-          <i className="fa-solid fa-xmark"></i>
-        ) : (
-          <>
-            <i className="fa-solid fa-comments"></i>
-            {unreadCount > 0 && (
-              <span className="chat-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
-            )}
-          </>
-        )}
-      </button>
+      {/* Floating toggle – only visible when drawer is closed */}
+      {!isOpen && (
+        <button
+          className="game-chat-toggle-btn"
+          onClick={() => setIsOpen(true)}
+          aria-label="Open Game Chat"
+        >
+          <i className="fa-solid fa-comments"></i>
+          {unreadCount > 0 && (
+            <span className="chat-badge">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </button>
+      )}
 
       <div className={`game-chat-drawer ${isOpen ? "open" : ""}`}>
-        <ChatWidget roomCode={roomCode} />
+        <ChatWidget roomCode={roomCode} onClose={() => setIsOpen(false)} />
       </div>
     </div>
   );
