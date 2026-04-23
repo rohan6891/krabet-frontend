@@ -14,14 +14,7 @@ import { useChat } from "../hooks/useChat";
 const KLIPY_API_KEY = process.env.NEXT_PUBLIC_KLIPY_API_KEY || "";
 const KLIPY_CLIENT_KEY = process.env.NEXT_PUBLIC_KLIPY_CLIENT_KEY || "";
 
-const EMOJIS = [
-  "🔥","😂","💸","🎯","👀","💜","🚀","😭",
-  "😮","✅","😎","🤑","🎲","🍀","🙌","⚡",
-  "❤️","😍","🥳","💀","👏","🎉","💯","😤",
-  "🥶","🫡","😈","💎","🃏","🎰","💰","🏆",
-];
-
-const QUICK_REACTIONS = ["🔥", "💸", "😂", "👀", "🚀", "😭"];
+const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
 function getBadgeIcon(badge: string) {
   if (badge === "mod") return "fa-solid fa-shield-halved";
@@ -68,8 +61,24 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [stickerPreview, setStickerPreview] = useState<any>(null);
-  const [emojis, setEmojis] = useState<string[]>(EMOJIS);
+  const [emojis, setEmojis] = useState<string[]>([]);
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
+  const [showFullReactionPickerId, setShowFullReactionPickerId] = useState<string | null>(null);
+
+  const renderMessageText = (text: string) => {
+    if (!text) return null;
+    const parts = text.split(/(@\w+)/g);
+    return (
+      <p>
+        {parts.map((part, i) => {
+          if (part.startsWith('@')) {
+            return <span key={i} className="wa-mention-text">{part}</span>;
+          }
+          return part;
+        })}
+      </p>
+    );
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -296,6 +305,30 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
         </div>
       )}
 
+      {/* Full Reaction Picker Overlay */}
+      {showFullReactionPickerId && (
+        <div className="wa-search-overlay" onClick={() => setShowFullReactionPickerId(null)}>
+          <div className="wa-search-panel wa-full-react-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="wa-search-hdr">
+              <button className="wa-search-back" onClick={() => setShowFullReactionPickerId(null)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+              <div style={{ padding: 0, fontSize: '1rem', color: '#fff', fontWeight: 'bold' }}>Reactions</div>
+            </div>
+            <div className="wa-search-results wa-full-react-results">
+              <div className="wa-emoji-grid">
+                {emojis.map((em, i) => (
+                  <button key={`${em}-${i}`} className="wa-emoji-btn" onClick={() => {
+                    addReaction(showFullReactionPickerId, em);
+                    setShowFullReactionPickerId(null);
+                  }}>{em}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Feed */}
       <div className="wa-feed" ref={feedRef}>
         {mappedMessages.length === 0 && !loading && (
@@ -335,7 +368,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
                 {msg.type === "sticker" ? (
                   <img className="wa-sticker-img" src={msg.sticker} alt={msg.text} />
                 ) : (
-                  <p>{msg.text}</p>
+                  renderMessageText(msg.text)
                 )}
               </div>
 
@@ -359,6 +392,12 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
                       {QUICK_REACTIONS.map((r) => (
                         <button key={r} className="wa-react-opt" onClick={() => addReaction(msg.id, r)}>{r}</button>
                       ))}
+                      <button className="wa-react-opt wa-react-plus" onClick={() => {
+                        setShowFullReactionPickerId(msg.id);
+                        setOpenReactionPickerId(null);
+                      }}>
+                        <i className="fa-solid fa-plus"></i>
+                      </button>
                     </div>
                   )}
                 </div>

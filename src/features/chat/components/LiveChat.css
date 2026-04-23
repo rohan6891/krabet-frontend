@@ -953,6 +953,41 @@
   margin: 0;
 }
 
+/* ── Mentions ── */
+.wa-mention-text {
+  color: #60a5fa;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── Reaction Picker Plus Button ── */
+.wa-react-plus {
+  background: rgba(160, 100, 255, 0.1);
+  color: #d4b0ff;
+  border-color: rgba(160, 100, 255, 0.2);
+}
+
+.wa-react-plus:hover {
+  background: rgba(160, 100, 255, 0.25);
+  color: #fff;
+}
+
+/* ── Full Reaction Picker Overlay ── */
+.wa-full-react-panel {
+  height: 60%;
+  margin-top: auto;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  background: rgba(22, 4, 38, 0.98);
+}
+
+.wa-full-react-results {
+  padding: 16px;
+  overflow-y: auto;
+}
+
 /* ═══════════════════════════════════════════════
    Sticker Preview Overlay (WhatsApp Style)
    ═══════════════════════════════════════════════ */
