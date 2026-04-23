@@ -38,11 +38,11 @@ function normalizePercent(value: number): number {
 export function useVipData() {
   const [loading, setLoading] = useState(true);
   const [snapshot, setSnapshot] = useState<VipSnapshot>({
-    levelName: "Gold",
+    levelName: "...",
     totalWager: "0",
-    nextLevelName: "Platinum",
+    nextLevelName: "...",
     nextLevelRequiredWager: null,
-    progressPercent: 55,
+    progressPercent: 0,
     totalWagerRaw: "0",
     totalDeposits: "0",
     totalSessions: 0,
@@ -62,6 +62,7 @@ export function useVipData() {
     try {
       const [profileRes, levelsRes] = await Promise.all([fetchVipMe(token), fetchVipLevels()]);
       const profile = profileRes.data.profile;
+      console.log("Profile: \n", profile);
       setSnapshot({
         levelName: profile.level_name,
         totalWager: profile.total_wager,
@@ -75,6 +76,7 @@ export function useVipData() {
         isVerified: profile.is_verified,
         gameContributions: profile.game_contributions || {},
       });
+      console.log("Snapshot updated in state.");
 
       setLevels(
         (levelsRes.data.levels || []).map((level) => ({
@@ -96,6 +98,10 @@ export function useVipData() {
   useEffect(() => {
     void loadVipData();
   }, [loadVipData]);
+
+  useEffect(() => {
+    console.log("Current Snapshot State:", snapshot);
+  }, [snapshot]);
 
   useEffect(() => {
     const handler = () => {

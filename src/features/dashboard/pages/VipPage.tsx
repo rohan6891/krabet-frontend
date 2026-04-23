@@ -265,10 +265,6 @@ export function VipPage() {
                     <div className="vip-progress-bar">
                       <div className="vip-progress-fill" style={{ width: `${compositeProgress}%` }}></div>
                     </div>
-                    <span>
-                      VIP Points: {formatCurrency(snapshot.totalWager)}
-                      {snapshot.nextLevelRequiredWager ? ` / ${formatCurrency(snapshot.nextLevelRequiredWager)}` : ""}
-                    </span>
                   </div>
                 </section>
 
@@ -369,20 +365,20 @@ function VipStatusCard({
 
         <div className="vip-card-stats-grid">
           <div className="vip-stat-item">
-            <span className="vip-stat-label">Raw Wagered</span>
-            <span className="vip-stat-value">${formatCurrency(snapshot.totalWagerRaw)}</span>
-          </div>
-          <div className="vip-stat-item">
-            <span className="vip-stat-label">VIP Points</span>
-            <span className="vip-stat-value">${formatCurrency(snapshot.totalWager)}</span>
-          </div>
-          <div className="vip-stat-item">
             <span className="vip-stat-label">Total Deposits</span>
             <span className="vip-stat-value">${formatCurrency(snapshot.totalDeposits)}</span>
           </div>
           <div className="vip-stat-item">
-            <span className="vip-stat-label">Sessions</span>
+            <span className="vip-stat-label">Sessions Played</span>
             <span className="vip-stat-value">{snapshot.totalSessions}</span>
+          </div>
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">Days Active</span>
+            <span className="vip-stat-value">{snapshot.daysActive}</span>
+          </div>
+          <div className="vip-stat-item">
+            <span className="vip-stat-label">Status</span>
+            <span className="vip-stat-value">{snapshot.isVerified ? "Verified" : "Pending"}</span>
           </div>
         </div>
 
@@ -422,20 +418,6 @@ function VipStatusCard({
           </div>
         )}
 
-        <div className="vip-card-contributions">
-          <h4>Game Contribution Rates</h4>
-          <div className="contribution-pills">
-            {Object.entries(snapshot.gameContributions).map(([game, weight]: [string, any]) => (
-              <div key={game} className="contribution-pill">
-                <span className="game-name">{game}</span>
-                <span className="game-weight">{(weight * 100).toFixed(0)}%</span>
-              </div>
-            ))}
-          </div>
-          <p className="contribution-note">
-            Contribution rates affect how much of your raw wager counts towards VIP progress.
-          </p>
-        </div>
       </div>
     </div>
   );
