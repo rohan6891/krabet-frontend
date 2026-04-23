@@ -1,58 +1,40 @@
+"use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./LiveChatPage.css";
+import "./LiveChat.css";
+// @ts-ignore side-effect stylesheet import is handled by Next.js runtime
+import "@/features/dashboard/pages/DashboardPage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
 import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useChat } from "../hooks/useChat";
-const KLIPY_API_KEY = import.meta.env.VITE_KLIPY_API_KEY || "";
-const KLIPY_CLIENT_KEY = "krabets_livechat";
 
-// Initial messages removed, using live backend data instead
+const KLIPY_API_KEY = process.env.NEXT_PUBLIC_KLIPY_API_KEY || "";
+const KLIPY_CLIENT_KEY = process.env.NEXT_PUBLIC_KLIPY_CLIENT_KEY || "";
 
 const EMOJIS = [
-  "🔥",
-  "😂",
-  "💸",
-  "🎯",
-  "👀",
-  "💜",
-  "🚀",
-  "😭",
-  "😮",
-  "✅",
-  "😎",
-  "🤑",
-  "🎲",
-  "🍀",
-  "🙌",
-  "⚡",
+  "🔥","😂","💸","🎯","👀","💜","🚀","😭",
+  "😮","✅","😎","🤑","🎲","🍀","🙌","⚡",
+  "❤️","😍","🥳","💀","👏","🎉","💯","😤",
+  "🥶","🫡","😈","💎","🃏","🎰","💰","🏆",
 ];
 
 const QUICK_REACTIONS = ["🔥", "💸", "😂", "👀", "🚀", "😭"];
 
-function getBadgeIcon(badge) {
+function getBadgeIcon(badge: string) {
   if (badge === "mod") return "fa-solid fa-shield-halved";
   if (badge === "verified") return "fa-solid fa-circle-check";
   return "";
 }
 
-function formatNowTime() {
-  return new Date().toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+/* ─────────────────────── ChatWidget ─────────────────────── */
+export function ChatWidget({ roomCode }: { roomCode: string }) {
+  const { messages: liveMessages, loading, sendMessage: apiSendMessage } = useChat(roomCode);
 
-export function LiveChatPage() {
-  const { isChecking, isAuthenticated } = useDashboardAuthGuard();
-  const { walletBalance, profile } = useDashboardData();
-  const { messages: liveMessages, loading, sendMessage: apiSendMessage } = useChat("global");
-  
-  // Create UI-mapped messages from live backend messages
-  const mappedMessages = useMemo(() => {
-    return liveMessages.map(msg => ({
+  const mappedMessages: any[] = useMemo(() => {
+    return liveMessages.map((msg: any) => ({
       id: msg.id,
       user: msg.user?.username || "System",
       handle: msg.user?.username ? `@${msg.user.username.toLowerCase()}` : "",
@@ -68,177 +50,389 @@ export function LiveChatPage() {
     }));
   }, [liveMessages]);
 
+  /* ── state ── */
   const [messageText, setMessageText] = useState("");
-  const [showEmojiPanel, setShowEmojiPanel] = useState(false);
-  const [showStickerPanel, setShowStickerPanel] = useState(false);
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [openReactionPickerId, setOpenReactionPickerId] = useState(null);
-  const [klipyQuery, setKlipyQuery] = useState("casino");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerTab, setPickerTab] = useState<"emoji" | "gif" | "sticker">("emoji");
+  const [replyingTo, setReplyingTo] = useState<any>(null);
+  const [openReactionPickerId, setOpenReactionPickerId] = useState<any>(null);
+  const [klipyQuery, setKlipyQuery] = useState("");
   const [klipyResults, setKlipyResults] = useState<any[]>([]);
   const [klipyLoading, setKlipyLoading] = useState(false);
   const [klipyError, setKlipyError] = useState("");
-  
   const [showMentionsPanel, setShowMentionsPanel] = useState(false);
   const [mentionsQuery, setMentionsQuery] = useState("");
-
-  const activeUsers = useMemo(() => {
-    const uniqueUsers = new Map();
-    mappedMessages.forEach(msg => {
-      if (!uniqueUsers.has(msg.user) && msg.user !== "System") {
-        uniqueUsers.set(msg.user, { user: msg.user, handle: msg.handle, avatar: msg.avatar });
-      }
-    });
-    return Array.from(uniqueUsers.values());
-  }, [mappedMessages]);
-
-  const feedRef = useRef<any>(null);
-  const textareaRef = useRef<any>(null);
-
-  const visibleKlipyResults = useMemo(() => klipyResults.slice(0, 15), [klipyResults]);
+  const [stickerPreview, setStickerPreview] = useState<any>(null);
+  const [emojis, setEmojis] = useState<string[]>(EMOJIS);
 
   useEffect(() => {
-    fetchKlipyStickers("casino");
+    let mounted = true;
+    fetch("https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (mounted && Array.isArray(data)) {
+          const fetched = data.map((item: any) => item.emoji).filter(Boolean);
+          setEmojis(fetched);
+        }
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
   }, []);
 
-  useEffect(() => {
-    if (feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
-    }
+  const activeUsers = useMemo(() => {
+    const m = new Map();
+    mappedMessages.forEach((msg) => {
+      if (!m.has(msg.user) && msg.user !== "System")
+        m.set(msg.user, { user: msg.user, handle: msg.handle, avatar: msg.avatar });
+    });
+    return Array.from(m.values());
   }, [mappedMessages]);
 
-  const fetchKlipyStickers = async (query = "casino") => {
-    if (!KLIPY_API_KEY) {
-      setKlipyError("Missing Klipy API key. Add VITE_KLIPY_API_KEY to your env.");
-      setKlipyResults([]);
-      return;
-    }
+  const feedRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
+  }, [mappedMessages]);
+
+  /* ── Klipy fetch (GIF or Sticker) ── */
+  const fetchKlipy = async (query: string, type: "gif" | "sticker") => {
+    if (!KLIPY_API_KEY) { setKlipyResults([]); return; }
     try {
       setKlipyLoading(true);
       setKlipyError("");
-
-      // Using Klipy's Tenor-compatible migration API endpoint or native endpoint
-      const response = await fetch(
-        `https://api.klipy.com/tenor/v2/search?q=${encodeURIComponent(
-          query
-        )}&key=${KLIPY_API_KEY}&client_key=${KLIPY_CLIENT_KEY}&limit=24&media_filter=gif&contentfilter=medium`
+      const ep = type === "gif" ? "gifs" : "stickers";
+      const res = await fetch(
+        `https://api.klipy.com/api/v1/${KLIPY_API_KEY}/${ep}/search?q=${encodeURIComponent(query || "trending")}&per_page=24&content_filter=medium${KLIPY_CLIENT_KEY ? `&customer_id=${KLIPY_CLIENT_KEY}` : ""}`
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch");
-      }
-
-      const data = await response.json();
-
-      const parsedResults =
-        data?.results?.map((item: any, index: number) => {
-          const mediaUrl =
-            item?.media_formats?.tinygif?.url ||
-            item?.media_formats?.gif?.url ||
-            item?.media_formats?.mediumgif?.url ||
-            "";
-
-          return {
-            id: `${item.id}-${index}`,
-            title: item.content_description || "Sticker",
-            url: mediaUrl,
-          };
-        }) || [];
-
-      setKlipyResults(parsedResults.filter((item: any) => item.url));
-    } catch (error) {
-      setKlipyError("Failed to load stickers from Klipy.");
+      if (!res.ok) throw new Error(`${res.status}`);
+      const json = await res.json();
+      const items = json?.data?.data || [];
+      const parsed = items.map((it: any, i: number) => {
+        const url =
+          it?.file?.sm?.gif?.url || it?.file?.sm?.webp?.url ||
+          it?.file?.md?.gif?.url || it?.file?.md?.webp?.url ||
+          it?.file?.hd?.gif?.url || "";
+        return { id: `${it.id}-${i}`, title: it.title || type, url };
+      });
+      setKlipyResults(parsed.filter((r: any) => r.url));
+    } catch (e) {
+      console.error("Klipy:", e);
+      setKlipyError("Failed to load. Check API key.");
       setKlipyResults([]);
     } finally {
       setKlipyLoading(false);
     }
   };
 
-  const appendEmoji = (emoji) => {
-    setMessageText((prev) => `${prev}${emoji}`);
-    textareaRef.current?.focus();
+  /* ── tab switch ── */
+  const switchTab = (tab: "emoji" | "gif" | "sticker") => {
+    setPickerTab(tab);
+    if (tab !== "emoji") { setKlipyQuery(""); fetchKlipy("trending", tab); }
   };
 
-  const sendStickerMessage = async (sticker: any) => {
-    await apiSendMessage("", sticker.url);
-    setReplyingTo(null);
-    setShowStickerPanel(false);
+  const togglePicker = () => {
+    setPickerOpen((p) => !p);
+    setShowMentionsPanel(false);
+  };
+
+  const appendEmoji = (e: string) => { setMessageText((p) => p + e); inputRef.current?.focus(); };
+
+  const handleSelectSticker = (s: any) => {
+    setStickerPreview(s);
+    setPickerOpen(false);
+  };
+
+  const confirmSendSticker = async () => {
+    if (stickerPreview) {
+      await apiSendMessage(messageText.trim(), stickerPreview.url);
+      setStickerPreview(null);
+      setMessageText("");
+      setReplyingTo(null);
+    }
+  };
+
+  const cancelStickerPreview = () => {
+    setStickerPreview(null);
   };
 
   const sendMessage = async () => {
-    const trimmed = messageText.trim();
-    if (!trimmed) return;
-
-    await apiSendMessage(trimmed);
-
+    const t = messageText.trim();
+    if (!t) return;
+    await apiSendMessage(t);
     setMessageText("");
     setReplyingTo(null);
-    setShowEmojiPanel(false);
+    setPickerOpen(false);
     setOpenReactionPickerId(null);
   };
 
-  const handleEnterSend = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
+  const onKeyDown = (ev: any) => {
+    if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); sendMessage(); }
   };
 
-  const handleReply = (message: any) => {
-    setReplyingTo(message);
-    setShowEmojiPanel(false);
-    setShowStickerPanel(false);
-    textareaRef.current?.focus();
-  };
+  const handleReply = (m: any) => { setReplyingTo(m); setPickerOpen(false); inputRef.current?.focus(); };
+  const cancelReply = () => setReplyingTo(null);
+  const addReaction = (_id: string, _emoji: string) => setOpenReactionPickerId(null);
 
-  const cancelReply = () => {
-    setReplyingTo(null);
-  };
-
-  const addReaction = (messageId: string, emoji: string) => {
-    // We can handle local state for reactions, but since it requires backend
-    // changes for persistence, we'll just ignore local mocking for now or
-    // implement a local state override.
-    setOpenReactionPickerId(null);
-  };
-
-  const handleTextareaChange = (e: any) => {
-    const val = e.target.value;
-    setMessageText(val);
-
-    const lastWord = val.split(" ").pop();
-    if (lastWord && lastWord.startsWith("@")) {
+  const onInputChange = (e: any) => {
+    const v = e.target.value;
+    setMessageText(v);
+    const last = v.split(" ").pop();
+    if (last && last.startsWith("@")) {
       setShowMentionsPanel(true);
-      setMentionsQuery(lastWord.slice(1).toLowerCase());
-      setShowEmojiPanel(false);
-      setShowStickerPanel(false);
+      setMentionsQuery(last.slice(1).toLowerCase());
+      setPickerOpen(false);
     } else {
       setShowMentionsPanel(false);
-    }
-  };
-
-  const handleStickerSearch = (event: any) => {
-    if (event.key === "Enter") {
-      fetchKlipyStickers(klipyQuery || "casino");
     }
   };
 
   const insertMention = (handle: string) => {
     const words = messageText.split(" ");
     words.pop();
-    const newText = words.length > 0 ? words.join(" ") + ` ${handle} ` : `${handle} `;
-    setMessageText(newText);
+    setMessageText(words.length ? words.join(" ") + ` ${handle} ` : `${handle} `);
     setShowMentionsPanel(false);
-    textareaRef.current?.focus();
+    inputRef.current?.focus();
   };
 
   const filteredMentions = useMemo(() => {
     if (!mentionsQuery) return activeUsers;
-    return activeUsers.filter((u: any) => 
-      u.user.toLowerCase().includes(mentionsQuery) || 
-      u.handle.toLowerCase().includes(mentionsQuery)
+    return activeUsers.filter((u: any) =>
+      u.user.toLowerCase().includes(mentionsQuery) || u.handle.toLowerCase().includes(mentionsQuery)
     );
   }, [activeUsers, mentionsQuery]);
+
+  /* ── render ── */
+  return (
+    <div className="wa-chat-shell">
+      {/* Top bar */}
+      <header className="wa-topbar">
+        <div className="wa-topbar-left">
+          <div className="wa-topbar-icon"><i className="fa-solid fa-comments"></i></div>
+          <div className="wa-topbar-info">
+            <h1>{roomCode === "global" ? "Public Chat" : `${roomCode.charAt(0).toUpperCase() + roomCode.slice(1)} Chat`}</h1>
+            <p>{activeUsers.length} online</p>
+          </div>
+        </div>
+        <button className="wa-topbar-btn" onClick={() => { setShowMentionsPanel(!showMentionsPanel); setPickerOpen(false); }}>
+          <i className="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </header>
+
+      {/* Feed */}
+      <div className="wa-feed" ref={feedRef}>
+        {mappedMessages.length === 0 && !loading && (
+          <div className="wa-empty"><i className="fa-regular fa-comments"></i><p>No messages yet. Be the first!</p></div>
+        )}
+        {loading && mappedMessages.length === 0 && (
+          <div className="wa-empty"><p>Loading…</p></div>
+        )}
+        {mappedMessages.map((msg) => (
+          <article className="wa-msg" key={msg.id}>
+            <img className="wa-msg-avatar" src={msg.avatar} alt={msg.user} />
+            <div className="wa-msg-body">
+              <div className="wa-msg-head">
+                <span className="wa-msg-user">{msg.user}</span>
+                <span className="wa-msg-lvl">{msg.level}</span>
+                {msg.badge !== "none" && <span className={`wa-msg-badge ${msg.badge}`}><i className={getBadgeIcon(msg.badge)}></i></span>}
+                <span className="wa-msg-time">{msg.time}</span>
+              </div>
+
+              <div className={`wa-bubble ${msg.type === "sticker" ? "sticker" : ""}`}>
+                {msg.replyTo && (
+                  <div className="wa-reply-ref">
+                    <span><i className="fa-solid fa-reply"></i> {msg.replyTo.user}</span>
+                    <p>{msg.replyTo.text}</p>
+                  </div>
+                )}
+                {msg.type === "sticker" ? (
+                  <img className="wa-sticker-img" src={msg.sticker} alt={msg.text} />
+                ) : (
+                  <p>{msg.text}</p>
+                )}
+              </div>
+
+              {!!Object.keys(msg.reactions || {}).length && (
+                <div className="wa-reactions">
+                  {Object.entries((msg.reactions as Record<string, number>) || {}).map(([em, c]) => (
+                    <button key={`${msg.id}-${em}`} className="wa-react-chip" onClick={() => addReaction(msg.id, em)}>
+                      <span>{em}</span><strong>{c as number}</strong>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="wa-msg-actions">
+                <div className="wa-react-wrap">
+                  <button className="wa-action-btn" onClick={() => setOpenReactionPickerId((p: any) => p === msg.id ? null : msg.id)}>
+                    <i className="fa-regular fa-face-smile"></i>
+                  </button>
+                  {openReactionPickerId === msg.id && (
+                    <div className="wa-react-picker">
+                      {QUICK_REACTIONS.map((r) => (
+                        <button key={r} className="wa-react-opt" onClick={() => addReaction(msg.id, r)}>{r}</button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button className="wa-action-btn" onClick={() => handleReply(msg)}>
+                  <i className="fa-solid fa-reply"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {/* Composer area */}
+      <div className="wa-composer-zone">
+        {/* Mentions popup */}
+        {showMentionsPanel && (
+          <div className="wa-overlay-panel">
+            <div className="wa-panel-hdr">
+              <span><i className="fa-solid fa-at"></i> Mention</span>
+              <button onClick={() => setShowMentionsPanel(false)}><i className="fa-solid fa-xmark"></i></button>
+            </div>
+            <div className="wa-panel-search">
+              <i className="fa-solid fa-magnifying-glass"></i>
+              <input value={mentionsQuery} onChange={(e) => setMentionsQuery(e.target.value)} placeholder="Search users…" autoFocus />
+            </div>
+            <div className="wa-panel-scroll">
+              {filteredMentions.length > 0 ? filteredMentions.map((u: any) => (
+                <div key={u.user} className="wa-mention-row" onClick={() => insertMention(u.handle)}>
+                  <img src={u.avatar} alt={u.user} />
+                  <div><strong>{u.user}</strong><span>{u.handle}</span></div>
+                </div>
+              )) : <div className="wa-panel-empty">No users found</div>}
+            </div>
+          </div>
+        )}
+
+        {/* Reply bar */}
+        {replyingTo && (
+          <div className="wa-reply-strip">
+            <div><span><i className="fa-solid fa-reply"></i> {replyingTo.user}</span><p>{replyingTo.type === "sticker" ? "[Sticker]" : replyingTo.text}</p></div>
+            <button onClick={cancelReply}><i className="fa-solid fa-xmark"></i></button>
+          </div>
+        )}
+
+        {/* Picker panel */}
+        {pickerOpen && (
+          <div className="wa-picker">
+            <div className="wa-picker-tabs">
+              <button className={pickerTab === "emoji" ? "active" : ""} onClick={() => switchTab("emoji")} title="Emoji">
+                <i className="fa-regular fa-face-smile"></i>
+              </button>
+              <button className={pickerTab === "gif" ? "active" : ""} onClick={() => switchTab("gif")} title="GIF">
+                GIF
+              </button>
+              <button className={pickerTab === "sticker" ? "active" : ""} onClick={() => switchTab("sticker")} title="Stickers">
+                <i className="fa-solid fa-note-sticky"></i>
+              </button>
+            </div>
+
+            {(pickerTab === "gif" || pickerTab === "sticker") && (
+              <div className="wa-panel-search">
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <input
+                  value={klipyQuery}
+                  onChange={(e) => setKlipyQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") fetchKlipy(klipyQuery || "trending", pickerTab); }}
+                  placeholder={`Search ${pickerTab === "gif" ? "GIFs" : "Stickers"}…`}
+                />
+              </div>
+            )}
+
+            <div className="wa-picker-body">
+              {pickerTab === "emoji" && (
+                <div className="wa-emoji-grid">
+                  {emojis.map((em, i) => (
+                    <button key={`${em}-${i}`} className="wa-emoji-btn" onClick={() => appendEmoji(em)}>{em}</button>
+                  ))}
+                </div>
+              )}
+
+              {pickerTab !== "emoji" && (
+                <>
+                  {klipyLoading && <div className="wa-picker-msg">Loading…</div>}
+                  {klipyError && <div className="wa-picker-msg error">{klipyError}</div>}
+                  {!klipyLoading && !klipyError && (
+                    <div className="wa-media-grid">
+                      {klipyResults.map((item) => (
+                        <button key={item.id} className="wa-media-card" onClick={() => handleSelectSticker(item)}>
+                          <img src={item.url} alt={item.title} loading="lazy" />
+                        </button>
+                      ))}
+                      {klipyResults.length === 0 && <div className="wa-picker-msg">No results</div>}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Input bar */}
+        <div className="wa-input-row">
+          <button className="wa-input-icon" onClick={togglePicker}>
+            <i className={pickerOpen ? "fa-solid fa-xmark" : "fa-regular fa-face-smile"}></i>
+          </button>
+
+          <input
+            ref={inputRef}
+            className="wa-text-input"
+            value={messageText}
+            onChange={onInputChange}
+            onKeyDown={onKeyDown}
+            placeholder="Type a message"
+          />
+
+          <button className="wa-send" onClick={sendMessage} disabled={!messageText.trim()}>
+            <i className="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Sticker Preview Overlay */}
+      {stickerPreview && (
+        <div className="wa-sticker-preview-overlay">
+          <button className="wa-preview-close" onClick={cancelStickerPreview}>
+            <i className="fa-solid fa-xmark"></i>
+          </button>
+          
+          <div className="wa-preview-content">
+            <img src={stickerPreview.url} alt="Sticker Preview" />
+          </div>
+
+          <div className="wa-preview-footer">
+            <div className="wa-preview-input-wrap">
+              <input 
+                type="text" 
+                placeholder="Type a message..." 
+                value={messageText}
+                onChange={onInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); confirmSendSticker(); }
+                }}
+              />
+              <button className="wa-preview-emoji-btn" onClick={togglePicker}>
+                <i className="fa-regular fa-face-smile"></i>
+              </button>
+            </div>
+            <button className="wa-preview-send" onClick={confirmSendSticker}>
+              <i className="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────── Page wrapper ─────────────────────── */
+export function LiveChatPage() {
+  const { isChecking, isAuthenticated } = useDashboardAuthGuard();
+  const { walletBalance, profile } = useDashboardData();
 
   if (isChecking) {
     return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
@@ -267,318 +461,9 @@ export function LiveChatPage() {
           />
 
           <div className="krabet-content dfr-root" style={{ padding: "0" }}>
-        
-      <div className="live-chat-shell" style={{ height: "calc(100vh - 80px)" }}>
-        <header className="chat-topbar">
-          <div className="chat-topbar-left">
-            <div className="chat-topbar-icon">
-              <i className="fa-solid fa-comments"></i>
+            <div style={{ height: "calc(100vh - 80px)", width: "100%" }}>
+              <ChatWidget roomCode="global" />
             </div>
-
-            <div className="chat-topbar-copy">
-              <h1>Public Chat</h1>
-              <p>{activeUsers.length} active members</p>
-            </div>
-          </div>
-
-          <div className="chat-topbar-right">
-            <button className="topbar-btn" onClick={() => setShowMentionsPanel(!showMentionsPanel)}>
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </header>
-
-        <section className="chat-feed" ref={feedRef}>
-          {mappedMessages.map((message) => (
-            <article className="chat-row" key={message.id}>
-              <img className="chat-avatar" src={message.avatar} alt={message.user} />
-
-              <div className="chat-body">
-                <div className="chat-head">
-                  <div className="chat-head-left">
-                    <span className="chat-username">{message.user}</span>
-                    <span className="chat-level">{message.level}</span>
-
-                    {message.badge !== "none" && (
-                      <span className={`chat-badge ${message.badge}`}>
-                        <i className={getBadgeIcon(message.badge)}></i>
-                      </span>
-                    )}
-                  </div>
-
-                  <span className="chat-time">{message.time}</span>
-                </div>
-
-                <div
-                  className={`chat-bubble ${
-                    message.type === "emoji"
-                      ? "emoji-only"
-                      : message.type === "sticker"
-                      ? "sticker-bubble"
-                      : ""
-                  }`}
-                >
-                  {message.replyTo && (
-                    <div className="reply-preview">
-                      <span className="reply-preview-name">
-                        <i className="fa-solid fa-reply"></i>
-                        Replying to {message.replyTo.user}
-                      </span>
-                      <p>{message.replyTo.text}</p>
-                    </div>
-                  )}
-
-                  <div className="chat-meta-line">
-                    <span className="chat-handle">{message.handle}</span>
-                  </div>
-
-                  {message.type === "sticker" ? (
-                    <img className="chat-sticker" src={message.sticker} alt={message.text} />
-                  ) : (
-                    <p>{message.text}</p>
-                  )}
-                </div>
-
-                {!!Object.keys(message.reactions || {}).length && (
-                  <div className="reaction-list">
-                    {Object.entries(message.reactions).map(([emoji, count]) => (
-                      <button
-                        key={`${message.id}-${emoji}`}
-                        className="reaction-chip"
-                        onClick={() => addReaction(message.id, emoji)}
-                      >
-                        <span>{emoji}</span>
-                        <strong>{count}</strong>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="message-actions">
-                  <div className="reaction-picker-wrap">
-                    <button
-                      className="message-action-btn"
-                      onClick={() =>
-                        setOpenReactionPickerId((prev) =>
-                          prev === message.id ? null : message.id
-                        )
-                      }
-                    >
-                      <i className="fa-regular fa-face-smile"></i>
-                      React
-                    </button>
-
-                    {openReactionPickerId === message.id && (
-                      <div className="reaction-picker">
-                        {QUICK_REACTIONS.map((emoji) => (
-                          <button
-                            key={`${message.id}-picker-${emoji}`}
-                            className="reaction-picker-btn"
-                            onClick={() => addReaction(message.id, emoji)}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <button className="message-action-btn" onClick={() => handleReply(message)}>
-                    <i className="fa-solid fa-reply"></i>
-                    Reply
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </section>
-      </div>
-
-      <div className="floating-composer-wrap">
-        {(showEmojiPanel || showStickerPanel || showMentionsPanel || replyingTo) && (
-          <div className="composer-overlay-stack">
-            {showMentionsPanel && (
-              <div className="composer-popover mentions-popover" style={{ maxHeight: "300px", display: "flex", flexDirection: "column" }}>
-                <div className="popover-head">
-                  <strong>
-                    <i className="fa-solid fa-at"></i>
-                    Mention User
-                  </strong>
-                  <button className="popover-close-btn" onClick={() => setShowMentionsPanel(false)}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-                <div className="tenor-search-row" style={{ padding: "8px" }}>
-                  <div className="tenor-search-input">
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <input
-                      type="text"
-                      value={mentionsQuery}
-                      onChange={(e) => setMentionsQuery(e.target.value)}
-                      placeholder="Search users..."
-                      autoFocus
-                    />
-                  </div>
-                </div>
-                <div className="mentions-list" style={{ overflowY: "auto", flex: 1 }}>
-                  {filteredMentions.length > 0 ? (
-                    filteredMentions.map((u: any) => (
-                      <div 
-                        key={u.user} 
-                        className="mention-user-row" 
-                        onClick={() => insertMention(u.handle)}
-                        style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.05)" }}
-                      >
-                        <img src={u.avatar} alt={u.user} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: 600, fontSize: "14px", color: "#fff" }}>{u.user}</span>
-                          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>{u.handle}</span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div style={{ padding: "16px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>No active users found.</div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {replyingTo && (
-              <div className="active-reply-bar">
-                <div className="active-reply-text">
-                  <span>
-                    <i className="fa-solid fa-reply"></i>
-                    Replying to {replyingTo.user}
-                  </span>
-                  <p>{replyingTo.type === "sticker" ? "[Sticker]" : replyingTo.text}</p>
-                </div>
-
-                <button className="close-reply-btn" onClick={cancelReply}>
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-            )}
-
-            {showEmojiPanel && (
-              <div className="composer-popover emoji-popover">
-                <div className="popover-head">
-                  <strong>
-                    <i className="fa-regular fa-face-smile"></i>
-                    Emoji
-                  </strong>
-                  <button className="popover-close-btn" onClick={() => setShowEmojiPanel(false)}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <div className="emoji-grid">
-                  {EMOJIS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      className="emoji-btn"
-                      onClick={() => appendEmoji(emoji)}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {showStickerPanel && (
-              <div className="composer-popover sticker-popover">
-                <div className="popover-head">
-                  <strong>
-                    <i className="fa-solid fa-photo-film"></i>
-                    Stickers
-                  </strong>
-                  <button className="popover-close-btn" onClick={() => setShowStickerPanel(false)}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <div className="tenor-search-row">
-                  <div className="tenor-search-input">
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <input
-                      type="text"
-                      value={klipyQuery}
-                      onChange={(e) => setKlipyQuery(e.target.value)}
-                      onKeyDown={handleStickerSearch}
-                      placeholder="Search stickers..."
-                    />
-                  </div>
-
-                  <button
-                    className="tenor-search-btn"
-                    onClick={() => fetchKlipyStickers(klipyQuery || "casino")}
-                  >
-                    Search
-                  </button>
-                </div>
-
-                {klipyLoading && <div className="tenor-state">Loading stickers...</div>}
-                {klipyError && <div className="tenor-state error">{klipyError}</div>}
-
-                {!klipyLoading && !klipyError && (
-                  <div className="sticker-grid">
-                    {visibleKlipyResults.map((sticker) => (
-                      <button
-                        key={sticker.id}
-                        className="sticker-card"
-                        onClick={() => sendStickerMessage(sticker)}
-                      >
-                        <img src={sticker.url} alt={sticker.title} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="floating-composer">
-          <button className="composer-icon-btn composer-plus-btn">
-            <i className="fa-solid fa-plus"></i>
-          </button>
-
-          <div className="composer-input-shell">
-            <textarea
-              ref={textareaRef}
-              value={messageText}
-              onChange={handleTextareaChange}
-              onKeyDown={handleEnterSend}
-              placeholder="Message"
-              rows={1}
-            />
-          </div>
-
-          <button
-            className={`composer-icon-btn ${showEmojiPanel ? "active" : ""}`}
-            onClick={() => {
-              setShowEmojiPanel((prev) => !prev);
-              setShowStickerPanel(false);
-            }}
-          >
-            <i className="fa-regular fa-face-smile"></i>
-          </button>
-
-          <button
-            className={`composer-icon-btn ${showStickerPanel ? "active" : ""}`}
-            onClick={() => {
-              setShowStickerPanel((prev) => !prev);
-              setShowEmojiPanel(false);
-            }}
-          >
-            <i className="fa-solid fa-photo-film"></i>
-          </button>
-
-          <button className="send-btn" onClick={sendMessage}>
-            <i className="fa-solid fa-paper-plane"></i>
-          </button>
-        </div>
-      </div>
           </div>
           <MobileBottomDock />
         </main>

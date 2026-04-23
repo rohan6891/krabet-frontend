@@ -393,20 +393,27 @@ export function DashboardPage() {
                 </div>
 
                 <div className="dfr-chat-list">
-                  {recentChatMessages.map((row, i) => (
-                    <div className="dfr-chat-row" key={`${row.user}-${i}`}>
-                      <div className="dfr-chat-user">
-                        <span className="dfr-chat-avatar">
-                          <img src={row.avatar} alt={row.user} />
-                        </span>
+                  {recentChatMessages.length === 0 ? (
+                    <div style={{ padding: "24px 16px", textAlign: "center", opacity: 0.45, fontSize: "0.88rem" }}>
+                      <i className="fa-regular fa-comments" style={{ fontSize: "1.6rem", display: "block", marginBottom: "8px" }}></i>
+                      No messages yet. Be the first to chat!
+                    </div>
+                  ) : (
+                    recentChatMessages.map((row, i) => (
+                      <div className="dfr-chat-row" key={`${row.user}-${i}`}>
+                        <div className="dfr-chat-user">
+                          <span className="dfr-chat-avatar">
+                            <img src={row.avatar} alt={row.user} />
+                          </span>
 
-                        <div className="dfr-chat-copy">
-                          <strong>{row.user}</strong>
-                          <p title={row.message}>{row.message}</p>
+                          <div className="dfr-chat-copy">
+                            <strong>{row.user}</strong>
+                            <p title={row.message}>{row.message}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
                 <a href="/dashboard/chat" className="dfr-chat-cta">

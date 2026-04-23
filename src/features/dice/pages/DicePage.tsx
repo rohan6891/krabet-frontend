@@ -7,6 +7,7 @@ import "./DicePage.css";
 import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
 import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
 import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
+import { GameChatOverlay } from "@/features/chat/components/GameChatOverlay";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeDiceBet } from "@/features/dice/api/dice.api";
@@ -983,6 +984,7 @@ export function DicePage() {
             </div>
           </div>
 
+          <GameChatOverlay roomCode="dice" />
           <MobileBottomDock />
         </main>
       </div>

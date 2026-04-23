@@ -1,16 +1,25 @@
-import { http } from "@/shared/api/http";
+import { apiRequest } from "@/shared/api/http";
+import { env } from "@/shared/config/env";
 
 export async function fetchChatHistory(token: string, roomCode: string = "global", limit: number = 50) {
-  return http.get<{ success: boolean; data: { messages: any[] } }>(
-    `/chat/rooms/${roomCode}/messages?limit=${limit}`,
-    token
+  return apiRequest<{ success: boolean; data: { messages: any[] } }>(
+    env.apiBaseUrl,
+    `/api/v1/chat/rooms/${roomCode}/messages?limit=${limit}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` }
+    }
   );
 }
 
 export async function sendChatMessage(token: string, roomCode: string = "global", message: string, stickerUrl?: string) {
-  return http.post<{ success: boolean; data: { message: any } }>(
-    `/chat/messages`,
-    { roomCode, message, stickerUrl },
-    token
+  return apiRequest<{ success: boolean; data: { message: any } }>(
+    env.apiBaseUrl,
+    `/api/v1/chat/messages`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: { roomCode, message, stickerUrl }
+    }
   );
 }
