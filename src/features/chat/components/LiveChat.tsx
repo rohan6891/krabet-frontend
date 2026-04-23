@@ -1,156 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./LiveChatPage.css";
-import Header2 from "./Header2";
-import Sidebar from "./Sidebar";
+import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
+import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
+import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
+import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useChat } from "../hooks/useChat";
 const KLIPY_API_KEY = import.meta.env.VITE_KLIPY_API_KEY || "";
 const KLIPY_CLIENT_KEY = "krabets_livechat";
 
-const INITIAL_MESSAGES = [
-  {
-    id: 1,
-    user: "AceNova",
-    handle: "@acenova",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 3",
-    badge: "mod",
-    time: "10:14 PM",
-    type: "text",
-    text: "Anybody else cooking on Limbo tonight or is Crash the move?",
-    reactions: { "🔥": 2, "💸": 1 },
-  },
-  {
-    id: 2,
-    user: "LunaBet",
-    handle: "@lunabet",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 1",
-    badge: "none",
-    time: "10:15 PM",
-    type: "text",
-    text: "Big Dice just went crazy, that roll was actually insane.",
-    reactions: { "🔥": 3 },
-  },
-  {
-    id: 3,
-    user: "SpinGhost",
-    handle: "@spinghost",
-    avatar:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 5",
-    badge: "none",
-    time: "10:16 PM",
-    type: "text",
-    text: "Yo the new lobby looks clean, who is running Mines right now?",
-    reactions: {},
-  },
-  {
-    id: 4,
-    user: "KingParlay",
-    handle: "@kingparlay",
-    avatar:
-      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 2",
-    badge: "none",
-    time: "10:17 PM",
-    type: "text",
-    text: "Sports slip almost landed, one more goal would have changed everything.",
-    reactions: { "😭": 2 },
-  },
-  {
-    id: 5,
-    user: "NeonChip",
-    handle: "@neonchip",
-    avatar:
-      "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 4",
-    badge: "none",
-    time: "10:17 PM",
-    type: "text",
-    text: "Public chat is moving fast tonight, somebody definitely hit something crazy already.",
-    reactions: {},
-  },
-  {
-    id: 6,
-    user: "OddsOracle",
-    handle: "@oddsoracle",
-    avatar:
-      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 7",
-    badge: "verified",
-    time: "10:18 PM",
-    type: "text",
-    text: "Roulette has been streaking black too long, I’m not touching that table.",
-    reactions: { "👀": 1 },
-  },
-  {
-    id: 7,
-    user: "CashMirage",
-    handle: "@cashmirage",
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 2",
-    badge: "none",
-    time: "10:18 PM",
-    type: "emoji",
-    text: "😂🔥",
-    reactions: {},
-  },
-  {
-    id: 8,
-    user: "SlipDoctor",
-    handle: "@slipdoctor",
-    avatar:
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 6",
-    badge: "none",
-    time: "10:19 PM",
-    type: "text",
-    text: "Just cashed 8.4x on Limbo and dipped immediately. Discipline wins.",
-    reactions: { "💸": 4, "🔥": 1 },
-  },
-  {
-    id: 9,
-    user: "VelvetRake",
-    handle: "@velvetrake",
-    avatar:
-      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 1",
-    badge: "none",
-    time: "10:20 PM",
-    type: "text",
-    text: "Need a clean blackjack table with no side chatter. These dealers are ruthless.",
-    reactions: {},
-  },
-  {
-    id: 10,
-    user: "LuckyDusk",
-    handle: "@luckydusk",
-    avatar:
-      "https://images.unsplash.com/photo-1502767089025-6572583495b0?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 3",
-    badge: "none",
-    time: "10:21 PM",
-    type: "text",
-    text: "I love when chat goes crazy right before someone drops a huge win screenshot.",
-    reactions: { "🔥": 2 },
-  },
-  {
-    id: 11,
-    user: "PrimePunter",
-    handle: "@primepunter",
-    avatar:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
-    level: "VIP 4",
-    badge: "verified",
-    time: "10:22 PM",
-    type: "text",
-    text: "One clean cashout and I’m gone for the night. That’s the whole plan.",
-    reactions: { "👀": 3 },
-  },
-];
+// Initial messages removed, using live backend data instead
 
 const EMOJIS = [
   "🔥",
@@ -186,7 +45,9 @@ function formatNowTime() {
   });
 }
 
-export default function LiveChatPage() {
+export function LiveChatPage() {
+  const { isChecking, isAuthenticated } = useDashboardAuthGuard();
+  const { walletBalance, profile } = useDashboardData();
   const { messages: liveMessages, loading, sendMessage: apiSendMessage } = useChat("global");
   
   // Create UI-mapped messages from live backend messages
@@ -379,34 +240,35 @@ export default function LiveChatPage() {
     );
   }, [activeUsers, mentionsQuery]);
 
+  if (isChecking) {
+    return <div className="dashboard-auth-loading" aria-hidden="true"></div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="krabet-page">
-      {/* ========================================================================
-          MAIN APP SHELL
-          Sidebar + Main Content
-      ======================================================================== */}
       <div className="krabet-shell">
-        {/* ========================================================================
-            LEFT SIDEBAR
-            Logo + Main Nav + Secondary Nav
-        ======================================================================== */}
-       <Sidebar />
-        {/* ========================================================================
-            MAIN CONTENT AREA
-        ======================================================================== */}
+        <DashboardSidebar logoSrc="/KRABETS-LOGO.png" />
         <main className="krabet-main">
-          {/* ========================================================================
-              HEADER
-              Top nav + wallet + notifications + more + profile image
-          ======================================================================== */}
-          <Header2 />
+          <DashboardHeader
+            walletBalance={walletBalance}
+            username={profile.username}
+            email={profile.email}
+            avatarUrl={profile.avatarUrl}
+            displayName={profile.displayName}
+            country={profile.country}
+            phoneNumber={profile.phoneNumber}
+            phoneCountryCode={profile.phoneCountryCode}
+            preferredLanguage={profile.preferredLanguage}
+            dateOfBirth={profile.dateOfBirth}
+          />
 
-
-
-          <div className="krabet-wallet-content">
-
+          <div className="krabet-content dfr-root" style={{ padding: "0" }}>
         
-      <div className="live-chat-shell">
+      <div className="live-chat-shell" style={{ height: "calc(100vh - 80px)" }}>
         <header className="chat-topbar">
           <div className="chat-topbar-left">
             <div className="chat-topbar-icon">
@@ -415,7 +277,7 @@ export default function LiveChatPage() {
 
             <div className="chat-topbar-copy">
               <h1>Public Chat</h1>
-              <p>12,841 members</p>
+              <p>{activeUsers.length} active members</p>
             </div>
           </div>
 
@@ -717,9 +579,8 @@ export default function LiveChatPage() {
           </button>
         </div>
       </div>
-  
-     
-</div>
+          </div>
+          <MobileBottomDock />
         </main>
       </div>
     </div>

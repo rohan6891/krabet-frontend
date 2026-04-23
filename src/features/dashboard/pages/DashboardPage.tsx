@@ -11,6 +11,7 @@ import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAu
 import type { DashboardGame } from "@/features/dashboard/types/dashboard.types";
 import { getDashboardGameHref } from "@/features/dashboard/utils/gameNavigation";
 import { fetchDashboardGameCategories } from "@/features/dashboard/api/dashboard.api";
+import { useChat } from "@/features/chat/hooks/useChat";
 
 type TileCategory = "casino" | "sports" | "live" | "lottery" | "racing" | "poker";
 
@@ -35,6 +36,7 @@ export function DashboardPage() {
   });
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile } = useDashboardData();
+  const { messages: liveMessages } = useChat("global");
 
   const sliderGames: DashboardGame[] = [
     {
@@ -239,33 +241,14 @@ export function DashboardPage() {
     [categoryTotals],
   );
 
-  const liveChatMessages = [
-    {
-      user: "AceNova",
-      avatar: "https://i.pravatar.cc/40?img=12",
-      message: "Anybody else cooking on Limbo tonight or is Crash the move?",
-    },
-    {
-      user: "LunaBet",
-      avatar: "https://i.pravatar.cc/40?img=5",
-      message: "Big Dice just went crazy, that roll was actually insane.",
-    },
-    {
-      user: "SpinGhost",
-      avatar: "https://i.pravatar.cc/40?img=22",
-      message: "Yo the new lobby looks clean, who is running Mines right now?",
-    },
-    {
-      user: "KingParlay",
-      avatar: "https://i.pravatar.cc/40?img=33",
-      message: "Sports slip almost landed, one more goal would have changed everything.",
-    },
-    {
-      user: "NeonChip",
-      avatar: "https://i.pravatar.cc/40?img=41",
-      message: "Public chat is active tonight, drop your best hit before reset.",
-    },
-  ];
+  const recentChatMessages = useMemo(() => {
+    // Get the last 5 messages, mapped to the dashboard UI format
+    return liveMessages.slice(-5).map((msg) => ({
+      user: msg.user?.username || "System",
+      avatar: `https://ui-avatars.com/api/?name=${msg.user?.username || "Sys"}&background=random`,
+      message: msg.type === "sticker" ? "[Sticker]" : msg.message,
+    }));
+  }, [liveMessages]);
 
   const statCards = [
     { label: "Live Players", value: "24,860", icon: "fa-solid fa-users" },
@@ -410,8 +393,8 @@ export function DashboardPage() {
                 </div>
 
                 <div className="dfr-chat-list">
-                  {liveChatMessages.map((row) => (
-                    <div className="dfr-chat-row" key={`${row.user}-${row.message}`}>
+                  {recentChatMessages.map((row, i) => (
+                    <div className="dfr-chat-row" key={`${row.user}-${i}`}>
                       <div className="dfr-chat-user">
                         <span className="dfr-chat-avatar">
                           <img src={row.avatar} alt={row.user} />
@@ -426,7 +409,7 @@ export function DashboardPage() {
                   ))}
                 </div>
 
-                <a href="/livechat" className="dfr-chat-cta">
+                <a href="/dashboard/chat" className="dfr-chat-cta">
                   <i className="fa-solid fa-comments" aria-hidden="true"></i>
                   <span>Join Chat</span>
                 </a>
