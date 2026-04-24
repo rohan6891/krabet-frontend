@@ -64,11 +64,11 @@ img {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 2px 2px 8px;
+  padding: 2px 2px 5px;
 }
 
 .sidebar-logo-image {
-  width: 94px;
+  width: 120px;
   height: auto;
   object-fit: contain;
 }
@@ -308,6 +308,7 @@ img {
 }
 
 @media (min-width: 791px) {
+
   .header-icon-search,
   .header-icon-alerts,
   .header-icon-settings,
@@ -488,19 +489,23 @@ img {
 }
 
 @keyframes heroGoldTwinkle {
+
   0%,
   100% {
     opacity: 0.42;
     transform: translateY(0) scale(1);
   }
+
   25% {
     opacity: 0.66;
     transform: translateY(-1px) scale(1.01);
   }
+
   50% {
     opacity: 0.5;
     transform: translateY(0.5px) scale(0.995);
   }
+
   75% {
     opacity: 0.72;
     transform: translateY(-0.8px) scale(1.01);
@@ -508,15 +513,18 @@ img {
 }
 
 @keyframes heroGoldShimmer {
+
   0%,
   100% {
     opacity: 0.24;
     transform: scale(0.98);
   }
+
   30% {
     opacity: 0.44;
     transform: scale(1.015);
   }
+
   60% {
     opacity: 0.3;
     transform: scale(1);
@@ -544,7 +552,7 @@ img {
   align-items: stretch;
 }
 
-.dfr-top-duo > .dfr-surface {
+.dfr-top-duo>.dfr-surface {
   min-width: 0;
   height: 100%;
   border: none;
@@ -979,7 +987,7 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .dfr-top-duo > .dfr-surface {
+  .dfr-top-duo>.dfr-surface {
     height: auto;
   }
 
@@ -1035,7 +1043,7 @@ img {
     box-shadow: none;
   }
 
-  .dfr-top-duo .dfr-category-card > div {
+  .dfr-top-duo .dfr-category-card>div {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -1147,7 +1155,7 @@ img {
     margin-left: 0;
     width: 100%;
     max-width: 100%;
-    padding-top: 52px;
+    padding-top: 64px;
     padding-bottom: calc(92px + env(safe-area-inset-bottom));
   }
 

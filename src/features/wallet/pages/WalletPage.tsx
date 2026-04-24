@@ -112,9 +112,12 @@ export function WalletPage() {
 
           <div className="krabet-wallet-content">
             <div className="wallet-page">
-              <h1 className="wallet-title">
-                Welcome to your Wallet <span id="username-wallet">{profile.username}</span>
-              </h1>
+              <div className="settings-page-title-wrap">
+                <h1 className="settings-page-title">Wallet</h1>
+                <p className="settings-page-subtitle">
+                  Manage your Earnings, and all transactions on your account
+                </p>
+              </div>
 
               <section className="wallet-panel wallet-overview-panel">
                 <div className="panel-heading">
