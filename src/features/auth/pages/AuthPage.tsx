@@ -45,7 +45,8 @@ declare global {
 
 const TW_VERIFIER_KEY = "krabets_tw_verifier";
 const TW_REDIRECT_KEY = "krabets_tw_redirect";
-const POST_LOGIN_ROUTE = "/auth/setup-2fa?next=/dashboard";
+// const POST_LOGIN_ROUTE = "/auth/setup-2fa?next=/dashboard";
+const POST_LOGIN_ROUTE = "/dashboard";
 
 function randomString(length: number): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
