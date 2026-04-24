@@ -264,32 +264,33 @@
 }
 
 .wa-reply-ref {
-  margin-bottom: 5px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: rgba(120, 60, 200, 0.1);
-  border-left: 3px solid #a855f7;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border-left: 4px solid #b478ff;
   cursor: pointer;
   transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .wa-reply-ref:hover {
-  background: rgba(120, 60, 200, 0.18);
+  background: rgba(0, 0, 0, 0.35);
 }
 
 .wa-reply-ref span {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #c580ff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: #b478ff;
+  margin-bottom: 3px;
 }
 
 .wa-reply-ref p {
-  font-size: 0.72rem;
-  color: rgba(210, 190, 240, 0.6);
-  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -512,12 +513,11 @@
 /* ── Reply strip – WhatsApp style ── */
 .wa-reply-strip {
   display: flex;
-  align-items: stretch;
-  padding: 0;
-  margin: 0 10px 0;
-  border-radius: 10px;
-  background: rgba(120, 60, 200, 0.12);
-  overflow: hidden;
+  background: rgba(22, 4, 38, 0.95);
+  border-top: 1px solid rgba(180, 120, 255, 0.1);
+  padding: 8px 14px;
+  align-items: center;
+  justify-content: space-between;
   animation: wa-reply-slide 0.2s ease;
 }
 
@@ -526,57 +526,54 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.wa-reply-strip-accent {
-  width: 4px;
-  background: #a855f7;
-  flex-shrink: 0;
-}
-
-.wa-reply-strip-content {
+.wa-reply-preview {
   flex: 1;
-  min-width: 0;
-  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #b478ff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .wa-reply-strip-user {
-  font-size: 0.75rem;
   font-weight: 700;
-  color: #c580ff;
+  color: #b478ff;
+  font-size: 0.8rem;
+  margin-bottom: 2px;
   display: block;
-  margin-bottom: 1px;
 }
 
 .wa-reply-strip-text {
   margin: 0;
-  font-size: 0.78rem;
-  color: rgba(210, 190, 240, 0.55);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 300px;
+  max-width: 90%;
 }
 
 .wa-reply-strip-text i {
   margin-right: 4px;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .wa-reply-strip-close {
-  width: 34px;
-  display: grid;
-  place-items: center;
-  border: none;
   background: transparent;
-  color: rgba(200, 180, 230, 0.5);
+  border: none;
+  color: #c8a8f0;
+  font-size: 1.2rem;
   cursor: pointer;
-  font-size: 0.85rem;
+  padding: 8px;
+  margin-left: 8px;
   transition: 0.15s;
   flex-shrink: 0;
 }
 
 .wa-reply-strip-close:hover {
-  color: #ff8a8a;
-  background: rgba(255, 80, 80, 0.08);
+  color: #fff;
 }
 
 /* ═══════════════════════════════════════════════

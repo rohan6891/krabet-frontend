@@ -29,7 +29,7 @@ interface ChatWidgetProps {
 }
 
 export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
-  const { messages: liveMessages, loading, sendMessage: apiSendMessage } = useChat(roomCode);
+  const { messages: liveMessages, loading, sendMessage: apiSendMessage, onlineUsers } = useChat(roomCode);
 
   const mappedMessages: any[] = useMemo(() => {
     return liveMessages.map((msg: any) => ({
@@ -43,7 +43,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
       type: msg.metadata?.klipy_url ? "sticker" : "text",
       text: msg.message,
       sticker: msg.metadata?.klipy_url,
-      replyTo: msg.replyTo || null,
+      replyTo: msg.metadata?.replyTo || null,
       reactions: {},
     }));
   }, [liveMessages]);
@@ -95,13 +95,12 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
   }, []);
 
   const activeUsers = useMemo(() => {
-    const m = new Map();
-    mappedMessages.forEach((msg) => {
-      if (!m.has(msg.user) && msg.user !== "System")
-        m.set(msg.user, { user: msg.user, handle: msg.handle, avatar: msg.avatar });
-    });
-    return Array.from(m.values());
-  }, [mappedMessages]);
+    return onlineUsers.map((u) => ({
+      user: u.username,
+      handle: u.handle,
+      avatar: u.avatar,
+    }));
+  }, [onlineUsers]);
 
   const feedRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -177,7 +176,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
 
   const confirmSendSticker = async () => {
     if (stickerPreview) {
-      await apiSendMessage(messageText.trim(), stickerPreview.url);
+      await apiSendMessage(messageText.trim(), stickerPreview.url, replyingTo?.id);
       setStickerPreview(null);
       setMessageText("");
       setReplyingTo(null);
@@ -191,7 +190,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
   const sendMessage = async () => {
     const t = messageText.trim();
     if (!t) return;
-    await apiSendMessage(t);
+    await apiSendMessage(t, undefined, replyingTo?.id);
     setMessageText("");
     setReplyingTo(null);
     setPickerOpen(false);
@@ -361,7 +360,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
                     role="button"
                     tabIndex={0}
                   >
-                    <span><i className="fa-solid fa-reply"></i> {msg.replyTo.user}</span>
+                    <span>{msg.replyTo.user}</span>
                     <p>{msg.replyTo.text}</p>
                   </div>
                 )}
@@ -415,8 +414,7 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
         {/* Reply bar – WhatsApp style */}
         {replyingTo && (
           <div className="wa-reply-strip">
-            <div className="wa-reply-strip-accent"></div>
-            <div className="wa-reply-strip-content">
+            <div className="wa-reply-preview">
               <span className="wa-reply-strip-user">{replyingTo.user}</span>
               <p className="wa-reply-strip-text">
                 {replyingTo.type === "sticker" ? (

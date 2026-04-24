@@ -12,14 +12,14 @@ export async function fetchChatHistory(token: string, roomCode: string = "global
   );
 }
 
-export async function sendChatMessage(token: string, roomCode: string = "global", message: string, stickerUrl?: string) {
+export async function sendChatMessage(token: string, roomCode: string = "global", message: string, stickerUrl?: string, replyToId?: string) {
   return apiRequest<{ success: boolean; data: { message: any } }>(
     env.apiBaseUrl,
     `/api/v1/chat/messages`,
     {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
-      body: { roomCode, message, stickerUrl }
+      body: { roomCode, message, stickerUrl, replyToId }
     }
   );
 }

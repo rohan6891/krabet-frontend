@@ -16,9 +16,17 @@ function toWebSocketBaseUrl(apiBaseUrl: string): string {
   return normalized;
 }
 
+export type OnlineUser = {
+  id: string;
+  username: string;
+  handle: string;
+  avatar: string;
+};
+
 export function useChat(roomCode: string = "global") {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
 
   const loadHistory = useCallback(async () => {
     const token = getAccessTokenFromStorage();
@@ -86,6 +94,10 @@ export function useChat(roomCode: string = "global") {
             }];
           });
         }
+
+        if (message.type === "chat_presence_update" && message.payload) {
+          setOnlineUsers(message.payload.active_users || []);
+        }
       };
 
       socket.onclose = () => {
@@ -109,15 +121,15 @@ export function useChat(roomCode: string = "global") {
     };
   }, [roomCode]);
 
-  const sendMessage = useCallback(async (message: string, stickerUrl?: string) => {
+  const sendMessage = useCallback(async (message: string, stickerUrl?: string, replyToId?: string) => {
     const token = getAccessTokenFromStorage();
     if (!token) return;
     try {
-      await sendChatMessage(token, roomCode, message, stickerUrl);
+      await sendChatMessage(token, roomCode, message, stickerUrl, replyToId);
     } catch (err) {
       console.error("Failed to send message", err);
     }
   }, [roomCode]);
 
-  return { messages, loading, sendMessage };
+  return { messages, loading, sendMessage, onlineUsers };
 }
