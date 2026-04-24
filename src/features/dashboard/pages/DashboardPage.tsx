@@ -390,7 +390,6 @@ export function DashboardPage() {
               <section className="dfr-surface">
                 <div className="dfr-head">
                   <h2>Public Chat</h2>
-                  <a href="#">View All</a>
                 </div>
 
                 <div className="dfr-chat-list">
