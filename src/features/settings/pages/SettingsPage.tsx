@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import dayjs, { type Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -239,6 +241,8 @@ export function SettingsPage() {
   const { isChecking, isAuthenticated } = useDashboardAuthGuard();
   const { walletBalance, profile } = useDashboardData();
   const { t } = useI18n();
+  const router = useRouter();
+
 
   const [profileForm, setProfileForm] = useState<ProfileForm>(EMPTY_PROFILE);
   const [initialProfileForm, setInitialProfileForm] = useState<ProfileForm>(EMPTY_PROFILE);
@@ -961,21 +965,7 @@ export function SettingsPage() {
                             <ActionRow
                               icon="fa-solid fa-key"
                               label={t("settings.changePassword", "Change Password")}
-                              onClick={() => setPwModalOpen(true)}
-                            />
-
-                            <ActionRow
-                              icon="fa-solid fa-mobile-screen-button"
-                              label={t("settings.twoFactor", "Two-Factor Authentication")}
-                              onClick={() => { }}
-                              rightSide={
-                                <Toggle
-                                  checked={preferences.twoFactor}
-                                  onChange={() => handleToggle("twoFactor")}
-                                  label="Toggle two-factor authentication"
-                                  compact
-                                />
-                              }
+                              onClick={() => router.push("/auth/forgot-password")}
                             />
 
                             <ActionRow
@@ -985,86 +975,42 @@ export function SettingsPage() {
                           </div>
                         </section>
 
-                        <section className="settings-section">
+                        <section className="settings-section settings-section--support">
                           <SectionHeader
-                            icon="fa-solid fa-bell"
-                            title={t("settings.notificationsPreferences", "Notifications & Preferences")}
+                            icon="fa-solid fa-headset"
+                            title={t("settings.supportHelp", "Support & Help")}
                           />
 
-                          <div className="settings-notification-groups">
-                            <div className="settings-inline-group">
-                              <div className="settings-inline-group__label">
-                                <i className="fa-solid fa-envelope-open-text" />
-                                <span>{t("settings.receiveEmail", "I want to receive these in my Email")}</span>
-                              </div>
-
-                              <div className="settings-inline-group__controls settings-inline-group__controls--triple">
-                                <button
-                                  type="button"
-                                  className={`settings-mini-pill ${preferences.emailAccount ? "is-active" : ""}`}
-                                  onClick={() => handleToggle("emailAccount")}
-                                >
-                                  {t("settings.account", "Account")}
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`settings-mini-pill ${preferences.emailPromotions ? "is-active" : ""}`}
-                                  onClick={() => handleToggle("emailPromotions")}
-                                >
-                                  Promotions
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`settings-mini-pill ${preferences.emailOffers ? "is-active" : ""}`}
-                                  onClick={() => handleToggle("emailOffers")}
-                                >
-                                  {t("settings.offers", "Offers")}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="settings-toggle-row">
-                              <div className="settings-toggle-row__label">
-                                <i className="fa-solid fa-comment-sms" />
-                                <span>{t("settings.smsNotifications", "SMS Notifications")}</span>
-                              </div>
-                              <Toggle checked={preferences.sms} onChange={() => handleToggle("sms")} label="Toggle sms notifications" />
-                            </div>
-
-                            <div className="settings-toggle-row">
-                              <div className="settings-toggle-row__label">
-                                <i className="fa-solid fa-mobile" />
-                                <span>{t("settings.pushNotifications", "Push Notifications")}</span>
-                              </div>
-                              <Toggle checked={preferences.push} onChange={() => handleToggle("push")} label="Toggle push notifications" />
-                            </div>
-
-                            <div className="settings-toggle-row">
-                              <div className="settings-toggle-row__label">
-                                <i className="fa-solid fa-gift" />
-                                <span>{t("settings.promotionalOffers", "Promotional Offers")}</span>
-                              </div>
-                              <Toggle checked={preferences.promoOffers} onChange={() => handleToggle("promoOffers")} label="Toggle promotional offers" />
-                            </div>
+                          <div className="settings-support-grid">
+                            <ActionRow
+                              icon="fa-solid fa-life-ring"
+                              label={t("settings.contactSupport", "Contact Support")}
+                              onClick={() => router.push("/dashboard/coming-soon")}
+                            />
+                            <ActionRow
+                              icon="fa-solid fa-comments"
+                              label={t("settings.liveChat", "Live Chat")}
+                              onClick={() => router.push("/dashboard/chat")}
+                            />
+                            <ActionRow
+                              icon="fa-solid fa-circle-question"
+                              label={t("settings.faq", "FAQ")}
+                              onClick={() => router.push("/dashboard/faq")}
+                            />
+                            <ActionRow
+                              icon="fa-solid fa-triangle-exclamation"
+                              label={t("settings.reportProblem", "Report a Problem")}
+                              onClick={() => router.push("/dashboard/coming-soon")}
+                            />
+                            <ActionRow
+                              icon="fa-solid fa-user-slash"
+                              label={t("settings.accountClosureRequest", "Account Closure Request")}
+                              onClick={() => router.push("/dashboard/coming-soon")}
+                            />
                           </div>
                         </section>
                       </div>
                     </div>
-
-                    <section className="settings-section settings-section--support">
-                      <SectionHeader
-                        icon="fa-solid fa-headset"
-                        title={t("settings.supportHelp", "Support & Help")}
-                      />
-
-                      <div className="settings-support-grid">
-                        <ActionRow icon="fa-solid fa-life-ring" label={t("settings.contactSupport", "Contact Support")} />
-                        <ActionRow icon="fa-solid fa-comments" label={t("settings.liveChat", "Live Chat")} />
-                        <ActionRow icon="fa-solid fa-circle-question" label={t("settings.faq", "FAQ")} />
-                        <ActionRow icon="fa-solid fa-triangle-exclamation" label={t("settings.reportProblem", "Report a Problem")} />
-                        <ActionRow icon="fa-solid fa-user-slash" label={t("settings.accountClosureRequest", "Account Closure Request")} />
-                      </div>
-                    </section>
                   </div>
                 </div>
               </section>

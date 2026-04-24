@@ -1,0 +1,137 @@
+.cs-page-shell {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 60px 24px;
+  background: radial-gradient(circle at 50% 50%, rgba(135, 61, 211, 0.1) 0%, transparent 80%);
+}
+
+.cs-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.cs-visual {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 30px;
+  display: grid;
+  place-items: center;
+}
+
+.cs-circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(206, 128, 255, 0.2);
+}
+
+.cs-circle--1 {
+  animation: cs-pulse 3s infinite ease-in-out;
+}
+
+.cs-circle--2 {
+  inset: 15px;
+  animation: cs-pulse 3s infinite ease-in-out 1.5s;
+}
+
+.cs-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #d271ff, #6e26dd);
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  color: #fff;
+  box-shadow: 0 15px 35px rgba(110, 38, 221, 0.4);
+  transform: rotate(-10deg);
+  animation: cs-float 4s infinite ease-in-out;
+}
+
+@keyframes cs-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 0.2; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes cs-float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.cs-tag {
+  display: inline-block;
+  padding: 6px 16px;
+  background: rgba(206, 128, 255, 0.1);
+  border: 1px solid rgba(206, 128, 255, 0.2);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #cf8cff;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.cs-content h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  margin: 0 0 16px;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.cs-desc {
+  font-size: 1.15rem;
+  color: rgba(236, 219, 255, 0.7);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.cs-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cs-btn {
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.cs-btn--primary {
+  background: #fff;
+  color: #120022;
+}
+
+.cs-btn--primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+}
+
+.cs-btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.cs-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #fff;
+}
+
+@media (max-width: 600px) {
+  .cs-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .cs-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
