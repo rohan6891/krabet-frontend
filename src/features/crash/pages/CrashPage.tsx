@@ -18,6 +18,7 @@ import {
   placeCrashDemoBet,
   placeCrashRoundBet,
 } from "@/features/crash/api/crash.api";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 import { HttpError } from "@/shared/api/http";
 import { env } from "@/shared/config/env";
 import { resolveBetErrorMessage, formatInsufficientFundsMessage } from "@/shared/utils/bettingErrors";
@@ -1322,41 +1323,7 @@ export function CrashPage() {
                   </div>
                 </aside>
 
-                <section className="crash-history-card" aria-label="Recent bet history">
-                  <div className="card-header-row">
-                    <h3>Recent Bet History</h3>
-                    <span>{playMode === "demo" ? "Demo mode" : "Live mode"}</span>
-                  </div>
-
-                  {recentRounds.length ? (
-                    <div className="history-table-wrap">
-                      <table className="history-table">
-                        <thead>
-                          <tr>
-                            <th>Mode</th>
-                            <th>Bet</th>
-                            <th>Result</th>
-                            <th>Payout</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {recentRounds.map((round) => (
-                            <tr key={round.id}>
-                              <td>{round.mode}</td>
-                              <td>${formatMoney(round.amount)}</td>
-                              <td>{formatMultiplier(round.result)}</td>
-                              <td>${formatMoney(round.payout)}</td>
-                              <td className={round.outcome === "won" ? "won" : "lost"}>{round.outcome}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="empty-history-state">No rounds played yet.</div>
-                  )}
-                </section>
+                <LiveBetsTable variant="game" />
 
                 <section className="crash-howto-card" aria-label="How to play crash">
                   <div className="card-header-row">

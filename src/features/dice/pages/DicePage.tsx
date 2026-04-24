@@ -11,6 +11,7 @@ import { GameChatOverlay } from "@/features/chat/components/GameChatOverlay";
 import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAuthGuard";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeDiceBet } from "@/features/dice/api/dice.api";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 import type { DiceMode } from "@/features/dice/types/dice.types";
 
@@ -925,45 +926,7 @@ export function DicePage() {
                   </button>
                 </aside>
 
-                <section className="dice-history-card dice-grid-history">
-                  <div className="dice-card-header">
-                    <h3>Recent Bet History</h3>
-                    <span>{mode === "demo" ? "Demo mode" : "Live mode"}</span>
-                  </div>
-
-                  {history.length === 0 ? (
-                    <div className="dice-empty-history">No rounds played yet.</div>
-                  ) : (
-                    <div className="dice-history-list">
-                      {history.map((entry) => (
-                        <div key={entry.id} className={`dice-history-item ${entry.win ? "win" : "lose"}`}>
-                          <div>
-                            <span>Mode</span>
-                            <strong>{entry.mode}</strong>
-                          </div>
-                          <div>
-                            <span>Bet</span>
-                            <strong>{entry.type}</strong>
-                          </div>
-                          <div>
-                            <span>Target / Roll</span>
-                            <strong>
-                              {entry.target.toFixed(2)} / {entry.roll.toFixed(2)}
-                            </strong>
-                          </div>
-                          <div>
-                            <span>Amount</span>
-                            <strong>${formatAmount(entry.amount)}</strong>
-                          </div>
-                          <div>
-                            <span>Payout</span>
-                            <strong>{entry.win ? `$${formatAmount(entry.payout)}` : "0.00"}</strong>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
+                <LiveBetsTable variant="game" />
 
                 <section className="dice-guide-card dice-grid-guide">
                   <div className="dice-card-header">

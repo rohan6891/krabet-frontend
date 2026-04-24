@@ -1,0 +1,277 @@
+/* ═══════════════════════════════════════════════
+   Live Bets Table - Stake Style
+   ═══════════════════════════════════════════════ */
+
+.live-bets-container {
+  width: 100%;
+  margin-top: 32px;
+  background: rgba(10, 2, 18, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(180, 120, 255, 0.1);
+}
+
+/* --- Tabs --- */
+.lbt-tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(22, 4, 38, 0.6);
+  border-bottom: 1px solid rgba(180, 120, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lbt-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(10, 2, 18, 0.4);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(180, 120, 255, 0.05);
+}
+
+.lbt-tab {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #a898c8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lbt-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lbt-tab.active {
+  background: rgba(176, 79, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(176, 79, 255, 0.15);
+}
+
+.lbt-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lbt-ghost-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8a78a8;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lbt-select {
+  background: rgba(10, 2, 18, 0.6);
+  border: 1px solid rgba(180, 120, 255, 0.1);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* --- Table Area --- */
+.lbt-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 120, 255, 0.2) transparent;
+}
+
+.lbt-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.lbt-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(180, 120, 255, 0.2);
+  border-radius: 10px;
+}
+
+.lbt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 800px; /* Force scroll on mobile */
+}
+
+.lbt-table th {
+  padding: 16px 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8a78a8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(180, 120, 255, 0.05);
+}
+
+.lbt-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f4eaff;
+  border-bottom: 1px solid rgba(180, 120, 255, 0.03);
+  transition: background 0.1s ease;
+}
+
+.lbt-row:hover td {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* --- Columns --- */
+.lbt-col-game {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lbt-game-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.lbt-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lbt-ghost-icon {
+  font-size: 12px;
+  color: #8a78a8;
+}
+
+.lbt-amount-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lbt-coin-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.lbt-payout-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lbt-payout-win {
+  color: #00ff88 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+}
+
+.lbt-payout-loss {
+  color: #8a78a8 !important;
+}
+
+/* --- Coming Soon State --- */
+.lbt-empty-state {
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  background: rgba(22, 4, 38, 0.2);
+}
+
+.lbt-empty-icon {
+  font-size: 48px;
+  color: #7c3aed;
+  opacity: 0.5;
+  margin-bottom: 8px;
+  animation: lbtFloat 3s ease-in-out infinite;
+}
+
+.lbt-empty-state h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.lbt-empty-state p {
+  color: #a898c8;
+  font-size: 14px;
+  max-width: 300px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* --- Skeleton Loading --- */
+.lbt-skeleton {
+  height: 20px;
+  background: linear-gradient(90deg, rgba(180, 120, 255, 0.05) 25%, rgba(180, 120, 255, 0.1) 50%, rgba(180, 120, 255, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: lbtShimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes lbtShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes lbtFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .live-bets-container {
+    margin-top: 20px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .lbt-tabs-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lbt-tabs {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  
+  .lbt-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lbt-tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+  }
+
+  .lbt-table-wrapper {
+    min-height: 300px;
+  }
+
+  .lbt-table {
+    min-width: 650px; /* Reduced min-width for mobile scroll */
+  }
+
+  .lbt-table th, .lbt-table td {
+    padding: 12px 14px;
+  }
+}

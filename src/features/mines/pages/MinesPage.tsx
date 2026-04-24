@@ -13,7 +13,7 @@ import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAu
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { MinesBoard } from "@/features/mines/components/MinesBoard";
 import { MinesControls } from "@/features/mines/components/MinesControls";
-import { MinesHistory } from "@/features/mines/components/MinesHistory";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 import {
   DEFAULT_BET,
   DEFAULT_CURRENCY,
@@ -620,35 +620,7 @@ export function MinesPage() {
                   />
                 </div>
 
-                <div className="mines-bottom">
-                  <MinesHistory history={history} />
-
-                  <section className="how-to-panel">
-                    <div className="section-intro">
-                      <h2>How to Play</h2>
-                      <p>Basic rules.</p>
-                    </div>
-
-                    <div className="how-to-list">
-                      <div className="how-step">
-                        <span className="step-dot"></span>
-                        <p>Choose your bet, stake, and mine count.</p>
-                      </div>
-                      <div className="how-step">
-                        <span className="step-dot"></span>
-                        <p>Start the round and reveal tiles one by one.</p>
-                      </div>
-                      <div className="how-step">
-                        <span className="step-dot"></span>
-                        <p>Each safe reveal updates your multiplier from the backend.</p>
-                      </div>
-                      <div className="how-step">
-                        <span className="step-dot"></span>
-                        <p>Cash out before hitting a mine.</p>
-                      </div>
-                    </div>
-                  </section>
-                </div>
+                <LiveBetsTable variant="game" />
 
               </div>
             </div>

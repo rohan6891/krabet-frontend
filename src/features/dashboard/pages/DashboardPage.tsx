@@ -11,6 +11,7 @@ import { useDashboardAuthGuard } from "@/features/dashboard/hooks/useDashboardAu
 import type { DashboardGame } from "@/features/dashboard/types/dashboard.types";
 import { getDashboardGameHref } from "@/features/dashboard/utils/gameNavigation";
 import { fetchDashboardGameCategories } from "@/features/dashboard/api/dashboard.api";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 import { useChat } from "@/features/chat/hooks/useChat";
 
 type TileCategory = "casino" | "sports" | "live" | "lottery" | "racing" | "poker";
@@ -440,6 +441,8 @@ export function DashboardPage() {
                 </div>
               </section>
             </div>
+
+            <LiveBetsTable variant="dashboard" />
           </div>
 
           <MobileBottomDock />
