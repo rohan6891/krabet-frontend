@@ -9,8 +9,6 @@
   z-index: 1;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-
 .wallet-page {
   min-height: 100vh;
   padding: 18px 20px 20px;
