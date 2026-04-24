@@ -73,7 +73,7 @@ export function DashboardPage() {
     },
     {
       id: "dash-coinflip",
-      code: "coinflip",
+      code: "plinko",
       name: "Plinko",
       status: true,
       tag: "Original",

@@ -20,6 +20,7 @@ const LABELS: Record<string, string> = {
   referral: "Referral",
   form: "Form",
   "responsible-gambling": "Responsible Gambling",
+  plinko: "Plinko",
 };
 
 export default function CategoryComingSoonRoutePage() {
@@ -72,22 +73,47 @@ export default function CategoryComingSoonRoutePage() {
                 </div>
               </div>
 
-              <div className="coming-image-strip">
-                <article className="coming-image-card">
-                  <img src="/crash2.png" alt="Crash game preview" />
-                </article>
-                <article className="coming-image-card">
-                  <img src="/mines2.png" alt="Mines game preview" />
-                </article>
-                <article className="coming-image-card">
-                  <img src="/limbo2.png" alt="Limbo game preview" />
-                </article>
-              </div>
+              {key === "plinko" && <PlinkoAnimation />}
+
+              {key !== "plinko" && (
+                <div className="coming-image-strip">
+                  <article className="coming-image-card">
+                    <img src="/crash2.png" alt="Crash game preview" />
+                  </article>
+                  <article className="coming-image-card">
+                    <img src="/mines2.png" alt="Mines game preview" />
+                  </article>
+                  <article className="coming-image-card">
+                    <img src="/limbo2.png" alt="Limbo game preview" />
+                  </article>
+                </div>
+              )}
             </section>
           </div>
 
           <MobileBottomDock />
         </main>
+      </div>
+    </div>
+  );
+}
+
+function PlinkoAnimation() {
+  return (
+    <div className="plinko-anim-container">
+      <div className="plinko-board">
+        {/* Pegs */}
+        {[...Array(9)].map((_, row) => (
+          <div key={`row-${row}`} className="plinko-row">
+            {[...Array(row + 3)].map((_, col) => (
+              <div key={`peg-${row}-${col}`} className="plinko-peg"></div>
+            ))}
+          </div>
+        ))}
+        {/* Falling Balls with randomized feels */}
+        {[...Array(8)].map((_, i) => (
+          <div key={`ball-${i}`} className={`plinko-ball ball-variant-${i % 4} delay-${i}`}></div>
+        ))}
       </div>
     </div>
   );

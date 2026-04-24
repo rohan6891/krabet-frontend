@@ -759,41 +759,95 @@
 }
 
 @media (max-width: 600px) {
+  .vip-modal-overlay {
+    padding: 15px 10px;
+    align-items: center;
+  }
+
   .vip-status-card {
-    padding: 20px;
+    padding: 20px 16px;
     border-radius: 24px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 95vh;
+    width: 100%;
+    margin: 0;
   }
   
   .vip-card-header {
-    gap: 15px;
+    gap: 12px;
     margin-bottom: 20px;
   }
 
   .vip-card-badge {
-    width: 50px;
-    height: 50px;
-    font-size: 1.2rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 1.1rem;
   }
 
   .vip-card-title h3 {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
+  }
+
+  .vip-card-title p {
+    font-size: 0.75rem;
   }
 
   .vip-card-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
+    margin-bottom: 20px;
   }
   
   .vip-stat-item {
-    padding: 12px;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .vip-stat-label {
+    font-size: 0.65rem;
+    margin-bottom: 3px;
   }
   
   .vip-stat-value {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
+  .vip-card-progress-section {
+    margin-bottom: 24px;
+  }
+
+  .vip-progress-header {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+  }
+
+  .vip-card-conditions h4 {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+
+  .vip-condition-list {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .vip-condition-list li {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .vip-condition-list li span {
+    font-size: 0.78rem;
+  }
+
+  .vip-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+  }
+  
   .contribution-pill {
     padding: 4px 10px;
   }

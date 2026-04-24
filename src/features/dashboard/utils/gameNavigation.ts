@@ -27,5 +27,9 @@ export function getDashboardGameHref(game: DashboardGame): string {
     return "/dashboard/dice";
   }
 
+  if (code === "plinko") {
+    return "/dashboard/categories/coming-soon/plinko";
+  }
+
   return `/dashboard/search?game=${encodeURIComponent(code || game.name || "")}`;
 }
