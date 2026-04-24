@@ -11,18 +11,18 @@ type SidebarLinkItem = {
 
 export const sidebarTopLinks: SidebarLinkItem[] = [
   { key: "nav.casino", label: "Casino", href: "/dashboard", icon: "fa-solid fa-dice-d6" },
-  { key: "nav.sports", label: "Sports", href: "#", icon: "fa-solid fa-futbol" },
-  { key: "nav.lottery", label: "Lottery", href: "#", icon: "fa-solid fa-ticket" },
-  { key: "nav.cryptoFutures", label: "Crypto Futures", href: "#", icon: "fa-solid fa-bitcoin-sign" },
+  { key: "nav.sports", label: "Sports", href: "/dashboard/categories/coming-soon/sports", icon: "fa-solid fa-futbol" },
+  { key: "nav.lottery", label: "Lottery", href: "/dashboard/categories/coming-soon/lottery", icon: "fa-solid fa-ticket" },
+  { key: "nav.cryptoFutures", label: "Crypto Futures", href: "/dashboard/categories/coming-soon/crypto-futures", icon: "fa-solid fa-bitcoin-sign" },
 ];
 
 export const sidebarBottomLinks: SidebarLinkItem[] = [
-  { key: "nav.promotions", label: "Promotions", href: "#", icon: "fa-solid fa-gift" },
+  { key: "nav.promotions", label: "Promotions", href: "/dashboard/categories/coming-soon/promotions", icon: "fa-solid fa-gift" },
   { key: "nav.vipClub", label: "VIP Club", href: "/dashboard/vip", icon: "fa-solid fa-crown" },
-  { key: "nav.bonus", label: "Bonus", href: "#", icon: "fa-solid fa-coins" },
-  { key: "nav.referral", label: "Referral", href: "#", icon: "fa-solid fa-user-plus" },
-  { key: "nav.form", label: "Form", href: "#", icon: "fa-regular fa-file-lines" },
-  { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "#", icon: "fa-solid fa-shield-halved" },
+  { key: "nav.bonus", label: "Bonus", href: "/dashboard/categories/coming-soon/bonus", icon: "fa-solid fa-coins" },
+  { key: "nav.referral", label: "Referral", href: "/dashboard/categories/coming-soon/referral", icon: "fa-solid fa-user-plus" },
+  { key: "nav.form", label: "Form", href: "/dashboard/categories/coming-soon/form", icon: "fa-regular fa-file-lines" },
+  { key: "nav.responsibleGambling", label: "Responsible Gambling", href: "/dashboard/categories/coming-soon/responsible-gambling", icon: "fa-solid fa-shield-halved" },
 ];
 
 type DashboardSidebarProps = {

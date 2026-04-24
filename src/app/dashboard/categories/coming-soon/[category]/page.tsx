@@ -14,6 +14,12 @@ const LABELS: Record<string, string> = {
   sports: "Sports",
   live: "Live",
   lottery: "Lottery",
+  "crypto-futures": "Crypto Futures",
+  promotions: "Promotions",
+  bonus: "Bonus",
+  referral: "Referral",
+  form: "Form",
+  "responsible-gambling": "Responsible Gambling",
 };
 
 export default function CategoryComingSoonRoutePage() {

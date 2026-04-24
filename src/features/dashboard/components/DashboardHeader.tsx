@@ -10,9 +10,9 @@ import { useVipData } from "@/features/dashboard/hooks/useVipData";
 
 const topNavLinks = [
   { key: "nav.casino", label: "Casino", href: "/dashboard", active: true },
-  { key: "nav.sports", label: "Sports", href: "#" },
-  { key: "nav.live", label: "Live", href: "#" },
-  { key: "nav.promotions", label: "Promotions", href: "#" },
+  { key: "nav.sports", label: "Sports", href: "/dashboard/categories/coming-soon/sports" },
+  { key: "nav.live", label: "Live", href: "/dashboard/categories/coming-soon/live" },
+  { key: "nav.promotions", label: "Promotions", href: "/dashboard/categories/coming-soon/promotions" },
 ];
 
 type DashboardHeaderProps = {
