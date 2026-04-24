@@ -122,12 +122,10 @@ a {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.015) 34%,
-    rgba(255, 255, 255, 0.03) 70%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.015) 34%,
+      rgba(255, 255, 255, 0.03) 70%);
   pointer-events: none;
 }
 
@@ -279,11 +277,9 @@ a {
   top: 50%;
   width: calc(50% - 48px);
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(214, 150, 255, 0),
-    rgba(214, 150, 255, 0.24)
-  );
+  background: linear-gradient(90deg,
+      rgba(214, 150, 255, 0),
+      rgba(214, 150, 255, 0.24));
 }
 
 .divider::before {
@@ -666,6 +662,7 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .main-btn,
   .secondary-btn,
   .socials button {

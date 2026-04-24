@@ -112,61 +112,26 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
     setCurrentPage(1);
   }, [fromDate, toDate, methodFilter]);
 
-  const pickerBackground = "linear-gradient(180deg, rgba(71, 18, 117, 0.466), rgba(37, 9, 71, 0.849)), rgba(13, 4, 24, 0.884)";
-  const pickerBorder = "1px solid rgba(199, 132, 255, 0.35)";
-  const pickerShadow = "inset 0 1px 0 rgba(59, 24, 104, 0.795)";
 
-  const datePickerSx = {
-    width: "100%",
-    "& .MuiOutlinedInput-root": {
-      color: "#f6ecff",
-      borderRadius: "12px",
-      height: "42px", 
-      background: pickerBackground,
-      boxShadow: pickerShadow,
-      border: pickerBorder,
-      fontSize: "13px",
-      transition: "all 0.2s ease",
-      "& fieldset": { border: "none" },
-      "&:hover": {
-        borderColor: "rgba(199, 132, 255, 0.6)",
-      },
-      "&.Mui-focused": {
-        borderColor: "#b770ff",
-        boxShadow: "0 0 0 3px rgba(177, 88, 255, 0.25)",
-      },
-      "& .MuiInputAdornment-root .MuiIconButton-root": {
-        color: "#cf8cff",
-        padding: "6px",
-      },
-      "& .MuiOutlinedInput-input": {
-        padding: "0 14px",
-        "&::placeholder": {
-          color: "rgba(246, 236, 255, 0.4)",
-          opacity: 1,
-        }
-      }
-    },
-  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="wallet-modal-overlay" onClick={onClose} style={{ 
-        position: 'fixed', 
+      <div className="wallet-modal-overlay" onClick={onClose} style={{
+        position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.85)',
         backdropFilter: 'blur(8px)',
-        display: 'flex', 
+        display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
         zIndex: 9999,
         padding: '100px 16px 40px'
       }}>
-        <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{ 
-          width: '100%', 
-          maxWidth: '960px', 
-          maxHeight: 'calc(100vh - 140px)', 
-          display: 'flex', 
+        <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{
+          width: '100%',
+          maxWidth: '960px',
+          maxHeight: 'calc(100vh - 140px)',
+          display: 'flex',
           flexDirection: 'column',
           background: 'linear-gradient(180deg, #1e0b2e 0%, #11051b 100%)',
           border: '1px solid rgba(183, 112, 255, 0.3)',
@@ -175,9 +140,9 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
           overflow: 'hidden'
         }}>
           {/* Header */}
-          <div className="wallet-modal-title" style={{ 
+          <div className="wallet-modal-title" style={{
             display: 'flex',
-            justifyContent: 'space-between', 
+            justifyContent: 'space-between',
             padding: '16px 24px',
             background: 'linear-gradient(180deg, rgba(142, 76, 229, 0.15), transparent)',
             borderBottom: '1px solid rgba(255,255,255,0.05)'
@@ -195,25 +160,25 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
             </button>
           </div>
 
-          <div className="deposit-card-body" style={{ 
-            flex: 1, 
-            overflowY: 'auto', 
-            display: 'flex', 
-            flexDirection: 'column', 
+          <div className="deposit-card-body" style={{
+            flex: 1,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
             padding: '20px 24px',
-            gap: '20px' 
+            gap: '20px'
           }}>
             {/* Unified Filters Row */}
-            <div style={{ 
-              display: 'flex', 
+            <div style={{
+              display: 'flex',
               flexDirection: 'row',
               flexWrap: 'wrap',
               alignItems: 'flex-end',
               gap: '12px',
-              background: 'rgba(255,255,255,0.02)', 
-              padding: '16px', 
-              borderRadius: '16px', 
-              border: '1px solid rgba(255,255,255,0.05)' 
+              background: 'rgba(255,255,255,0.02)',
+              padding: '16px',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.05)'
             }}>
               {/* From Picker */}
               <div style={{ flex: '1 1 160px', minWidth: '150px' }}>
@@ -221,15 +186,75 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
                   <i className="fa-solid fa-calendar-day" style={{ color: '#cf8cff', marginRight: '6px' }}></i>
                   From Date
                 </label>
-                <DatePicker
-                  value={toPickerValue(fromDate)}
-                  onChange={(val) => setFromDate(val ? val.format("YYYY-MM-DD") : "")}
-                  format="DD/MM/YYYY"
-                  sx={datePickerSx}
-                  slotProps={{
-                    popper: { className: "settings-picker-popper" },
-                  }}
-                />
+                <div style={{
+                  background: "linear-gradient(180deg, rgba(71, 18, 117, 0.466), rgba(37, 9, 71, 0.849)), rgba(13, 4, 24, 0.884)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(199, 132, 255, 0.35)",
+                  boxShadow: "inset 0 1px 0 rgba(59, 24, 104, 0.795)",
+                }}>
+                  <DatePicker
+                    value={toPickerValue(fromDate)}
+                    onChange={(val) => setFromDate(val ? val.format("YYYY-MM-DD") : "")}
+                    format="DD / MM / YYYY"
+                    disableFuture
+                    sx={{
+                      width: "100%",
+                      "& .MuiInputBase-sectionContent": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                      },
+                      "& span[contenteditable]": {
+                        color: "#f6ecff !important",
+                      },
+                      "& .MuiDateSectionPlaceholder-root": {
+                        color: "#f6ecff !important",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        color: "#f6ecff",
+                        borderRadius: "12px",
+                        height: "42px",
+                        background: "transparent",
+                        boxShadow: "none",
+                        "& fieldset": { border: "none" },
+                        "&:hover fieldset": { border: "none" },
+                        "&.Mui-focused fieldset": { border: "none" },
+                      },
+                      "& .MuiOutlinedInput-input": {
+                        padding: "0 14px",
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                        opacity: "1 !important",
+                      },
+                      "& input": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                        opacity: "1 !important",
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                      },
+                      "& .MuiSvgIcon-root": { color: "#cf8cff" },
+                      "& .MuiInputAdornment-root .MuiIconButton-root": { color: "#cf8cff", padding: "6px" },
+                    }}
+                    slotProps={{
+                      textField: {
+                        size: "medium",
+                        fullWidth: true,
+                      },
+                      popper: {
+                        className: "settings-picker-popper",
+                      },
+                      day: {
+                        sx: {
+                          color: "#ffffff !important",
+                          "&.Mui-disabled": { color: "rgba(255, 255, 255, 0.42) !important" },
+                          "&.Mui-selected": { color: "#ffffff !important" },
+                        },
+                      },
+                    }}
+                  />
+                </div>
               </div>
 
               {/* To Picker */}
@@ -238,15 +263,71 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
                   <i className="fa-solid fa-calendar-day" style={{ color: '#cf8cff', marginRight: '6px' }}></i>
                   To Date
                 </label>
-                <DatePicker
-                  value={toPickerValue(toDate)}
-                  onChange={(val) => setToDate(val ? val.format("YYYY-MM-DD") : "")}
-                  format="DD/MM/YYYY"
-                  sx={datePickerSx}
-                  slotProps={{
-                    popper: { className: "settings-picker-popper" },
-                  }}
-                />
+                <div style={{
+                  background: "linear-gradient(180deg, rgba(71, 18, 117, 0.466), rgba(37, 9, 71, 0.849)), rgba(13, 4, 24, 0.884)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(199, 132, 255, 0.35)",
+                  boxShadow: "inset 0 1px 0 rgba(59, 24, 104, 0.795)",
+                }}>
+                  <DatePicker
+                    value={toPickerValue(toDate)}
+                    onChange={(val) => setToDate(val ? val.format("YYYY-MM-DD") : "")}
+                    format="DD / MM / YYYY"
+                    disableFuture
+                    sx={{
+                      width: "100%",
+                      "& .MuiInputBase-sectionContent": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                      },
+                      "& span[contenteditable]": {
+                        color: "#f6ecff !important",
+                      },
+                      "& .MuiDateSectionPlaceholder-root": {
+                        color: "#f6ecff !important",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        color: "#f6ecff",
+                        borderRadius: "12px",
+                        height: "42px",
+                        background: "transparent",
+                        boxShadow: "none",
+                        "& fieldset": { border: "none" },
+                        "&:hover fieldset": { border: "none" },
+                        "&.Mui-focused fieldset": { border: "none" },
+                      },
+                      "& .MuiOutlinedInput-input": {
+                        padding: "0 14px",
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                        opacity: "1 !important",
+                      },
+                      "& input": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                        opacity: "1 !important",
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "#f6ecff !important",
+                        WebkitTextFillColor: "#f6ecff !important",
+                      },
+                      "& .MuiSvgIcon-root": { color: "#cf8cff" },
+                      "& .MuiInputAdornment-root .MuiIconButton-root": { color: "#cf8cff", padding: "6px" },
+                    }}
+                    slotProps={{
+                      popper: {
+                        className: "settings-picker-popper",
+                      },
+                      day: {
+                        sx: {
+                          color: "#ffffff !important",
+                          "&.Mui-disabled": { color: "rgba(255, 255, 255, 0.42) !important" },
+                          "&.Mui-selected": { color: "#ffffff !important" },
+                        },
+                      },
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Method Toggle */}
@@ -255,7 +336,7 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
                   <i className="fa-solid fa-filter" style={{ color: '#cf8cff', marginRight: '6px' }}></i>
                   Method
                 </label>
-                <div style={{ display: 'flex', background: pickerBackground, border: pickerBorder, boxShadow: pickerShadow, padding: '4px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', background: "linear-gradient(180deg, rgba(71, 18, 117, 0.466), rgba(37, 9, 71, 0.849)), rgba(13, 4, 24, 0.884)", border: "1px solid rgba(199, 132, 255, 0.35)", boxShadow: "inset 0 1px 0 rgba(59, 24, 104, 0.795)", padding: '4px', borderRadius: '12px' }}>
                   {(["All", "Game", "Crypto"] as const).map((m) => (
                     <button
                       key={m}
@@ -342,9 +423,9 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
                             </span>
                           </td>
                           <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                            <span style={{ 
-                              fontSize: '14px', 
-                              fontWeight: '800', 
+                            <span style={{
+                              fontSize: '14px',
+                              fontWeight: '800',
                               color: view.className === 'tx-deposit' ? '#59d58e' : '#fff'
                             }}>
                               {view.className === "tx-deposit" ? "+" : "-"}${formatCurrency(tx.amount)}
@@ -366,9 +447,9 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
           </div>
 
           {/* Footer / Pagination */}
-          <div style={{ 
-            padding: '16px 24px', 
-            background: 'rgba(0,0,0,0.2)', 
+          <div style={{
+            padding: '16px 24px',
+            background: 'rgba(0,0,0,0.2)',
             borderTop: '1px solid rgba(255,255,255,0.05)',
             display: 'flex',
             justifyContent: 'space-between',

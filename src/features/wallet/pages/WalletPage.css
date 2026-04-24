@@ -333,6 +333,7 @@
 .deposit-card::-webkit-scrollbar {
   width: 4px;
 }
+
 .deposit-card::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
@@ -533,6 +534,7 @@
 .deposit-dropdown-menu::-webkit-scrollbar {
   width: 4px;
 }
+
 .deposit-dropdown-menu::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -696,7 +698,9 @@
 }
 
 @keyframes spinDeposit {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Deposit Result ─── */
@@ -708,8 +712,15 @@
 }
 
 @keyframes fadeInResult {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Address Row ─── */
@@ -796,7 +807,7 @@
   background: rgba(15, 23, 42, 0.6);
 }
 
-.deposit-info-row + .deposit-info-row {
+.deposit-info-row+.deposit-info-row {
   border-top: 1px solid rgba(55, 65, 81, 0.4);
 }
 
@@ -976,4 +987,56 @@
     width: calc(100vw - 16px);
     border-radius: 12px;
   }
+}
+
+.settings-picker-popper .MuiPaper-root {
+  border: 1px solid rgba(220, 150, 255, 0.24);
+  background: linear-gradient(180deg, rgba(93, 26, 154, 0.28), rgba(29, 8, 53, 0.95)), #090312;
+  color: #f6ecff;
+}
+
+.settings-picker-popper .MuiPickersDay-root,
+.settings-picker-popper .MuiButtonBase-root.MuiPickersDay-root,
+.settings-picker-popper .MuiDayCalendar-weekContainer .MuiPickersDay-root {
+  color: #f6ecff !important;
+}
+
+.settings-picker-popper .MuiTypography-root,
+.settings-picker-popper .MuiPickersCalendarHeader-label,
+.settings-picker-popper .MuiDayCalendar-weekDayLabel,
+.settings-picker-popper .MuiPickersYear-yearButton,
+.settings-picker-popper .MuiPickersMonth-monthButton {
+  color: #f6ecff !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.Mui-disabled {
+  color: rgba(246, 236, 255, 0.38) !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.Mui-selected {
+  background: linear-gradient(180deg, #8439b9, #460aa7);
+  color: #ffffff !important;
+}
+
+.settings-picker-popper .MuiPickersDay-root.MuiPickersDay-today {
+  border-color: rgba(207, 140, 255, 0.85) !important;
+}
+
+.settings-picker-popper .MuiPickersCalendarHeader-root,
+.settings-picker-popper .MuiPickersArrowSwitcher-button,
+.settings-picker-popper .MuiIconButton-root {
+  color: #cf8cff;
+}
+
+
+/* Fix MUI DatePicker section placeholder spans */
+.MuiDateField-root .MuiInputBase-sectionContent,
+.MuiDateField-root .MuiDateSectionPlaceholder-root,
+.MuiPickersTextField-root .MuiInputBase-sectionContent,
+.MuiPickersTextField-root .MuiDateSectionPlaceholder-root,
+.MuiOutlinedInput-root .MuiInputBase-sectionContent,
+.MuiOutlinedInput-root span[contenteditable] {
+  color: #f6ecff !important;
+  -webkit-text-fill-color: #f6ecff !important;
+  opacity: 1 !important;
 }
