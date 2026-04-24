@@ -518,7 +518,7 @@
   align-items: flex-start;
   overflow-y: auto;
   padding: 40px 20px;
-  z-index: 2000;
+  z-index: 4000;
 }
 @keyframes vipFadeIn {
   from { opacity: 0; }
@@ -760,8 +760,8 @@
 
 @media (max-width: 600px) {
   .vip-modal-overlay {
-    padding: 15px 10px;
-    align-items: center;
+    padding: 85px 10px 100px;
+    align-items: flex-start;
   }
 
   .vip-status-card {
@@ -769,7 +769,7 @@
     border-radius: 24px;
     max-height: 95vh;
     width: 100%;
-    margin: 0;
+    margin: 0 auto;
   }
   
   .vip-card-header {
