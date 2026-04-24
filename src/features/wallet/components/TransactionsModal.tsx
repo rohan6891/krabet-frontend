@@ -119,13 +119,12 @@ export function TransactionsModal({ onClose, transactions }: TransactionsModalPr
       <div className="wallet-modal-overlay" onClick={onClose} style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(8px)',
+        backgroundColor: 'transparent',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '100px 16px 40px'
+        padding: '20px 16px'
       }}>
         <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{
           width: '100%',

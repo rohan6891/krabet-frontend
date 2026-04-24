@@ -49,8 +49,8 @@ export function DepositModal({
   const filteredOptions = useMemo(() => {
     if (!searchQuery.trim()) return currencyDropdownOptions;
     const query = searchQuery.toLowerCase();
-    return currencyDropdownOptions.filter((opt) => 
-      opt.code.toLowerCase().includes(query) || 
+    return currencyDropdownOptions.filter((opt) =>
+      opt.code.toLowerCase().includes(query) ||
       opt.label.toLowerCase().includes(query) ||
       opt.network.toLowerCase().includes(query)
     );
@@ -107,22 +107,21 @@ export function DepositModal({
   }
 
   return (
-    <div className="wallet-modal-overlay" onClick={onClose} style={{ 
-      position: 'fixed', 
+    <div className="wallet-modal-overlay" onClick={onClose} style={{
+      position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex', 
-      alignItems: 'flex-start',
+      backgroundColor: 'transparent',
+      display: 'flex',
+      alignItems: 'center',
       justifyContent: 'center',
       zIndex: 9999,
-      padding: '100px 16px 40px'
+      padding: '20px 16px'
     }}>
-      <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{ 
-        width: '100%', 
-        maxWidth: '480px', 
-        maxHeight: 'calc(100vh - 140px)', 
-        display: 'flex', 
+      <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{
+        width: '100%',
+        maxWidth: '480px',
+        maxHeight: 'calc(100vh - 140px)',
+        display: 'flex',
         flexDirection: 'column',
         background: 'linear-gradient(180deg, #1e0b2e 0%, #11051b 100%)',
         border: '1px solid rgba(183, 112, 255, 0.3)',
@@ -130,9 +129,9 @@ export function DepositModal({
         boxShadow: '0 24px 64px rgba(0,0,0,0.8)',
         overflow: 'hidden'
       }}>
-        <div className="wallet-modal-title" style={{ 
+        <div className="wallet-modal-title" style={{
           display: 'flex',
-          justifyContent: 'space-between', 
+          justifyContent: 'space-between',
           padding: '16px 24px',
           background: 'linear-gradient(180deg, rgba(142, 76, 229, 0.15), transparent)',
           borderBottom: '1px solid rgba(255,255,255,0.05)'
@@ -150,13 +149,13 @@ export function DepositModal({
           </button>
         </div>
 
-        <div className="deposit-card-body" style={{ 
-          flex: 1, 
-          overflowY: 'auto', 
-          display: 'flex', 
-          flexDirection: 'column', 
+        <div className="deposit-card-body" style={{
+          flex: 1,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
           padding: '20px 24px',
-          gap: '20px' 
+          gap: '20px'
         }}>
           {/* Currency Selection */}
           <div className="wallet-field font-inter">
