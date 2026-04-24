@@ -14,6 +14,7 @@ import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeLimboBet } from "@/features/limbo/api/limbo.api";
 import type { LimboRoundResult } from "@/features/limbo/types/limbo.types";
 import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 
 const RESULT_STATES = {
   IDLE: "idle",
@@ -496,6 +497,8 @@ export function LimboPage() {
                       )}
                     </div>
                   </section>
+
+                  <LiveBetsTable variant="game" />
                 </div>
 
                 <div className="limbo-column limbo-column--right">

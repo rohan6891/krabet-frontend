@@ -647,9 +647,12 @@ export function DicePage() {
         amount: wager,
         payout,
       });
-    } catch {
+    } catch (error) {
       stopRollingNumbers(stageRollingValue);
-      setErrorMessage("AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN");
+      setErrorMessage(resolveBetErrorMessage(error, "AN ERROR OCCURED, PLEASE RELOAD AND TRY AGAIN", {
+        betAmount: wager,
+        availableBalance: 0, // Fallback for demo display
+      }));
     } finally {
       setIsRolling(false);
     }

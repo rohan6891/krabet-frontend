@@ -44,7 +44,7 @@ export function LiveBetsTable({ variant }: LiveBetsTableProps) {
       const mapped: LiveFeedEntry[] = bets.map((b) => ({
         user_id: b.userId || b.user_id,
         username: "You",
-        game: b.gameCode || b.game || "Crash",
+        game: b.game_code || b.gameCode || b.game || "Crash",
         bet: b.betAmount || b.bet_amount || "0",
         payout: b.payoutAmount || b.payout || "0",
         multiplier: b.multiplier || "0",
@@ -109,6 +109,8 @@ export function LiveBetsTable({ variant }: LiveBetsTableProps) {
     if (g.includes("dice")) return <i className="fa-solid fa-dice"></i>;
     if (g.includes("keno")) return <i className="fa-solid fa-grid-9"></i>;
     if (g.includes("plinko")) return <i className="fa-solid fa-ball-pile"></i>;
+    if (g.includes("limbo")) return <i className="fa-solid fa-rocket"></i>;
+    if (g.includes("coinflip")) return <i className="fa-solid fa-coins"></i>;
     return <i className="fa-solid fa-gamepad"></i>;
   };
 
@@ -195,7 +197,7 @@ export function LiveBetsTable({ variant }: LiveBetsTableProps) {
                       <td>
                         <div className="lbt-col-game">
                           <span className="lbt-game-icon-wrap">{getGameIcon(entry.game)}</span>
-                          <span>{entry.game}</span>
+                          <span style={{ textTransform: "capitalize" }}>{entry.game}</span>
                         </div>
                       </td>
                       <td>

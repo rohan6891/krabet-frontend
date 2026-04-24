@@ -78,6 +78,7 @@ export function useLiveFeed(limit = 20) {
           socket?.close();
           return;
         }
+        console.log("[useLiveFeed] Socket connected, subscribing to engagement:live-feed");
         socket?.send(JSON.stringify({ action: "subscribe", channel: "engagement:live-feed" }));
       };
 
@@ -85,21 +86,17 @@ export function useLiveFeed(limit = 20) {
         try {
           const message = JSON.parse(String(event.data));
           if (message.type === "livefeed_updated" && message.payload?.entry) {
+            console.log("[useLiveFeed] Received live update:", message.payload.entry);
             const entry = message.payload.entry as LiveFeedEntry;
             
-            // For live updates, we want to combine bet_created and bet_won if they happen close together
-            // or just show the final state. The backend sends both.
-            // If it's bet_won, we might want to replace the bet_created entry if it's the same user/time
-            
             setEntries((prev) => {
-              // Simple prepend for now, keep it under limit
               const next = [entry, ...prev].slice(0, limit);
               entriesRef.current = next;
               return next;
             });
           }
         } catch (err) {
-          // ignore
+          console.error("[useLiveFeed] Failed to parse message:", err);
         }
       };
 

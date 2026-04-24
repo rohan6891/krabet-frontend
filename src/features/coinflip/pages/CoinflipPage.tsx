@@ -13,6 +13,7 @@ import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { placeCoinflipBet } from "@/features/coinflip/api/coinflip.api";
 import { formatInsufficientFundsMessage, resolveBetErrorMessage } from "@/shared/utils/bettingErrors";
 import type { CoinSide, CoinflipMode, CoinflipOutcome } from "@/features/coinflip/types/coinflip.types";
+import { LiveBetsTable } from "@/shared/ui/LiveBetsTable/LiveBetsTable";
 
 declare global {
   interface Window {
@@ -706,6 +707,8 @@ export function CoinflipPage() {
                       )}
                     </div>
                   </div>
+
+                  <LiveBetsTable variant="game" />
                 </section>
 
                 <aside className="coinflip-right">
