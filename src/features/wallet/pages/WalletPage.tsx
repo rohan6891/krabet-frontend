@@ -8,6 +8,7 @@ import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader
 import { MobileBottomDock } from "@/features/dashboard/components/MobileBottomDock";
 import { DepositModal } from "@/features/wallet/components/DepositModal";
 import { WithdrawModal } from "@/features/wallet/components/WithdrawModal";
+import { TransactionsModal } from "@/features/wallet/components/TransactionsModal";
 import { useWalletPageData } from "@/features/wallet/hooks/useWalletPageData";
 import { useToast } from "@/shared/ui/toast/ToastProvider";
 import type { WalletTransaction } from "@/features/wallet/types/wallet.types";
@@ -69,6 +70,7 @@ export function WalletPage() {
 
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
 
   const transactionsList = useMemo(() => transactions.slice(0, 8), [transactions]);
 
@@ -181,7 +183,7 @@ export function WalletPage() {
                       <span>RECENT TRANSACTIONS</span>
                     </div>
 
-                    <button type="button" className="view-all-btn" disabled={loading}>
+                    <button type="button" className="view-all-btn" disabled={loading} onClick={() => setShowTransactionsModal(true)}>
                       View All <i className="fa-solid fa-chevron-right"></i>
                     </button>
                   </div>
@@ -260,6 +262,13 @@ export function WalletPage() {
                 submittingWithdraw={submittingWithdraw}
                 twoFactorEnabled={false}
                 showToast={showToast}
+              />
+            )}
+
+            {showTransactionsModal && (
+              <TransactionsModal
+                onClose={() => setShowTransactionsModal(false)}
+                transactions={transactions}
               />
             )}
           </div>

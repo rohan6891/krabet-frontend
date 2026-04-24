@@ -34,6 +34,7 @@ export function WithdrawModal({
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [show2FAPopup, setShow2FAPopup] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Only show assets that are withdraw-enabled.
   const withdrawableOptions = useMemo(
@@ -64,7 +65,18 @@ export function WithdrawModal({
     setSelectedCurrencyKey(option.key);
     setDropdownOpen(false);
     setWithdrawAmount("");
+    setSearchQuery("");
   };
+
+  const filteredOptions = useMemo(() => {
+    if (!searchQuery.trim()) return withdrawableOptions;
+    const query = searchQuery.toLowerCase();
+    return withdrawableOptions.filter((opt) => 
+      opt.code.toLowerCase().includes(query) || 
+      opt.label.toLowerCase().includes(query) ||
+      opt.network.toLowerCase().includes(query)
+    );
+  }, [withdrawableOptions, searchQuery]);
 
   const handleMaxClick = () => {
     if (selectedWallet && Number(selectedWallet.availableBalance) > 0) {
@@ -132,24 +144,57 @@ export function WithdrawModal({
   };
 
   return (
-    <div className="wallet-modal-overlay" onClick={onClose}>
-      <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 48px)' }}>
-        <div className="wallet-modal-title" style={{ justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <i className="fa-solid fa-arrow-up-right-from-square"></i>
-            <span>Withdraw</span>
+    <div className="wallet-modal-overlay" onClick={onClose} style={{ 
+      position: 'fixed', 
+      top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex', 
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      zIndex: 9999,
+      padding: '100px 16px 40px'
+    }}>
+      <div className="wallet-modal" onClick={(e) => e.stopPropagation()} style={{ 
+        width: '100%', 
+        maxWidth: '480px', 
+        maxHeight: 'calc(100vh - 140px)', 
+        display: 'flex', 
+        flexDirection: 'column',
+        background: 'linear-gradient(180deg, #1e0b2e 0%, #11051b 100%)',
+        border: '1px solid rgba(183, 112, 255, 0.3)',
+        borderRadius: '24px',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.8)',
+        overflow: 'hidden'
+      }}>
+        <div className="wallet-modal-title" style={{ 
+          display: 'flex',
+          justifyContent: 'space-between', 
+          padding: '16px 24px',
+          background: 'linear-gradient(180deg, rgba(142, 76, 229, 0.15), transparent)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(142, 76, 229, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="fa-solid fa-arrow-up-right-from-square" style={{ color: '#d7b5ff', fontSize: '16px' }}></i>
+            </div>
+            <span style={{ fontSize: '17px', fontWeight: '700', color: '#fff' }}>Withdraw</span>
           </div>
-          <button
-            type="button"
-            className="deposit-card-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
+          <button type="button" className="deposit-card-close" onClick={onClose} aria-label="Close" style={{
+            width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        <div className="deposit-card-body">
+        <div className="deposit-card-body" style={{ 
+          flex: 1, 
+          overflowY: 'auto', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          padding: '20px 24px',
+          gap: '20px' 
+        }}>
           {/* Currency Dropdown (Reuses Deposit styles) */}
           <div className="wallet-field font-inter">
             <label className="deposit-field-label">Currency</label>
@@ -190,10 +235,20 @@ export function WithdrawModal({
 
               {dropdownOpen && (
                 <div className="deposit-dropdown-menu">
-                  {withdrawableOptions.length === 0 && (
-                    <div className="deposit-dropdown-empty">No currencies available</div>
+                  <div className="deposit-dropdown-search-wrap" style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.05)' }} onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="text"
+                      className="wallet-field-input"
+                      placeholder="Search currency..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ width: '100%', height: '36px', fontSize: '14px', borderRadius: '6px' }}
+                    />
+                  </div>
+                  {filteredOptions.length === 0 && (
+                    <div className="deposit-dropdown-empty">No currencies found</div>
                   )}
-                  {withdrawableOptions.map((opt) => {
+                  {filteredOptions.map((opt) => {
                     const w = wallets.find((w) => w.currency === opt.code);
                     return (
                       <button
@@ -342,36 +397,6 @@ export function WithdrawModal({
             ) : "Withdraw"}
           </button>
 
-          {/* 2FA Enable Section Only if Not Enabled */}
-          {!twoFactorEnabled && (
-            <div style={{ marginTop: '4px', borderTop: '1px solid rgba(188, 129, 255, 0.18)', paddingTop: '20px' }}>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(188, 129, 255, 0.1)' }}>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '14px', lineHeight: '1.4' }}>
-                  Improve your account security with Two-Factor Authentication
-                </p>
-                <button
-                  type="button"
-                  onClick={() => router.push('/settings')}
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    padding: '10px 0',
-                    borderRadius: '8px',
-                    color: '#e2e8f0',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    width: '100%',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
-                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                >
-                  Enable 2FA
-                </button>
-              </div>
-            </div>
-          )}
 
         </div>
       </div>

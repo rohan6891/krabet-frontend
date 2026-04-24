@@ -82,11 +82,7 @@ function getNetworkFriendlyName(code: string, network: string): string {
 }
 
 function buildDropdownOptions(currencies: CurrencyRecord[]): CurrencyDropdownOption[] {
-  const depositableCurrencies = currencies.filter(
-    (c) => c.deposit_enabled && c.provider_available,
-  );
-
-  const options: CurrencyDropdownOption[] = depositableCurrencies.map((c) => {
+  const options: CurrencyDropdownOption[] = currencies.map((c) => {
     const friendlyNetwork = getNetworkFriendlyName(c.code, c.network);
     const meta = NETWORK_META[c.network] ?? { badge: "", priority: 6 };
 
