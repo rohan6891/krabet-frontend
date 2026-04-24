@@ -94,10 +94,11 @@ export default function FAQPage() {
                 <div className="faq-footer">
                   <h3>Still confused?</h3>
                   <p>Our live chat is open 24/7. We usually reply in under 2 minutes.</p>
-                  <Link href="/dashboard/chat" className="faq-btn">
-                    <i className="fa-solid fa-comments" />
-                    Talk to Us
+                  <Link href="/dashboard/coming-soon" className="faq-btn">
+                    <i className="fa-solid fa-life-ring" />
+                    Contact Support
                   </Link>
+
                 </div>
               </div>
             </section>

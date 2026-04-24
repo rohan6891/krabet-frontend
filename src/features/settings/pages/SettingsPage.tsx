@@ -971,7 +971,9 @@ export function SettingsPage() {
                             <ActionRow
                               icon="fa-solid fa-clock-rotate-left"
                               label={t("settings.loginActivity", "Login Activity / Session History")}
+                              onClick={() => router.push("/dashboard/coming-soon")}
                             />
+
                           </div>
                         </section>
 
