@@ -40,9 +40,10 @@ a {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 24px 16px;
-  overflow: hidden;
+  align-items: flex-start;
+  padding: 32px 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 50% 35%, rgba(123, 61, 201, 0.26), transparent 28%),
     radial-gradient(circle at top left, rgba(78, 20, 130, 0.24), transparent 32%),
@@ -102,6 +103,7 @@ a {
   z-index: 2;
   width: 100%;
   max-width: 430px;
+  margin: auto;
   padding: 28px 24px;
   display: none;
   border-radius: 26px;
@@ -114,7 +116,8 @@ a {
     0 18px 36px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: calc(100% - 10px);
 }
 
 .auth-card::before {
@@ -615,8 +618,9 @@ a {
 
   .auth-card {
     max-width: 100%;
-    padding: 22px 18px;
+    padding: 24px 20px;
     border-radius: 22px;
+    margin: 10px auto;
   }
 
   .auth-card::after {
@@ -629,7 +633,8 @@ a {
   }
 
   .auth-card input {
-    padding: 13px;
+    padding: 12px;
+    margin-bottom: 10px;
     font-size: 14px;
     border-radius: 12px;
   }
@@ -658,6 +663,18 @@ a {
 
   .forgot {
     font-size: 11px;
+  }
+  .password-rules-box {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .password-rules-list {
+    gap: 2px;
+  }
+
+  .password-rules-list li {
+    font-size: 10px;
   }
 }
 
