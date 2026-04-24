@@ -570,25 +570,23 @@ select:disabled {
 
 .tile-icon {
   display: block;
-  width: clamp(52px, 72%, 96px);
-  height: clamp(52px, 72%, 96px);
+  width: 70%;
+  height: 70%;
   object-fit: contain;
   transform: translateY(0) scale(1);
   transform-origin: center;
 }
 
 .tile-icon-gem {
-  width: clamp(125px, 76%, 165px);
-  height: clamp(125px, 76%, 165px);
-  filter: drop-shadow(0 4px 8px rgba(63, 210, 120, 0.24));
-  /* remove display: block and margin: auto */
+  width: 76%;
+  height: 76%;
+  filter: drop-shadow(0 4px 8px rgba(166, 108, 255, 0.3));
 }
 
 .tile-icon-mine {
-  width: clamp(135px, 74%, 165px);
-  height: clamp(135px, 74%, 165px);
-  filter: drop-shadow(0 4px 8px rgba(255, 91, 143, 0.3));
-  /* remove display: block and margin: auto */
+  width: 74%;
+  height: 74%;
+  filter: drop-shadow(0 4px 8px rgba(255, 91, 143, 0.4));
 }
 
 .mine-tile.is-revealed .tile-front {
@@ -930,6 +928,14 @@ select:disabled {
 
   .mine-tile {
     border-radius: 13px;
+  }
+
+  .mines-grid {
+    gap: 5px;
+  }
+
+  .mines-board-panel {
+    padding: 10px;
   }
 
   .casino-btn {
