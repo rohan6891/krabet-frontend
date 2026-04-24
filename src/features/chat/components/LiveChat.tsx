@@ -65,19 +65,51 @@ export function ChatWidget({ roomCode, onClose }: ChatWidgetProps) {
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [showFullReactionPickerId, setShowFullReactionPickerId] = useState<string | null>(null);
 
+  const knownUsernames = useMemo(() => {
+    const names = new Set<string>();
+    onlineUsers.forEach(u => names.add(u.username.toLowerCase()));
+    mappedMessages.forEach(m => {
+      if (m.user !== "System") names.add(m.user.toLowerCase());
+    });
+    return names;
+  }, [onlineUsers, mappedMessages]);
+
   const renderMessageText = (text: string) => {
     if (!text) return null;
-    const parts = text.split(/(@\w+)/g);
-    return (
-      <p>
-        {parts.map((part, i) => {
-          if (part.startsWith('@')) {
-            return <span key={i} className="wa-mention-text">{part}</span>;
-          }
-          return part;
-        })}
-      </p>
-    );
+    
+    const mentionRegex = /@([a-zA-Z0-9_-]+(?:\s+[a-zA-Z0-9_-]+)?)/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    
+    let match;
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const fullMatch = match[0];
+      const name2 = match[1].toLowerCase();
+      const name1 = name2.split(/\s+/)[0];
+      
+      let matchedText = "";
+      
+      if (knownUsernames.has(name2)) {
+        // Highlight both words if it matches a known username with a space
+        matchedText = `@${match[1]}`;
+      } else {
+        // Fallback to highlighting just the first word
+        matchedText = `@${match[1].split(/\s+/)[0]}`;
+        mentionRegex.lastIndex = match.index + matchedText.length;
+      }
+      
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      parts.push(<span key={match.index} className="wa-mention-text">{matchedText}</span>);
+      lastIndex = mentionRegex.lastIndex;
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? <p>{parts}</p> : <p>{text}</p>;
   };
 
   useEffect(() => {
