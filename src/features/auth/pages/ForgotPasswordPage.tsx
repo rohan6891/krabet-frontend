@@ -132,7 +132,7 @@ export function ForgotPasswordPage() {
         <h2>FORGOT PASSWORD</h2>
 
         {!isCodeSent ? (
-          <form onSubmit={handleSendCode}>
+          <form onSubmit={handleSendCode} className="mt-4">
             <p className="helper-text">We will send a reset code to your email.</p>
             <input
               type="email"
@@ -147,7 +147,7 @@ export function ForgotPasswordPage() {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleResetPassword}>
+          <form onSubmit={handleResetPassword} className="mt-4">
             <input type="email" value={email} disabled placeholder="Email" />
 
             <input
@@ -159,13 +159,13 @@ export function ForgotPasswordPage() {
               required
             />
 
-            <p className={`timer-text ${secondsLeft === 0 ? "error-text" : ""}`}>
+            <p className={`timer-text mb-4 ${secondsLeft === 0 ? "error-text" : ""}`}>
               Token expires in: {formatSeconds(secondsLeft)}
             </p>
 
             <button
               type="button"
-              className="secondary-btn"
+              className="secondary-btn mb-6"
               onClick={handleResendCode}
               disabled={resendLoading || resendSecondsLeft > 0}
             >
