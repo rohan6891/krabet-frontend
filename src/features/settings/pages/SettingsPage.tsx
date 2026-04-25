@@ -2,6 +2,8 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import dayjs, { type Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -270,6 +272,9 @@ export function SettingsPage() {
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMessage, setPwMessage] = useState({ text: "", type: "" });
 
@@ -1109,30 +1114,60 @@ export function SettingsPage() {
                 <div className="settings-field-grid settings-field-grid--single">
                   <label className="settings-label-group">
                     <span>Current Password</span>
-                    <input
-                      type="password"
-                      placeholder="Enter current password"
-                      value={currentPw}
-                      onChange={(e) => setCurrentPw(e.target.value)}
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showCurrentPw ? "text" : "password"}
+                        placeholder="Enter current password"
+                        value={currentPw}
+                        onChange={(e) => setCurrentPw(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-icon"
+                        onClick={() => setShowCurrentPw(!showCurrentPw)}
+                        aria-label={showCurrentPw ? "Hide password" : "Show password"}
+                      >
+                        <FontAwesomeIcon icon={showCurrentPw ? faEyeSlash : faEye} />
+                      </button>
+                    </div>
                   </label>
                   <label className="settings-label-group">
                     <span>New Password</span>
-                    <input
-                      type="password"
-                      placeholder="Enter new password"
-                      value={newPw}
-                      onChange={(e) => setNewPw(e.target.value)}
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showNewPw ? "text" : "password"}
+                        placeholder="Enter new password"
+                        value={newPw}
+                        onChange={(e) => setNewPw(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-icon"
+                        onClick={() => setShowNewPw(!showNewPw)}
+                        aria-label={showNewPw ? "Hide password" : "Show password"}
+                      >
+                        <FontAwesomeIcon icon={showNewPw ? faEyeSlash : faEye} />
+                      </button>
+                    </div>
                   </label>
                   <label className="settings-label-group">
                     <span>Confirm New Password</span>
-                    <input
-                      type="password"
-                      placeholder="Re-enter new password"
-                      value={confirmPw}
-                      onChange={(e) => setConfirmPw(e.target.value)}
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showConfirmPw ? "text" : "password"}
+                        placeholder="Re-enter new password"
+                        value={confirmPw}
+                        onChange={(e) => setConfirmPw(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-icon"
+                        onClick={() => setShowConfirmPw(!showConfirmPw)}
+                        aria-label={showConfirmPw ? "Hide password" : "Show password"}
+                      >
+                        <FontAwesomeIcon icon={showConfirmPw ? faEyeSlash : faEye} />
+                      </button>
+                    </div>
                   </label>
                 </div>
 

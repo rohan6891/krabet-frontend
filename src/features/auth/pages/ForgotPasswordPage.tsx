@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { forgotPassword, resetPassword } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
@@ -18,7 +18,9 @@ export function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [sendLoading, setSendLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
@@ -174,16 +176,26 @@ export function ForgotPasswordPage() {
                   : "RESEND CODE"}
             </button>
 
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                setPasswordTouched(true);
-              }}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPasswordTouched(true);
+                }}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-icon"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                aria-label={showNewPassword ? "Hide password" : "Show password"}
+              >
+                <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
 
             <div className={`password-rules-box ${passwordTouched || newPassword.length > 0 ? "active" : ""}`}>
               <p className="password-rules-title">Password must contain:</p>
@@ -197,13 +209,23 @@ export function ForgotPasswordPage() {
               </ul>
             </div>
 
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-icon"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
 
             <p className="alerted" style={{ display: confirmPassword.length > 0 && !doesPasswordMatch ? "block" : "none" }}>
               ● Passwords don&apos;t match

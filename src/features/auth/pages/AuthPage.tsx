@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import {
   oauthGoogle,
   oauthTelegram,
@@ -74,6 +74,7 @@ export function AuthPage() {
 
   const [signinIdentity, setSigninIdentity] = useState("");
   const [signinPassword, setSigninPassword] = useState("");
+  const [showSigninPassword, setShowSigninPassword] = useState(false);
   const [signinLoading, setSigninLoading] = useState(false);
 
   const [signupLoading, setSignupLoading] = useState(false);
@@ -83,7 +84,9 @@ export function AuthPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
 
   const [showBadEmail, setShowBadEmail] = useState(false);
   const [showBadUsername, setShowBadUsername] = useState(false);
@@ -485,13 +488,23 @@ export function AuthPage() {
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={signinPassword}
-            onChange={(e) => setSigninPassword(e.target.value)}
-            required
-          />
+          <div className="password-input-wrapper">
+            <input
+              type={showSigninPassword ? "text" : "password"}
+              placeholder="Password"
+              value={signinPassword}
+              onChange={(e) => setSigninPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="password-toggle-icon"
+              onClick={() => setShowSigninPassword(!showSigninPassword)}
+              aria-label={showSigninPassword ? "Hide password" : "Show password"}
+            >
+              <FontAwesomeIcon icon={showSigninPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
 
           <Link href="/auth/forgot-password" className="forgot">
             Forgot Password?
@@ -548,14 +561,24 @@ export function AuthPage() {
             onChange={(e) => handleUsernameChange(e.target.value)}
           />
 
-          <input
-            id="signupPassword"
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => handlePasswordChange(e.target.value)}
-          />
+          <div className="password-input-wrapper">
+            <input
+              id="signupPassword"
+              type={showSignupPassword ? "text" : "password"}
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => handlePasswordChange(e.target.value)}
+            />
+            <button
+              type="button"
+              className="password-toggle-icon"
+              onClick={() => setShowSignupPassword(!showSignupPassword)}
+              aria-label={showSignupPassword ? "Hide password" : "Show password"}
+            >
+              <FontAwesomeIcon icon={showSignupPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
 
           <div className={`password-rules-box ${passwordTouched ? "active" : ""}`}>
             <p className="password-rules-title">Password must include:</p>
@@ -572,14 +595,24 @@ export function AuthPage() {
           <p className="alerted" id="notmatch" style={{ display: showNotMatch ? "block" : "none" }}>
             ● Passwords don&apos;t match
           </p>
-          <input
-            id="signupConfirmPassword"
-            type="password"
-            placeholder="Confirm Password"
-            required
-            value={confirmPassword}
-            onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-          />
+          <div className="password-input-wrapper">
+            <input
+              id="signupConfirmPassword"
+              type={showSignupConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              required
+              value={confirmPassword}
+              onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+            />
+            <button
+              type="button"
+              className="password-toggle-icon"
+              onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
+              aria-label={showSignupConfirmPassword ? "Hide password" : "Show password"}
+            >
+              <FontAwesomeIcon icon={showSignupConfirmPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
 
           <button type="submit" id="signupBtn" className="main-btn" disabled={!isSignupValid || signupLoading}>
             {signupLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : "SIGN UP"}
