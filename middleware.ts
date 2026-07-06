@@ -10,6 +10,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const isPrefetchRequest =
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.get("next-router-prefetch") === "1";
+
+  if (isPrefetchRequest) {
+    return NextResponse.next();
+  }
+
   const hasAuthCookie = request.cookies.get(AUTH_COOKIE_NAME)?.value === "1";
 
   if (hasAuthCookie) {
