@@ -27,9 +27,11 @@ export function AuthSocialButtons({
           <FontAwesomeIcon icon={faTwitter} />
         </button>
 
+        {/* 
         <button type="button" aria-label="Continue with Telegram" onClick={onTelegramClick}>
           <FontAwesomeIcon icon={faTelegram} />
         </button>
+        */}
       </div>
 
       <div

@@ -99,8 +99,10 @@ function getRotationForFace(face: number, THREE: any): any {
   return new THREE.Euler(x, y, z);
 }
 
+import * as THREE from "three";
+
 function ensureThreeLoaded(): Promise<any> {
-  return import("three");
+  return Promise.resolve(THREE);
 }
 
 function createStarryDiceTexture(THREE: any): any {
@@ -574,9 +576,9 @@ export function DicePage() {
 
         renderLoop();
         if (isMountedRef.current) setThreeReady(true);
-      } catch {
+      } catch (error: any) {
         if (!cancelled && isMountedRef.current) {
-          setErrorMessage("Unable to load the dice model. Please confirm public/dice.obj exists and reload.");
+          setErrorMessage(`Unable to load the dice model. Error: ${error.message || String(error)}`);
         }
       }
     }
