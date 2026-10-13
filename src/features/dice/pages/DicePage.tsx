@@ -99,10 +99,12 @@ function getRotationForFace(face: number, THREE: any): any {
   return new THREE.Euler(x, y, z);
 }
 
-import * as THREE from "three";
+let _threeCache: any = null;
 
-function ensureThreeLoaded(): Promise<any> {
-  return Promise.resolve(THREE);
+async function ensureThreeLoaded(): Promise<any> {
+  if (_threeCache) return _threeCache;
+  _threeCache = await import("three");
+  return _threeCache;
 }
 
 function createStarryDiceTexture(THREE: any): any {
@@ -431,22 +433,27 @@ export function DicePage() {
   }, [clearStageResultTimers]);
 
   useEffect(() => {
+    if (isChecking || !isAuthenticated) return;
+
     let cancelled = false;
     let renderer: any;
     let scene: any;
-    const mountNode = mountRef.current;
 
     async function initThreeScene() {
       try {
         const THREE = await ensureThreeLoaded();
-        if (cancelled || !mountRef.current) return;
+        if (cancelled || !mountRef.current) {
+          return;
+        }
 
         const objText = await fetch(DICE_OBJ_PATH, { cache: "no-store" }).then((res) => {
           if (!res.ok) throw new Error("OBJ_FETCH_FAILED");
           return res.text();
         });
 
-        if (cancelled || !mountRef.current) return;
+        if (cancelled || !mountRef.current) {
+          return;
+        }
 
         scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
@@ -577,6 +584,7 @@ export function DicePage() {
         renderLoop();
         if (isMountedRef.current) setThreeReady(true);
       } catch (error: any) {
+        console.error("Dice 3D Init error:", error);
         if (!cancelled && isMountedRef.current) {
           setErrorMessage(`Unable to load the dice model. Error: ${error.message || String(error)}`);
         }
@@ -590,9 +598,9 @@ export function DicePage() {
       cancelAnimationFrame(frameRef.current);
       resizeObserverRef.current?.disconnect();
       if (renderer) renderer.dispose();
-      if (mountNode) mountNode.innerHTML = "";
+      if (mountRef.current) mountRef.current.innerHTML = "";
     };
-  }, []);
+  }, [isChecking, isAuthenticated]);
 
   const pushHistory = useCallback((entry: DiceHistoryEntry) => {
     setHistory((prev) => [entry, ...prev].slice(0, 12));
